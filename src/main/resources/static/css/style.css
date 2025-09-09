@@ -1,0 +1,247 @@
+/* CSS Variables */
+:root {
+  --primary: #EC8F6A; /* Updated color for button and link */
+  --primary-hover: #D77A5B; /* Slightly darker shade for hover */
+  --text: #23213d;
+  --muted-foreground-light: hsl(254 20% 45%);
+  --muted-foreground-dark: hsl(30 20% 70%);
+  --muted-foreground: var(--muted-foreground-light);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --muted-foreground: var(--muted-foreground-dark);
+  }
+}
+
+/* Body and Background */
+body {
+  background-image: url("/images/bgv.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Layout */
+.auth-section {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.auth-container {
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 4px 40px rgba(120, 117, 114, 0.08);
+  padding: 2.5rem 3rem;
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  margin: 0;
+}
+
+/* Form Styling - Shared for both login and signup */
+.login-form, .signup-form {
+  width: 400px;
+}
+
+.form-label {
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* Debug: Make colors more obvious */
+.login-form .form-control, .signup-form .form-control {
+  width: 100% !important;
+  padding: 10px !important;
+  border: 1px solid #FFD5BE !important; /* Made border thicker */
+  border-radius: 8px !important;
+  font-size: 16px !important;
+  background: #FFD5BE !important;
+  box-sizing: border-box !important;
+  color: #000 !important; /* Force black text */
+}
+
+/* Apply padding-left specifically for inputs within form-with-icon that actually have icons */
+.form-with-icon .form-control {
+  padding-left: 40px !important;
+}
+
+/* Password field needs extra padding for toggle button */
+.signup-form .form-with-icon.password-field .form-control,
+.login-form .form-with-icon.password-field .form-control {
+  padding-right: 50px !important;
+}
+
+/* Ensure password field containers are properly positioned */
+.signup-form .form-with-icon.password-field,
+.login-form .form-with-icon.password-field {
+  position: relative !important;
+}
+
+.login-form .form-control::placeholder, .signup-form .form-control::placeholder {
+  color: var(--text) !important;
+}
+
+.login-form .form-control:focus, .signup-form .form-control:focus {
+  outline: none !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 2px rgba(255, 213, 190, 1) !important;
+}
+
+/* Button Styling - More specific selectors */
+.login-form .btn-primary, .signup-form .btn-primary {
+  background: #EC8F6A !important; /* Direct color instead of variable */
+  border-radius: 12px !important;
+  padding: 0.6rem 0 !important;
+  font-weight: 600 !important;
+  border: none !important;
+  font-size: 1.1rem !important;
+  color: white !important; /* Force white text */
+}
+
+.login-form .btn-primary:hover, .signup-form .btn-primary:hover {
+  background: var(--primary-hover) !important;
+}
+
+/* Typography - Shared for both login and signup */
+.login-title, .signup-title {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.25rem;
+}
+
+.login-subtitle, .signup-subtitle {
+  font-size: 1.2rem;
+  color: #797575;
+  margin-bottom: 2rem;
+}
+
+.form-link {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.form-link:hover {
+  text-decoration: underline;
+}
+
+/* Icon Styling */
+.form-with-icon {
+  position: relative;
+  width: 100%;
+}
+
+.form-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: var(--muted-foreground);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Password toggle button styling */
+.signup-form .password-toggle-btn,
+.login-form .password-toggle-btn {
+  position: absolute !important;
+  right: 12px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  background: none !important;
+  border: none !important;
+  cursor: pointer !important;
+  padding: 4px !important;
+  border-radius: 4px !important;
+  transition: background-color 0.2s !important;
+  z-index: 3 !important;
+  display: block !important;
+}
+
+.signup-form .password-toggle-btn:hover,
+.login-form .password-toggle-btn:hover {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.signup-form .password-toggle-btn img,
+.login-form .password-toggle-btn img {
+  width: 20px !important;
+  height: 20px !important;
+  opacity: 0.7 !important;
+  display: block !important;
+}
+
+.signup-form .password-toggle-btn:hover img,
+.login-form .password-toggle-btn:hover img {
+  opacity: 1 !important;
+}
+
+/* Logo styling */
+.logo {
+  max-width: 200px;
+  height: auto;
+  display: block;
+  margin: 0;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+}
+
+/* Alert styling */
+.alert {
+  border-radius: 8px !important;
+  border: none !important;
+  padding: 12px 16px !important;
+  margin-bottom: 16px !important;
+}
+
+.alert-danger {
+  background-color: #f8d7da !important;
+  color: #721c24 !important;
+}
+
+.alert-success {
+  background-color: #d4edda !important;
+  color: #155724 !important;
+}
+
+/* New CSS for Client-Side Validation Feedback */
+.text-danger {
+    font-size: 0.8rem;
+    color: #dc3545; /* Bootstrap's standard danger color */
+    margin-top: 0.25rem;
+}
+
+.invalid-feedback {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
+}
+
+/* Add a style for invalid input fields to provide visual feedback */
+.form-control.is-invalid {
+    border-color: #dc3545 !important;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+/* Ensure form icons stay in place when validation messages appear */
+.form-with-icon {
+  margin-bottom: 0.5rem;
+}
+
+.form-with-icon .invalid-feedback {
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
+}

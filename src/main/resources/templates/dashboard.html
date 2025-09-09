@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard | LWMS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/style.css}" />
+  <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}">
+</head>
+<body>
+  <div class="container-fluid">
+    <!-- Navigation Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container">
+        <a class="navbar-brand" href="#">
+          <img th:src="@{/images/Cbw-SwiftStore.png}" alt="Logo" height="40">
+          LWMS Dashboard
+        </a>
+        <div class="navbar-nav ms-auto">
+          <span class="navbar-text me-3">
+            Welcome, <span th:text="${user.firstName}">User</span>!
+          </span>
+          <span class="navbar-text me-3">
+            Role: <span th:text="${user.role.roleName}">Viewer</span>
+          </span>
+          <a class="nav-link" href="/logout">Logout</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+      <div class="row">
+        <!-- User Info Card -->
+        <div class="col-md-4 mb-4">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">User Information</h5>
+            </div>
+            <div class="card-body">
+              <p><strong>Name:</strong> <span th:text="${user.firstName + ' ' + user.lastName}">John Doe</span></p>
+              <p><strong>Username:</strong> <span th:text="${user.username}">johndoe</span></p>
+              <p><strong>Email:</strong> <span th:text="${user.email}">john@example.com</span></p>
+              <p><strong>Role:</strong> <span th:text="${user.role.roleName}">Viewer</span></p>
+              <p><strong>Status:</strong> 
+                <span th:if="${user.active}" class="badge bg-success">Active</span>
+                <span th:unless="${user.active}" class="badge bg-danger">Inactive</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="col-md-8 mb-4">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <div class="d-grid">
+                    <button class="btn btn-outline-primary" disabled>
+                      <i class="bi bi-box"></i> View Inventory
+                    </button>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <div class="d-grid">
+                    <button class="btn btn-outline-primary" disabled>
+                      <i class="bi bi-truck"></i> View Shipments
+                    </button>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <div class="d-grid">
+                    <button class="btn btn-outline-primary" disabled>
+                      <i class="bi bi-graph-up"></i> View Reports
+                    </button>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <div class="d-grid">
+                    <button class="btn btn-outline-primary" disabled>
+                      <i class="bi bi-gear"></i> Settings
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Role Permissions -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">Your Permissions</h5>
+            </div>
+            <div class="card-body">
+              <p class="text-muted">As a <strong th:text="${user.role.roleName}">Viewer</strong>, you have the following permissions:</p>
+              <div class="row">
+                <div class="col-md-3 mb-2">
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-eye text-success me-2"></i>
+                    <span>Read Access</span>
+                  </div>
+                </div>
+                <div class="col-md-3 mb-2">
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-x-circle text-muted me-2"></i>
+                    <span>No Write Access</span>
+                  </div>
+                </div>
+                <div class="col-md-3 mb-2">
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-x-circle text-muted me-2"></i>
+                    <span>No Admin Access</span>
+                  </div>
+                </div>
+                <div class="col-md-3 mb-2">
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-check-circle text-success me-2"></i>
+                    <span>Monitor Activities</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+</body>
+</html> 
