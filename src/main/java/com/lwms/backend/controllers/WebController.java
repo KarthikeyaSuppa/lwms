@@ -25,6 +25,15 @@ public class WebController {
     }
 
     /**
+     * Handles requests for the root path.
+     * @return Redirect to login page.
+     */
+    @GetMapping("/")
+    public String redirectToLogin() {
+        return "redirect:/login";
+    }
+
+    /**
      * Handles requests for the login page.
      * @return The name of the login view (login.html).
      */
@@ -70,6 +79,25 @@ public class WebController {
     }
 
     /**
+     * Handles signup form submission redirected from UserController.
+     * @param model The model to add attributes to.
+     * @return The name of the signup view (signup.html).
+     */
+    @GetMapping("/signup-error")
+    public String showSignupPageWithError(@RequestParam(value = "error", required = false) String error,
+                                         @RequestParam(value = "success", required = false) String success,
+                                         Model model) {
+        model.addAttribute("user", new User());
+        if (error != null) {
+            model.addAttribute("error", error);
+        }
+        if (success != null) {
+            model.addAttribute("success", success);
+        }
+        return "signup";
+    }
+
+    /**
      * Handles requests for the dashboard page using the authenticated principal.
      */
     @GetMapping("/dashboard")
@@ -79,5 +107,17 @@ public class WebController {
                 .ifPresent(u -> model.addAttribute("user", u));
         }
         return "dashboard";
+    }
+
+    /**
+     * Handles requests for the settings page.
+     */
+    @GetMapping("/settings")
+    public String showSettings(@AuthenticationPrincipal UserDetails principal, Model model) {
+        if (principal != null) {
+            userService.findWithRoleByUsernameOrEmail(principal.getUsername())
+                .ifPresent(u -> model.addAttribute("user", u));
+        }
+        return "settings";
     }
 }

@@ -24,18 +24,18 @@ public class UserController {
             if (!user.getPassword().equals(confirmPassword)) {
                 model.addAttribute("error", "Passwords do not match!");
                 model.addAttribute("user", user);
-                return "Signup"; // 
+                return "signup"; // 
             }
             
             // Register the user
             userService.registerUser(user);
             model.addAttribute("success", "Account created successfully! Please login.");
-            return "redirect:/lwms/login"; 
+            return "redirect:/login"; 
             
         } catch (Exception e) {
             model.addAttribute("error", "Registration failed: " + e.getMessage());
             model.addAttribute("user", user);
-            return "Signup"; 
+            return "signup"; 
         }
     }
 
