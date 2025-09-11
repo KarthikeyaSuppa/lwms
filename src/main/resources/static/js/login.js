@@ -67,7 +67,7 @@ $(document).ready(function() {
         
         if (value.length === 0) {
             $(this).removeClass('is-valid is-invalid');
-        } else if (value.length < 6) {
+        } else if (value.length < 8) {
             $(this).removeClass('is-valid').addClass('is-invalid');
             if ($('#password-feedback').length === 0) {
                 $(this).closest('.form-with-icon').after('<div id="password-feedback" class="invalid-feedback">Password must be at least 6 characters.</div>');

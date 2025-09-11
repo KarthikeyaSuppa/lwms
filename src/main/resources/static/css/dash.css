@@ -1,0 +1,119 @@
+:root{
+    --kraft-1:#cfae79;   /* base kraft */
+    --kraft-2:#b9925e;   /* darker rib */
+    --kraft-3:#e2caa1;   /* highlight */
+    --tape:#e6d7a8;
+  }
+  
+  /* ====== Page background: corrugated cardboard ====== */
+  body {
+    min-height: 100vh;
+    background:
+      /* soft vignette */
+      radial-gradient(1200px 600px at 50% -10%, rgba(0,0,0,.12), transparent 60%) no-repeat,
+      /* faint diagonal noise (SVG data URI, super lightweight) */
+      url("data:image/svg+xml;utf8,\
+      <svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'>\
+        <defs><filter id='n'><feTurbulence baseFrequency='.9' numOctaves='1' seed='3' type='fractalNoise'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='table' tableValues='0 0 .02 0'/></feComponentTransfer></filter></defs>\
+        <rect width='100%' height='100%' filter='url(%23n)'/>\
+      </svg>") repeat,
+      /* corrugation ribs */
+      repeating-linear-gradient(
+        90deg,
+        var(--kraft-1) 0 18px,
+        var(--kraft-2) 18px 20px
+      ),
+      /* overall kraft tint */
+      linear-gradient(var(--kraft-1), var(--kraft-1));
+    background-blend-mode: multiply, normal, normal, normal;
+    color: #3e2f19;
+  }
+  
+  /* ====== Optional: use a real boxes photo/illustration ======
+      Add class `.bg-boxes` to <body> to enable (replace URL below).
+      You can also use the image you uploaded:
+      /mnt/data/b5f700a1-971f-4215-985a-82fdeee95cde.jpeg
+      (serve it from your app or public folder)
+  ============================================================= */
+  body.bg-boxes{
+    background:
+      linear-gradient(rgba(206,173,120,.65), rgba(206,173,120,.65)),
+      url("boxes.jpg") center/cover fixed no-repeat;
+  }
+  
+  /* ====== "Taped" container that sits on cardboard ====== */
+  .sheet {
+    background: linear-gradient(180deg, var(--kraft-3), #d9bb8e);
+    border: 1px solid rgba(62,47,25,.25);
+    border-radius: .75rem;
+    box-shadow:
+      0 10px 30px rgba(62,47,25,.25),
+      inset 0 1px 0 rgba(255,255,255,.35);
+    position: relative;
+  }
+  
+  /* "Box cards" */
+  .box-card{
+    background: linear-gradient(180deg, #d7b785, #caa475);
+    border: 1px solid rgba(62,47,25,.3);
+    border-radius: .75rem;
+    padding: 1rem;
+    box-shadow: 0 6px 16px rgba(62,47,25,.22),
+                inset 0 1px 0 rgba(255,255,255,.25);
+    position: relative;
+    overflow: hidden;
+    transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+  }
+  .box-card:hover{
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(62,47,25,.28), inset 0 1px 0 rgba(255,255,255,.3);
+    filter: brightness(1.03);
+  }
+  a.box-card:focus-visible{
+    outline: 2px dashed rgba(62,47,25,.6);
+    outline-offset: 4px;
+  }
+  .box-card .flap{
+    position:absolute; top:-20px; right:-40px;
+    width:120px; height:60px;
+    background: linear-gradient(180deg, #c39a68, #b78957);
+    transform: rotate(35deg);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.25);
+  }
+  .box-card .label{
+    display:inline-block;
+    padding:.35rem .5rem;
+    font-weight:600;
+    border:1px dashed rgba(62,47,25,.5);
+    background: rgba(255,255,255,.25);
+    border-radius:.35rem;
+  }
+  
+  /* Navbar transparency over kraft */
+  .navbar{
+    background: rgba(201,164,112,.85) !important;
+    backdrop-filter: blur(2px);
+    border-bottom: 1px solid rgba(62,47,25,.25);
+  }
+  
+  /* Logout icon styling to match text effects */
+  .nav-link img {
+    transition: all 0.3s ease;
+    filter: brightness(1);
+  }
+  
+  .nav-link:hover img {
+    filter: brightness(1.2);
+    transform: scale(1.05);
+  }
+  
+  .nav-link:active img {
+    transform: scale(0.95);
+  }
+  .modal-content.box-card {
+    box-shadow: 0 10px 30px rgba(62, 47, 25, .25);
+  }
+  
+  .modal-header .btn-close {
+    filter: invert(1) grayscale(100%) brightness(1.5) sepia(0) saturate(0);
+  }
