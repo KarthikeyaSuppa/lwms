@@ -101,4 +101,13 @@ public class WebController {
         }
         return "suppliers";
     }
+
+    @GetMapping("/categories")
+    public String showCategories(@AuthenticationPrincipal UserDetails principal, Model model) {
+        if (principal != null) {
+            userService.findWithRoleByUsernameOrEmail(principal.getUsername())
+                .ifPresent(u -> model.addAttribute("user", u));
+        }
+        return "categories";
+    }
 }
