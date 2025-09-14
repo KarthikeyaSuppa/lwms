@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Shipments | LWMS</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" th:href="@{/css/shipments.css}">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand fw-bold d-flex align-items-center" href="#" data-bs-toggle="modal" data-bs-target="#profileModal">
+      <img th:src="@{/images/User-Profile-Circle--Streamline-Nova.png}" alt="Profile" style="width: 24px; height: 24px; margin-right: 8px;"> Cardboard Co.
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+    <div id="nav" class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link fw-semibold d-flex align-items-center" th:href="@{/dashboard}" title="Back">
+            Back <img th:src="@{/images/back-button.png}" alt="Back" style="width: 20px; height: 20px; margin-left: 5px;">
+          </a>
+        </li>
+        <li class="nav-item d-flex align-items-center">
+          <form th:action="@{/logout}" method="post" class="m-0 p-0">
+            <button type="submit" class="btn btn-link nav-link fw-semibold d-flex align-items-center p-0">
+              Logout <img th:src="@{/images/User-Log-Out--Streamline-Nova.png}" alt="Logout" style="width: 20px; height: 20px; margin-left: 5px;">
+            </button>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<section class="container categories-management">
+  <div class="box-card">
+    <div class="flap"></div>
+    <div class="header-row d-flex align-items-center justify-content-between mb-4">
+      <div class="d-flex align-items-center">
+        <h3 class="mb-0">Shipments</h3>
+        <img th:src="@{/images/package-add-icon.png}" alt="Add Shipment" class="add-category-icon" width="24" height="24" id="addCategoryIcon">
+      </div>
+      <div class="search-container">
+        <input type="text" class="search-input" placeholder="Search shipments..." id="searchInput">
+        <img th:src="@{/images/search.png}" alt="Search" class="search-icon" width="24" height="24" id="searchIcon">
+      </div>
+    </div>
+    <div class="table-responsive table-body-scrollable">
+      <table class="table table-borderless mb-0 fixed-header-table">
+        <thead>
+          <tr>
+            <th class="pb-3"><span class="label">Shipment #</span></th>
+            <th class="pb-3"><span class="label">Type</span></th>
+            <th class="pb-3"><span class="label">Supplier</span></th>
+            <th class="pb-3"><span class="label">Origin</span></th>
+            <th class="pb-3"><span class="label">Destination</span></th>
+            <th class="pb-3"><span class="label">Status</span></th>
+            <th class="pb-3"><span class="label">Expected Delivery</span></th>
+            <th class="pb-3"><span class="label">Actual Delivery</span></th>
+            <th class="pb-3"><span class="label">Total Value</span></th>
+            <th class="pb-3"><span class="label">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="label">SHIP20250811A</span></td>
+            <td><span class="label">Inbound</span></td>
+            <td><span class="label">Acme Supplies (ID: 12)</span></td>
+            <td><span class="label">Shenzhen, CN</span></td>
+            <td><span class="label">Dallas, US</span></td>
+            <td><span class="label">Planned</span></td>
+            <td><span class="label">2025-09-20 10:00</span></td>
+            <td><span class="label">-</span></td>
+            <td><span class="label">12,450.00</span></td>
+            <td><button class="btn-edit-label edit-btn">Edit Shipment</button></td>
+          </tr>
+          <tr>
+            <td><span class="label">SHIP20250812B</span></td>
+            <td><span class="label">Outbound</span></td>
+            <td><span class="label">-</span></td>
+            <td><span class="label">Dallas, US</span></td>
+            <td><span class="label">Seattle, US</span></td>
+            <td><span class="label">In Transit</span></td>
+            <td><span class="label">2025-09-18 18:00</span></td>
+            <td><span class="label">-</span></td>
+            <td><span class="label">8,210.00</span></td>
+            <td><button class="btn-edit-label edit-btn">Edit Shipment</button></td>
+          </tr>
+          <tr>
+            <td><span class="label">SHIP20250801C</span></td>
+            <td><span class="label">Inbound</span></td>
+            <td><span class="label">Global Parts (ID: 7)</span></td>
+            <td><span class="label">Taipei, TW</span></td>
+            <td><span class="label">LA, US</span></td>
+            <td><span class="label">Delivered</span></td>
+            <td><span class="label">2025-08-05 14:00</span></td>
+            <td><span class="label">2025-08-06 09:42</span></td>
+            <td><span class="label">23,990.00</span></td>
+            <td><button class="btn-edit-label edit-btn">Edit Shipment</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content box-card">
+      <div class="modal-header d-flex justify-content-between align-items-start">
+        <div>
+          <h5 class="modal-title" id="profileModalLabel">User Profile</h5>
+          <div class="label mt-2">Personal Information</div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Name:</strong> <span th:text="${user.firstName + ' ' + user.lastName}">John Doe</span></p>
+        <p><strong>Username:</strong> <span th:text="${user.username}">johndoe</span></p>
+        <p><strong>Email:</strong> <span th:text="${user.email}">john@example.com</span></p>
+        <p><strong>Role:</strong> <span th:text="${user.role.roleName}">Viewer</span></p>
+        <p><strong>Status:</strong> <span th:text="${user.active} ? 'Active' : 'Inactive'">Active</span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="addCategoryModalOverlay" class="add-category-modal-overlay" style="display:none;">
+  <div class="add-category-modal">
+    <button class="add-category-modal-close" id="closeAddCategoryModal" title="Close">&times;</button>
+    <div class="add-category-modal-title">Add New Shipment</div>
+    <form class="add-category-form" id="addCategoryForm" autocomplete="off">
+      <div class="add-row-inline">
+        <div class="field-col left">
+          <div class="field-group">
+            <label for="addShipmentNumber">Shipment Number</label>
+            <input type="text" id="addShipmentNumber" name="shipmentNumber" placeholder="SHIP2025XXXX" required />
+          </div>
+          <div class="field-group">
+            <label for="addShipmentType">Shipment Type</label>
+            <div class="ship-cell-container">
+              <div class="ship-select" id="addShipmentTypeSelect" data-current-value="Inbound">Inbound</div>
+              <div class="ship-dropdown" id="addShipmentTypeDropdown">
+                <div class="ship-dropdown-item selected" data-value="Inbound">Inbound</div>
+                <div class="ship-dropdown-item" data-value="Outbound">Outbound</div>
+              </div>
+              <select id="addShipmentType" name="shipmentType" class="cardboard-select" required style="display:none;">
+                <option value="Inbound" selected>Inbound</option>
+                <option value="Outbound">Outbound</option>
+              </select>
+            </div>
+          </div>
+          <div class="field-group">
+            <label for="addSupplier">Supplier (ID or Name)</label>
+            <input type="text" id="addSupplier" name="supplier" placeholder="e.g., 12 or Acme Supplies" />
+          </div>
+        </div>
+        <div class="field-col right">
+          <div class="field-group">
+            <label for="addOrigin">Origin</label>
+            <input type="text" id="addOrigin" name="origin" placeholder="City, Country" required />
+          </div>
+          <div class="field-group">
+            <label for="addDestination">Destination</label>
+            <input type="text" id="addDestination" name="destination" placeholder="City, Country" required />
+          </div>
+          <div class="field-group">
+            <label for="addStatus">Status</label>
+            <div class="ship-cell-container">
+              <div class="ship-select" id="addStatusSelect" data-current-value="Planned">Planned</div>
+              <div class="ship-dropdown" id="addStatusDropdown">
+                <div class="ship-dropdown-item selected" data-value="Planned">Planned</div>
+                <div class="ship-dropdown-item" data-value="In Transit">In Transit</div>
+                <div class="ship-dropdown-item" data-value="Delivered">Delivered</div>
+                <div class="ship-dropdown-item" data-value="Cancelled">Cancelled</div>
+              </div>
+              <select id="addStatus" name="status" class="cardboard-select" required style="display:none;">
+                <option selected>Planned</option>
+                <option>In Transit</option>
+                <option>Delivered</option>
+                <option>Cancelled</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="add-row-inline">
+        <div class="field-col left">
+          <div class="field-group">
+            <label for="addExpected">Expected Delivery (YYYY-MM-DD HH:MM)</label>
+            <input type="datetime-local" id="addExpected" name="expectedDelivery" placeholder="2025-09-20 10:00" />
+          </div>
+        </div>
+        <div class="field-col right">
+          <div class="field-group">
+            <label for="addActual">Actual Delivery (YYYY-MM-DD HH:MM)</label>
+            <input type="datetime-local" id="addActual" name="actualDelivery" placeholder="-" />
+          </div>
+        </div>
+      </div>
+      <div class="add-row-inline">
+        <div class="field-col left">
+          <div class="field-group">
+            <label for="addTotalValue">Total Value</label>
+            <input type="number" step="0.01" id="addTotalValue" name="totalValue" placeholder="0.00" />
+          </div>
+        </div>
+        <div class="field-col right"></div>
+      </div>
+      <button type="submit" class="add-category-btn">Add Shipment</button>
+    </form>
+  </div>
+</div>
+
+<script th:src="@{/js/shipments.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
