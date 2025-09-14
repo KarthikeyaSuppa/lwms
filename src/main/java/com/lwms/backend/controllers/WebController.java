@@ -146,4 +146,13 @@ public class WebController {
         }
         return "shipments";
     }
+
+    @GetMapping("/shipment-items")
+    public String showShipmentItems(@AuthenticationPrincipal UserDetails principal, Model model) {
+        if (principal != null) {
+            userService.findWithRoleByUsernameOrEmail(principal.getUsername())
+                .ifPresent(u -> model.addAttribute("user", u));
+        }
+        return "shipment-items";
+    }
 }
