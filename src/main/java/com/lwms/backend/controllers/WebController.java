@@ -128,4 +128,13 @@ public class WebController {
         }
         return "locations";
     }
+
+    @GetMapping("/inventory")
+    public String showInventory(@AuthenticationPrincipal UserDetails principal, Model model) {
+        if (principal != null) {
+            userService.findWithRoleByUsernameOrEmail(principal.getUsername())
+                .ifPresent(u -> model.addAttribute("user", u));
+        }
+        return "inventory";
+    }
 }
