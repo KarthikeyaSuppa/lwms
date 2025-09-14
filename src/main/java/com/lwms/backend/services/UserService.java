@@ -9,7 +9,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -104,5 +107,91 @@ public class UserService {
 
         logger.info("User '{}' authenticated successfully.", user.getUsername());
         return user;
+    }
+
+    public User updateUser(Integer userId, String email, String firstName, String lastName, String roleName, Boolean active) {
+        logger.info("Updating user id={} with fields: email={}, firstName={}, lastName={}, roleName={}, active={}",
+                userId, email, firstName, lastName, roleName, active);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+        if (email != null && !email.equals(user.getEmail())) {
+            userRepository.findByEmail(email).ifPresent(existing -> {
+                if (!existing.getUserId().equals(userId)) {
+                    throw new RuntimeException("Email '" + email + "' is already in use by another user.");
+                }
+            });
+            user.setEmail(email);
+        }
+        if (firstName != null) {
+            user.setFirstName(firstName);
+        }
+        if (lastName != null) {
+            user.setLastName(lastName);
+        }
+        if (active != null) {
+            user.setActive(active);
+        }
+        if (roleName != null && !roleName.isBlank()) {
+            Role role = roleRepository.findByRoleName(roleName)
+                    .orElseThrow(() -> new RuntimeException("Role not found: " + roleName));
+            user.setRole(role);
+        }
+
+        userRepository.save(user);
+        // Re-fetch with role eagerly loaded to avoid lazy serialization issues
+        return userRepository.findWithRoleByUserId(userId).orElse(user);
+    }
+
+    public List<com.lwms.backend.dto.UserSummaryDto> listUsersWithRoles() {
+        return userRepository.findAllBy().stream().map(u -> {
+            com.lwms.backend.dto.UserSummaryDto dto = new com.lwms.backend.dto.UserSummaryDto();
+            dto.setUserId(u.getUserId());
+            dto.setUsername(u.getUsername());
+            dto.setEmail(u.getEmail());
+            dto.setFirstName(u.getFirstName());
+            dto.setLastName(u.getLastName());
+            dto.setRoleName(u.getRole() != null ? u.getRole().getRoleName() : null);
+            dto.setActive(u.getActive());
+            dto.setCreatedAt(u.getCreatedAt());
+            dto.setLastLogin(u.getLastLogin());
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+    public User createUser(String firstName, String lastName, String email, String username, String password, String roleName) {
+        if (userRepository.findByUsername(username).isPresent()) {
+            throw new RuntimeException("Username '" + username + "' already exists");
+        }
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new RuntimeException("Email '" + email + "' already exists");
+        }
+        Role role = roleRepository.findByRoleName(roleName)
+                .orElseThrow(() -> new RuntimeException("Role not found: " + roleName));
+        User u = new User();
+        u.setFirstName(firstName);
+        u.setLastName(lastName);
+        u.setEmail(email);
+        u.setUsername(username);
+        u.setPasswordHash(passwordEncoder.encode(password));
+        u.setRole(role);
+        u.setActive(true);
+        return userRepository.save(u);
+    }
+
+    public void deleteUser(Integer userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new RuntimeException("User not found with id: " + userId);
+        }
+        userRepository.deleteById(userId);
+    }
+
+    public void updateLastLoginForUsername(String usernameOrEmail) {
+        findWithRoleByUsernameOrEmail(usernameOrEmail).ifPresent(u -> {
+            u.setLastLogin(LocalDateTime.now());
+            userRepository.save(u);
+            logger.info("Updated lastLogin for user '{}'.", u.getUsername());
+        });
     }
 }

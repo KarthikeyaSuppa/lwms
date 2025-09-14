@@ -2,6 +2,7 @@ package com.lwms.backend.dao;
 
 import com.lwms.backend.entities.User;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -19,4 +20,10 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
 	@EntityGraph(attributePaths = {"role"})
 	Optional<User> findWithRoleByEmail(String email);
+
+	@EntityGraph(attributePaths = {"role"})
+	List<User> findAllBy();
+
+	@EntityGraph(attributePaths = {"role"})
+	Optional<User> findWithRoleByUserId(Integer userId);
 }

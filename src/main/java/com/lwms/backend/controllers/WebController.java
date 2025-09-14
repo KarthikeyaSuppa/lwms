@@ -80,4 +80,25 @@ public class WebController {
         }
         return "dashboard";
     }
+
+    /**
+     * Handles requests for the settings page using the authenticated principal.
+     */
+    @GetMapping("/settings")
+    public String showSettings(@AuthenticationPrincipal UserDetails principal, Model model) {
+        if (principal != null) {
+            userService.findWithRoleByUsernameOrEmail(principal.getUsername())
+                .ifPresent(u -> model.addAttribute("user", u));
+        }
+        return "settings";
+    }
+
+    @GetMapping("/suppliers")
+    public String showSuppliers(@AuthenticationPrincipal UserDetails principal, Model model) {
+        if (principal != null) {
+            userService.findWithRoleByUsernameOrEmail(principal.getUsername())
+                .ifPresent(u -> model.addAttribute("user", u));
+        }
+        return "suppliers";
+    }
 }

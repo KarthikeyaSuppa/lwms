@@ -3,46 +3,60 @@ package com.lwms.backend.entities;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
+import jakarta.validation.constraints.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "Users", uniqueConstraints = {@UniqueConstraint(columnNames = {"username", "email"})})
+@Table(name = "Users", indexes = {
+        @Index(name = "idx_users_username", columnList = "username"),
+        @Index(name = "idx_users_email", columnList = "email")
+})
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "userId")
     private Integer userId;
 
-    @Column(name = "username", nullable = false, unique = true)
+    @NotBlank
+    @Size(max = 64)
+    @Column(nullable = false, unique=true, length = 64)
     private String username;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @NotBlank
+    @Email
+    @Size(max = 254)
+    @Column(nullable = false, unique=true, length = 254)
     private String email;
 
-    @Column(name = "passwordHash", nullable = false)
+    @Column(nullable = false)
     private String passwordHash;
 
     // Transient field for form binding (not persisted to database)
     @Transient
     private String password;
 
-    @Column(name = "firstname", nullable = false)
+    @NotBlank
+    @Size(max = 100)
+    @Column(nullable = false, length = 100)
     private String firstName;
 
-    @Column(name = "lastname", nullable = false)
+    @NotBlank
+    @Size(max = 100)
+    @Column(nullable = false, length = 100)
     private String lastName;
 
-    @Column(name = "isActive", columnDefinition = "BOOLEAN DEFAULT TRUE")
+    @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
     private Boolean isActive;
 
     @CreationTimestamp
-    @Column(name = "createdAt", updatable = false)
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     private LocalDateTime lastLogin;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "roleId", referencedColumnName = "roleId", nullable = false)
+    @JsonIgnore
     private Role role;
 
     // A no-argument constructor is required by JPA

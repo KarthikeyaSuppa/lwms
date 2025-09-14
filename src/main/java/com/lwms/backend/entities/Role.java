@@ -9,13 +9,12 @@ public class Role {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "roleId")
     private Integer roleId;
 
-    @Column(name = "roleName", unique = true, nullable = false)
+    @Column(unique = true, nullable = false)
     private String roleName;
 
-    @Column(name = "description", columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Column(columnDefinition = "JSON")
