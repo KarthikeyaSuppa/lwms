@@ -110,4 +110,13 @@ public class WebController {
         }
         return "categories";
     }
+
+    @GetMapping("/equipment")
+    public String showEquipment(@AuthenticationPrincipal UserDetails principal, Model model) {
+        if (principal != null) {
+            userService.findWithRoleByUsernameOrEmail(principal.getUsername())
+                .ifPresent(u -> model.addAttribute("user", u));
+        }
+        return "equipment";
+    }
 }

@@ -87,7 +87,7 @@
           </div>
         </div>
         <div class="col-md-4 col-lg-3">
-          <a href="#" class="box-card h-100 d-block text-reset text-decoration-none">
+          <a th:href="@{/equipment}" class="box-card h-100 d-block text-reset text-decoration-none">
             <div class="flap"></div>
             <h5 class="mb-2">Equipment</h5>
             <p class="mb-2">View, add, and manage equipment details.</p>
@@ -95,15 +95,14 @@
           </a>
         </div>
         <div class="col-md-4 col-lg-3">
-          <div class="box-card h-100">
-            <div class="flap"></div>
+          <a th:href="@{/equipment}" class="box-card h-100 d-block text-reset text-decoration-none">            <div class="flap"></div>
             <h5 class="mb-2">Locations</h5>
             <p class="mb-2">Manage warehouse zones, aisles, racks, and shelves.</p>
             <span class="label">Warehouse Hierarchy</span>
-          </div>
+          </a>
         </div>
         <div class="col-md-4 col-lg-3">
-          <a href="/categories" class="box-card h-100 d-block text-reset text-decoration-none">
+          <a th:href="@{/categories}" class="box-card h-100 d-block text-reset text-decoration-none">
             <div class="flap"></div>
             <h5 class="mb-2">Categories</h5>
             <p class="mb-2">Create and manage categories and sub-categories.</p>
@@ -111,7 +110,7 @@
           </a>
         </div>
         <div class="col-md-4 col-lg-3">
-                      <a th:href="@{/suppliers}" class="box-card h-100 d-block text-reset text-decoration-none">
+          <a th:href="@{/suppliers}" class="box-card h-100 d-block text-reset text-decoration-none">
             <div class="flap"></div>
             <h5 class="mb-2">Suppliers</h5>
             <p class="mb-2">Manage suppliers and perform CRUD operations.</p>

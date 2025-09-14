@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Equipment | LWMS</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" th:href="@{/css/equipment.css}">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand fw-bold d-flex align-items-center" href="#" data-bs-toggle="modal" data-bs-target="#profileModal">
+      <img th:src="@{/images/User-Profile-Circle--Streamline-Nova.png}" alt="Profile" style="width: 24px; height: 24px; margin-right: 8px;"> Cardboard Co.
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+    <div id="nav" class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link fw-semibold d-flex align-items-center" th:href="@{/dashboard}" title="Back">
+            Back <img th:src="@{/images/back-button.png}" alt="Back" style="width: 20px; height: 20px; margin-left: 5px;">
+          </a>
+        </li>
+        <li class="nav-item d-flex align-items-center">
+          <form th:action="@{/logout}" method="post" class="m-0 p-0">
+            <button type="submit" class="btn btn-link nav-link fw-semibold d-flex align-items-center p-0">
+              Logout <img th:src="@{/images/User-Log-Out--Streamline-Nova.png}" alt="Logout" style="width: 20px; height: 20px; margin-left: 5px;">
+            </button>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content box-card">
+      <div class="modal-header d-flex justify-content-between align-items-start">
+        <div>
+          <h5 class="modal-title" id="profileModalLabel">User Profile</h5>
+          <div class="label mt-2">Personal Information</div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Name:</strong> <span th:text="${user.firstName + ' ' + user.lastName}">John Doe</span></p>
+        <p><strong>Username:</strong> <span th:text="${user.username}">johndoe</span></p>
+        <p><strong>Email:</strong> <span th:text="${user.email}">john@example.com</span></p>
+        <p><strong>Role:</strong> <span th:text="${user.role.roleName}">Viewer</span></p>
+        <p><strong>Status:</strong> <span th:text="${user.active} ? 'Active' : 'Inactive'">Active</span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="container equipment-management">
+  <div class="box-card">
+    <div class="flap"></div>
+    <div class="header-row d-flex align-items-center justify-content-between mb-4">
+      <div class="d-flex align-items-center">
+        <h3 class="mb-0">Equipment Inventory</h3>
+        <img th:src="@{/images/warehouse.png}" alt="Add Equipment" class="add-equipment-icon" id="addEquipmentIcon" width="24" height="24">
+      </div>
+      <div class="search-container">
+        <input type="text" class="search-input" placeholder="Search equipment..." id="searchInput">
+        <img th:src="@{/images/search.png}" alt="Search" class="search-icon" width="24" height="24">
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-borderless mb-0 fixed-header-table">
+        <thead>
+          <tr>
+            <th class="pb-3"><span class="label">Equipment Name</span></th>
+            <th class="pb-3"><span class="label">Equipment Type</span></th>
+            <th class="pb-3"><span class="label">Serial Number</span></th>
+            <th class="pb-3"><span class="label">Location</span></th>
+            <th class="pb-3"><span class="label">Status</span></th>
+            <th class="pb-3"><span class="label">Purchase Date</span></th>
+            <th class="pb-3"><span class="label">Warranty Expiry</span></th>
+            <th class="pb-3"><span class="label">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-id="1">
+            <td><span class="label">Forklift #001</span></td>
+            <td><span class="label">Forklift</span></td>
+            <td><span class="label">SN-1001-A</span></td>
+            <td><span class="label">Zone A — Rack 12</span></td>
+            <td><span class="label status-label" style="background: rgba(40, 167, 69, 0.3); border-color: rgba(40, 167, 69, 0.6); color: #155724;">Active</span></td>
+            <td><span class="label readonly-label">15 Mar 2023</span></td>
+            <td><span class="label readonly-label">15 Mar 2026</span></td>
+            <td>
+              <div class="action-icons-container">
+                <button class="btn-edit-label edit-btn">Edit Equipment</button>
+              </div>
+            </td>
+          </tr>
+          <tr data-id="2">
+            <td><span class="label">Conveyor Belt</span></td>
+            <td><span class="label">Conveyor</span></td>
+            <td><span class="label">SN-2001-B</span></td>
+            <td><span class="label">Zone B — Section 5</span></td>
+            <td><span class="label status-label" style="background: rgba(255, 193, 7, 0.3); border-color: rgba(255, 193, 7, 0.6); color: #856404;">Maintenance</span></td>
+            <td><span class="label readonly-label">22 Aug 2022</span></td>
+            <td><span class="label readonly-label">22 Aug 2025</span></td>
+            <td>
+              <div class="action-icons-container">
+                <button class="btn-edit-label edit-btn">Edit Equipment</button>
+              </div>
+            </td>
+          </tr>
+          <tr data-id="3">
+            <td><span class="label">Pallet Jack</span></td>
+            <td><span class="label">Pallet Jack</span></td>
+            <td><span class="label">SN-3001-C</span></td>
+            <td><span class="label">Zone C — Loading Dock</span></td>
+            <td><span class="label status-label" style="background: rgba(220, 53, 69, 0.3); border-color: rgba(220, 53, 69, 0.6); color: #721c24;">Inactive</span></td>
+            <td><span class="label readonly-label">10 Jan 2021</span></td>
+            <td><span class="label readonly-label">10 Jan 2024</span></td>
+            <td>
+              <div class="action-icons-container">
+                <button class="btn-edit-label edit-btn">Edit Equipment</button>
+              </div>
+            </td>
+          </tr>
+          <tr data-id="4">
+            <td><span class="label">Crane System</span></td>
+            <td><span class="label">Crane</span></td>
+            <td><span class="label">SN-4001-D</span></td>
+            <td><span class="label">Zone A — Overhead</span></td>
+            <td><span class="label status-label" style="background: rgba(40, 167, 69, 0.3); border-color: rgba(40, 167, 69, 0.6); color: #155724;">Active</span></td>
+            <td><span class="label readonly-label">05 Dec 2023</span></td>
+            <td><span class="label readonly-label">05 Dec 2028</span></td>
+            <td>
+              <div class="action-icons-container">
+                <button class="btn-edit-label edit-btn">Edit Equipment</button>
+              </div>
+            </td>
+          </tr>
+          <tr data-id="5">
+            <td><span class="label">Sorting Machine</span></td>
+            <td><span class="label">Sorter</span></td>
+            <td><span class="label">SN-5001-E</span></td>
+            <td><span class="label">Zone D — Processing</span></td>
+            <td><span class="label status-label" style="background: rgba(255, 193, 7, 0.3); border-color: rgba(255, 193, 7, 0.6); color: #856404;">Maintenance</span></td>
+            <td><span class="label readonly-label">18 Jun 2022</span></td>
+            <td><span class="label readonly-label">18 Jun 2027</span></td>
+            <td>
+              <div class="action-icons-container">
+                <button class="btn-edit-label edit-btn">Edit Equipment</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<div id="addEquipmentModalOverlay" class="add-equipment-modal-overlay" style="display:none;">
+  <div class="add-equipment-modal">
+    <button class="add-equipment-modal-close" id="closeAddEquipmentModal" title="Close">&times;</button>
+    <div class="add-equipment-modal-title">Add New Equipment</div>
+    <form class="add-equipment-form" id="addEquipmentForm" autocomplete="off">
+      <div>
+        <label for="addEquipmentName">Equipment Name</label>
+        <input type="text" id="addEquipmentName" name="equipmentName" required />
+      </div>
+      <div>
+        <label for="addEquipmentType">Equipment Type</label>
+        <input type="text" id="addEquipmentType" name="equipmentType" required />
+      </div>
+      <div>
+        <label for="addSerialNumber">Serial Number</label>
+        <input type="text" id="addSerialNumber" name="serialNumber" required />
+      </div>
+      <div>
+        <label for="addLocation">Location</label>
+        <input type="text" id="addLocation" name="location" required />
+      </div>
+      <div>
+        <label for="addStatus">Status</label>
+        <div class="dropdown-container">
+          <div id="addStatus" class="status-select" data-current-value="Active">Active</div>
+          <div class="status-dropdown" id="addStatusDropdown">
+            <div class="dropdown-item selected" data-value="Active">Active</div>
+            <div class="dropdown-item" data-value="Maintenance">Maintenance</div>
+            <div class="dropdown-item" data-value="Inactive">Inactive</div>
+          </div>
+        </div>
+      </div>
+      <div class="add-row-inline">
+        <div class="field-col">
+          <div class="field-group">
+            <label for="addPurchaseDate">Purchase Date</label>
+            <input type="date" id="addPurchaseDate" name="purchaseDate" required />
+          </div>
+        </div>
+        <div class="field-col">
+          <div class="field-group">
+            <label for="addWarrantyExpiry">Warranty Expiry</label>
+            <input type="date" id="addWarrantyExpiry" name="warrantyExpiry" required />
+          </div>
+        </div>
+      </div>
+      <button type="submit" class="add-equipment-btn">Add Equipment</button>
+    </form>
+  </div>
+</div>
+
+<script th:src="@{/js/equipment.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
