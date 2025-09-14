@@ -119,4 +119,13 @@ public class WebController {
         }
         return "equipment";
     }
+
+    @GetMapping("/locations")
+    public String showLocations(@AuthenticationPrincipal UserDetails principal, Model model) {
+        if (principal != null) {
+            userService.findWithRoleByUsernameOrEmail(principal.getUsername())
+                .ifPresent(u -> model.addAttribute("user", u));
+        }
+        return "locations";
+    }
 }

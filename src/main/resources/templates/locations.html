@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Locations | LWMS</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" th:href="@{/css/locations.css}">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand fw-bold d-flex align-items-center" href="#" data-bs-toggle="modal" data-bs-target="#profileModal">
+      <img th:src="@{/images/User-Profile-Circle--Streamline-Nova.png}" alt="Profile" style="width: 24px; height: 24px; margin-right: 8px;"> Cardboard Co.
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+    <div id="nav" class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link fw-semibold d-flex align-items-center" th:href="@{/dashboard}" title="Back">
+            Back <img th:src="@{/images/back-button.png}" alt="Back" style="width: 20px; height: 20px; margin-left: 5px;">
+          </a>
+        </li>
+        <li class="nav-item d-flex align-items-center">
+          <form th:action="@{/logout}" method="post" class="m-0 p-0">
+            <button type="submit" class="btn btn-link nav-link fw-semibold d-flex align-items-center p-0">
+              Logout <img th:src="@{/images/User-Log-Out--Streamline-Nova.png}" alt="Logout" style="width: 20px; height: 20px; margin-left: 5px;">
+            </button>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<section class="container locations-management">
+  <div class="box-card">
+    <div class="flap"></div>
+    <div class="header-row d-flex align-items-center justify-content-between mb-4">
+      <div class="d-flex align-items-center">
+        <h3 class="mb-0">Location Management</h3>
+        <img th:src="@{/images/Add--location--Streamline.svg}" alt="Add Location" class="add-location-icon" width="24" height="24" id="addLocationIcon">
+      </div>
+      <div class="search-container">
+        <input type="text" class="search-input" placeholder="Search locations..." id="searchInput">
+        <img th:src="@{/images/search.png}" alt="Search" class="search-icon" width="24" height="24" id="searchIcon">
+      </div>
+    </div>
+    <div class="table-responsive table-body-scrollable">
+      <table class="table table-borderless mb-0 fixed-header-table">
+        <thead>
+          <tr>
+            <th class="pb-3"><span class="label">Location Code</span></th>
+            <th class="pb-3"><span class="label">Zone</span></th>
+            <th class="pb-3"><span class="label">Aisle</span></th>
+            <th class="pb-3"><span class="label">Rack</span></th>
+            <th class="pb-3"><span class="label">Shelf</span></th>
+            <th class="pb-3"><span class="label">Capacity</span></th>
+            <th class="pb-3"><span class="label">Current Load</span></th>
+            <th class="pb-3"><span class="label">Type</span></th>
+            <th class="pb-3"><span class="label">Status</span></th>
+            <th class="pb-3"><span class="label">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="label">A1-B2-S3</span></td>
+            <td><span class="label">A</span></td>
+            <td><span class="label">1</span></td>
+            <td><span class="label">B2</span></td>
+            <td><span class="label">S3</span></td>
+            <td><span class="label">100</span></td>
+            <td><span class="label">45</span></td>
+            <td><span class="label">Storage</span></td>
+            <td><span class="label" style="background: rgba(40, 167, 69, 0.3); border-color: rgba(40, 167, 69, 0.6); color: #155724;">Active</span></td>
+            <td><button class="btn-edit-label edit-btn">Edit Location</button></td>
+          </tr>
+          <tr>
+            <td><span class="label">B1-C3-S1</span></td>
+            <td><span class="label">B</span></td>
+            <td><span class="label">1</span></td>
+            <td><span class="label">C3</span></td>
+            <td><span class="label">S1</span></td>
+            <td><span class="label">150</span></td>
+            <td><span class="label">120</span></td>
+            <td><span class="label">Storage</span></td>
+            <td><span class="label" style="background: rgba(40, 167, 69, 0.3); border-color: rgba(40, 167, 69, 0.6); color: #155724;">Active</span></td>
+            <td><button class="btn-edit-label edit-btn">Edit Location</button></td>
+          </tr>
+          <tr>
+            <td><span class="label">C2-A1-S2</span></td>
+            <td><span class="label">C</span></td>
+            <td><span class="label">2</span></td>
+            <td><span class="label">A1</span></td>
+            <td><span class="label">S2</span></td>
+            <td><span class="label">200</span></td>
+            <td><span class="label">180</span></td>
+            <td><span class="label">Receiving</span></td>
+            <td><span class="label" style="background: rgba(40, 167, 69, 0.3); border-color: rgba(40, 167, 69, 0.6); color: #155724;">Active</span></td>
+            <td><button class="btn-edit-label edit-btn">Edit Location</button></td>
+          </tr>
+          <tr>
+            <td><span class="label">D1-B3-S4</span></td>
+            <td><span class="label">D</span></td>
+            <td><span class="label">1</span></td>
+            <td><span class="label">B3</span></td>
+            <td><span class="label">S4</span></td>
+            <td><span class="label">80</span></td>
+            <td><span class="label">0</span></td>
+            <td><span class="label">Shipping</span></td>
+            <td><span class="label" style="background: rgba(220, 53, 69, 0.3); border-color: rgba(220, 53, 69, 0.6); color: #721c24;">Inactive</span></td>
+            <td><button class="btn-edit-label edit-btn">Edit Location</button></td>
+          </tr>
+          <tr>
+            <td><span class="label">E1-A2-S1</span></td>
+            <td><span class="label">E</span></td>
+            <td><span class="label">1</span></td>
+            <td><span class="label">A2</span></td>
+            <td><span class="label">S1</span></td>
+            <td><span class="label">120</span></td>
+            <td><span class="label">95</span></td>
+            <td><span class="label">Quality</span></td>
+            <td><span class="label" style="background: rgba(40, 167, 69, 0.3); border-color: rgba(40, 167, 69, 0.6); color: #155724;">Active</span></td>
+            <td><button class="btn-edit-label edit-btn">Edit Location</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content box-card">
+      <div class="modal-header d-flex justify-content-between align-items-start">
+        <div>
+          <h5 class="modal-title" id="profileModalLabel">User Profile</h5>
+          <div class="label mt-2">Personal Information</div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Name:</strong> <span th:text="${user.firstName + ' ' + user.lastName}">John Doe</span></p>
+        <p><strong>Username:</strong> <span th:text="${user.username}">johndoe</span></p>
+        <p><strong>Email:</strong> <span th:text="${user.email}">john@example.com</span></p>
+        <p><strong>Role:</strong> <span th:text="${user.role.roleName}">Viewer</span></p>
+        <p><strong>Status:</strong> <span th:text="${user.active} ? 'Active' : 'Inactive'">Active</span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="addLocationModalOverlay" class="add-location-modal-overlay" style="display:none;">
+  <div class="add-location-modal">
+    <button class="add-location-modal-close" id="closeAddLocationModal" title="Close">&times;</button>
+    <div class="add-location-modal-title">Add New Location</div>
+    <form class="add-location-form" id="addLocationForm" autocomplete="off">
+      <div class="add-row-inline">
+        <div class="field-col">
+          <div class="field-group">
+            <label for="addZone">Zone</label>
+            <input type="text" id="addZone" name="zone" placeholder="A, B, C, etc." required />
+          </div>
+        </div>
+        <div class="field-col">
+          <div class="field-group">
+            <label for="addAisle">Aisle</label>
+            <input type="text" id="addAisle" name="aisle" placeholder="1, 2, 3, etc." required />
+          </div>
+        </div>
+      </div>
+      <div class="add-row-inline">
+        <div class="field-col">
+          <div class="field-group">
+            <label for="addRack">Rack</label>
+            <input type="text" id="addRack" name="rack" placeholder="A1, B2, C3, etc." required />
+          </div>
+        </div>
+        <div class="field-col">
+          <div class="field-group">
+            <label for="addShelf">Shelf</label>
+            <input type="text" id="addShelf" name="shelf" placeholder="S1, S2, S3, etc." required />
+          </div>
+        </div>
+      </div>
+      <div class="add-row-inline">
+        <div class="field-col">
+          <div class="field-group">
+            <label for="addCapacity">Capacity</label>
+            <input type="number" id="addCapacity" name="capacity" value="100" required />
+          </div>
+        </div>
+        <div class="field-col">
+          <div class="field-group">
+            <label for="addCurrentLoad">Current Load</label>
+            <input type="number" id="addCurrentLoad" name="currentLoad" value="0" required />
+          </div>
+        </div>
+      </div>
+      <div class="add-row-inline">
+        <div class="field-col">
+          <div class="field-group">
+            <label for="addLocationType">Location Type</label>
+            <div class="dropdown-container">
+              <div id="addLocationType" class="type-select" data-current-value="Storage">Storage</div>
+              <div class="type-dropdown">
+                <div class="dropdown-item selected" data-value="Storage">Storage</div>
+                <div class="dropdown-item" data-value="Receiving">Receiving</div>
+                <div class="dropdown-item" data-value="Shipping">Shipping</div>
+                <div class="dropdown-item" data-value="Quality">Quality</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="field-col">
+          <div class="field-group">
+            <label for="addIsActive">Status</label>
+            <div class="dropdown-container">
+              <div id="addIsActive" class="status-select" data-current-value="Active" style="color: #155724; background-color: rgba(40, 167, 69, 0.3); border-color: rgba(40, 167, 69, 0.6);">Active</div>
+              <div class="status-dropdown">
+                <div class="dropdown-item active selected" data-value="Active" data-is-active="true">Active</div>
+                <div class="dropdown-item inactive" data-value="Inactive" data-is-active="false">Inactive</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button type="submit" class="add-location-btn">Add Location</button>
+    </form>
+  </div>
+</div>
+
+<script th:src="@{/js/locations.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
