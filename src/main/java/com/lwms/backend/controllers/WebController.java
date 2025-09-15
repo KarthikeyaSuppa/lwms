@@ -155,4 +155,13 @@ public class WebController {
         }
         return "shipment-items";
     }
+
+    @GetMapping("/maintenance-schedule")
+    public String showMaintenanceSchedule(@AuthenticationPrincipal UserDetails principal, Model model) {
+        if (principal != null) {
+            userService.findWithRoleByUsernameOrEmail(principal.getUsername())
+                .ifPresent(u -> model.addAttribute("user", u));
+        }
+        return "maintenance-schedule";
+    }
 }

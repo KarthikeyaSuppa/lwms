@@ -63,7 +63,7 @@
     <div class="sheet d-flex justify-content-center align-items-center mx-auto" style="min-height: calc(100vh - 68px); max-width: 1200px; width: 100%; border-radius: .75rem;">
       <div class="row w-100 g-4 justify-content-center p-3">
         <div class="col-md-4 col-lg-3">
-          <a href="#" class="box-card h-100 d-block text-reset text-decoration-none">
+          <a th:href="@{/inventory}" class="box-card h-100 d-block text-reset text-decoration-none">
             <div class="flap"></div>
             <h5 class="mb-2">Inventory</h5>
             <p class="mb-2">View and manage inventory, add items, filter by category/location.</p>
@@ -79,7 +79,7 @@
           </a>
         </div>
         <div class="col-md-4 col-lg-3">
-          <a href="#" class="box-card h-100 d-block text-reset text-decoration-none">
+          <a th:href="@{/inventory-movements}" class="box-card h-100 d-block text-reset text-decoration-none">
             <div class="flap"></div>
             <h5 class="mb-2">Inventory Movements</h5>
             <p class="mb-2">View the complete audit trail of stock changes.</p>
@@ -118,7 +118,7 @@
           </a>
         </div>
         <div class="col-md-4 col-lg-3">
-          <<a href="#" class="box-card h-100 d-block text-reset text-decoration-none">
+          <a th:href="@{/reports}" class="box-card h-100 d-block text-reset text-decoration-none">
             <div class="flap"></div>
             <h5 class="mb-2">Reports</h5>
             <p class="mb-2">Access pre-configured inventory and shipment reports.</p>

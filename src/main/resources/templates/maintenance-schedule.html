@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Maintenance Schedule | LWMS</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" th:href="@{/css/maintenance-schedule.css}">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand fw-bold d-flex align-items-center" href="#" data-bs-toggle="modal" data-bs-target="#profileModal">
+      <img th:src="@{/images/User-Profile-Circle--Streamline-Nova.png}" alt="Profile" style="width: 24px; height: 24px; margin-right: 8px;"> Cardboard Co.
+    </a>
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation" title="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+    <div id="nav" class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link fw-semibold d-flex align-items-center" th:href="@{/dashboard}" title="Back">
+            Back <img th:src="@{/images/back-button.png}" alt="Back" style="width: 20px; height: 20px; margin-left: 5px;">
+          </a>
+        </li>
+        <li class="nav-item d-flex align-items-center">
+          <form th:action="@{/logout}" method="post" class="m-0 p-0">
+            <button type="submit" class="btn btn-link nav-link fw-semibold d-flex align-items-center p-0">
+              Logout <img th:src="@{/images/User-Log-Out--Streamline-Nova.png}" alt="Logout" style="width: 20px; height: 20px; margin-left: 5px;">
+            </button>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<section class="container maintenance-schedule-management">
+  <div class="box-card">
+    <div class="flap"></div>
+    <div class="header-row d-flex align-items-center justify-content-between mb-4">
+      <div class="d-flex align-items-center">
+        <h3 class="mb-0">Maintenance Schedule</h3>
+        <img th:src="@{/images/maintenance-schedule-icon.png}" alt="Add Maintenance" class="add-maintenance-icon" width="24" height="24" id="addMaintenanceIcon">
+      </div>
+      <div class="search-container">
+        <input type="text" class="search-input" placeholder="Search maintenance..." id="searchInput">
+        <img th:src="@{/images/search.png}" alt="Search" class="search-icon" width="24" height="24" id="searchIcon">
+      </div>
+    </div>
+
+    <div class="table-responsive table-body-scrollable">
+      <table class="table table-borderless mb-0 fixed-header-table">
+        <thead>
+          <tr>
+            <th class="pb-3"><span class="label">Equipment ID</span></th>
+            <th class="pb-3"><span class="label">Task Description</span></th>
+            <th class="pb-3"><span class="label">Type</span></th>
+            <th class="pb-3"><span class="label">Priority</span></th>
+            <th class="pb-3"><span class="label">Scheduled Date</span></th>
+            <th class="pb-3"><span class="label">Est. Duration (min)</span></th>
+            <th class="pb-3"><span class="label">Assigned To</span></th>
+            <th class="pb-3"><span class="label">Status</span></th>
+            <th class="pb-3"><span class="label">Completed Date</span></th>
+            <th class="pb-3"><span class="label">Actual Duration (min)</span></th>
+            <th class="pb-3"><span class="label">Cost</span></th>
+            <th class="pb-3"><span class="label">Notes</span></th>
+            <th class="pb-3"><span class="label">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="label">EQ-1001</span></td>
+            <td><span class="label">Replace air filter</span></td>
+            <td><span class="label">Preventive</span></td>
+            <td><span class="label">Medium</span></td>
+            <td><span class="label">2025-09-20 09:00</span></td>
+            <td><span class="label">45</span></td>
+            <td><span class="label">tech_07</span></td>
+            <td><span class="label">Scheduled</span></td>
+            <td><span class="label">-</span></td>
+            <td><span class="label">-</span></td>
+            <td><span class="label">120.00</span></td>
+            <td><span class="label">Use HEPA filter</span></td>
+            <td><button class="btn-edit-label edit-btn">Edit</button></td>
+          </tr>
+          <tr>
+            <td><span class="label">EQ-2044</span></td>
+            <td><span class="label">Inspect motor bearings</span></td>
+            <td><span class="label">Predictive</span></td>
+            <td><span class="label">High</span></td>
+            <td><span class="label">2025-09-22 14:30</span></td>
+            <td><span class="label">90</span></td>
+            <td><span class="label">tech_03</span></td>
+            <td><span class="label">In Progress</span></td>
+            <td><span class="label">-</span></td>
+            <td><span class="label">-</span></td>
+            <td><span class="label">0.00</span></td>
+            <td><span class="label">Vibration analysis</span></td>
+            <td><button class="btn-edit-label edit-btn">Edit</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content box-card">
+      <div class="modal-header d-flex justify-content-between align-items-start">
+        <div>
+          <h5 class="modal-title" id="profileModalLabel">User Profile</h5>
+          <div class="label mt-2">Personal Information</div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Name:</strong> <span th:text="${user.firstName + ' ' + user.lastName}">Technician</span></p>
+        <p><strong>Role:</strong> <span th:text="${user.role.roleName}">Viewer</span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="addMaintenanceModalOverlay" class="add-maintenance-modal-overlay" style="display:none;">
+  <div class="add-maintenance-modal">
+    <button class="add-maintenance-modal-close" id="closeAddMaintenanceModal" title="Close">&times;</button>
+    <div class="add-maintenance-modal-title">Add Maintenance Task</div>
+    <form class="add-maintenance-form" id="addMaintenanceForm" autocomplete="off">
+      <div class="field-col">
+        <label for="addEquipmentId">Equipment ID</label>
+        <input type="text" id="addEquipmentId" name="equipmentId" placeholder="EQ-xxxx" required />
+      </div>
+      <div class="field-col">
+        <label for="addTaskDescription">Task Description</label>
+        <input type="text" id="addTaskDescription" name="taskDescription" placeholder="e.g., Replace air filter" required />
+      </div>
+      <div class="field-col">
+        <label for="addMaintenanceType">Maintenance Type</label>
+        <div class="ms-cell-container">
+          <div class="ms-select" id="addMaintenanceTypeSelect" data-current-value="Preventive">Preventive</div>
+          <div class="ms-dropdown" id="addMaintenanceTypeDropdown">
+            <div class="ms-dropdown-item selected" data-value="Preventive">Preventive</div>
+            <div class="ms-dropdown-item" data-value="Corrective">Corrective</div>
+            <div class="ms-dropdown-item" data-value="Predictive">Predictive</div>
+          </div>
+          <select id="addMaintenanceType" name="maintenanceType" style="display:none;">
+            <option selected>Preventive</option>
+            <option>Corrective</option>
+            <option>Predictive</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field-col">
+        <label for="addPriority">Priority</label>
+        <div class="ms-cell-container">
+          <div class="ms-select" id="addPrioritySelect" data-current-value="Medium">Medium</div>
+          <div class="ms-dropdown" id="addPriorityDropdown">
+            <div class="ms-dropdown-item" data-value="Low">Low</div>
+            <div class="ms-dropdown-item selected" data-value="Medium">Medium</div>
+            <div class="ms-dropdown-item" data-value="High">High</div>
+            <div class="ms-dropdown-item" data-value="Critical">Critical</div>
+          </div>
+          <select id="addPriority" name="priority" style="display:none;">
+            <option>Low</option>
+            <option selected>Medium</option>
+            <option>High</option>
+            <option>Critical</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-col">
+        <label for="addScheduledDate">Scheduled Date</label>
+        <input type="datetime-local" id="addScheduledDate" name="scheduledDate" required />
+      </div>
+      <div class="field-col">
+        <label for="addEstimatedDuration">Estimated Duration (min)</label>
+        <input type="number" id="addEstimatedDuration" name="estimatedDuration" min="1" step="1" value="60" />
+      </div>
+
+      <div class="field-col">
+        <label for="addAssignedTo">Assigned To (User ID)</label>
+        <input type="text" id="addAssignedTo" name="assignedTo" placeholder="e.g., 42 or username" />
+      </div>
+      <div class="field-col">
+        <label for="addStatus">Status</label>
+        <div class="ms-cell-container">
+          <div class="ms-select" id="addStatusSelect" data-current-value="Scheduled">Scheduled</div>
+          <div class="ms-dropdown" id="addStatusDropdown">
+            <div class="ms-dropdown-item selected" data-value="Scheduled">Scheduled</div>
+            <div class="ms-dropdown-item" data-value="In Progress">In Progress</div>
+            <div class="ms-dropdown-item" data-value="Completed">Completed</div>
+            <div class="ms-dropdown-item" data-value="Cancelled">Cancelled</div>
+          </div>
+          <select id="addStatus" name="status" style="display:none;">
+            <option selected>Scheduled</option>
+            <option>In Progress</option>
+            <option>Completed</option>
+            <option>Cancelled</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-col">
+        <label for="addCompletedDate">Completed Date</label>
+        <input type="datetime-local" id="addCompletedDate" name="completedDate" />
+      </div>
+
+      <div class="field-col">
+        <label for="addActualDuration">Actual Duration (min)</label>
+        <input type="number" id="addActualDuration" name="actualDuration" min="0" step="1" />
+      </div>
+      <div class="field-col">
+        <label for="addCost">Cost</label>
+        <input type="number" id="addCost" name="cost" step="0.01" min="0" value="0.00" />
+      </div>
+      <div class="field-col">
+        <label for="addNotes">Notes</label>
+        <textarea id="addNotes" name="notes" rows="3" placeholder="Additional notes"></textarea>
+      </div>
+
+      <div class="field-col">
+        <label for="addCreatedBy">Created By (User ID)</label>
+        <input type="text" id="addCreatedBy" name="createdBy" placeholder="e.g., 7" required />
+      </div>
+      <button type="submit" class="submit-btn">Add Maintenance</button>
+    </form>
+  </div>
+</div>
+
+<script th:src="@{/js/maintenance-schedule.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
