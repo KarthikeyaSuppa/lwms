@@ -164,4 +164,13 @@ public class WebController {
         }
         return "maintenance-schedule";
     }
+
+    @GetMapping("/inventory-movements")
+    public String showInventoryMovements(@AuthenticationPrincipal UserDetails principal, Model model) {
+        if (principal != null) {
+            userService.findWithRoleByUsernameOrEmail(principal.getUsername())
+                .ifPresent(u -> model.addAttribute("user", u));
+        }
+        return "inventory-movements";
+    }
 }
