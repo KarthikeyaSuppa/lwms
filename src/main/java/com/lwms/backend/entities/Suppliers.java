@@ -4,35 +4,34 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 @Entity
-@Table(name = "Suppliers")
+@Table(name = "suppliers")
 public class Suppliers {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer supplierId;
 
     @NotBlank
-    @Size(max = 255)
-    @Column(nullable = false, length = 255)
+    @Size(max = 100)
+    @Column(nullable = false, length = 100)
     private String supplierName;
 
-    @Size(max = 255)
-    @Column(length = 255)
+    @Size(max = 100)
+    @Column(length = 100)
     private String contactPerson;
 
     @Email
-    @Size(max = 254)
-    @Column(length = 254)
+    @Size(max = 100)
+    @Column(length = 100)
     private String email;
 
-    @Size(max = 32)
-    @Column(length = 32)
+    @Size(max = 20)
+    @Column(length = 20)
     private String phone;
 
-    @Size(max = 500)
-    @Column(length = 500)
+    @Column(columnDefinition = "TEXT")
     private String address;
 
-    @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
+    @Column(columnDefinition = "TINYINT(1) DEFAULT 1")
     private Boolean isActive = true;
 
 	/**
@@ -41,7 +40,6 @@ public class Suppliers {
 	public Suppliers() {
 
 	}
-
 
 	public Suppliers(Integer supplierId, String supplierName, String contactPerson, String email, String phone,
 			String address, Boolean isActive) {

@@ -3,37 +3,47 @@ package com.lwms.backend.entities;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
-import org.hibernate.annotations.CreationTimestamp;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.JdbcTypeCode;
+import java.sql.Types;
 
 @Entity
-@Table(name = "Shipments", indexes = {
-		@Index(name = "idx_shipments_shipment_number", columnList = "shipmentNumber")
+@Table(name = "shipments", indexes = {
+        @Index(name = "idx_shipments_shipment_number", columnList = "shipmentNumber"),
+        @Index(name = "idx_shipments_supplier", columnList = "supplierId"),
+        @Index(name = "idx_shipments_createdBy", columnList = "createdBy")
 })
 public class Shipments {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer shipmentId;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 50)
     private String shipmentNumber;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ShipmentType shipmentType;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = ShipmentStatusConverter.class)
+    @JdbcTypeCode(Types.CHAR)
+    @Column(columnDefinition = "enum('Planned','In Transit','Delivered','Cancelled')")
     private Status status = Status.Planned;
+
+    @Column(nullable = false, length = 100)
+    private String origin;
+
+    @Column(nullable = false, length = 100)
+    private String destination;
 
     private LocalDateTime expectedDeliveryDate;
 
     private LocalDateTime actualDeliveryDate;
 
-    @Column(precision = 19, scale = 2)
+    @Column(precision = 12, scale = 2)
     private BigDecimal totalValue = BigDecimal.ZERO;
 
-    @CreationTimestamp
-    @Column(updatable = false)
+    @Column(insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -54,22 +64,20 @@ public class Shipments {
         Planned, In_Transit, Delivered, Cancelled
     }
 
-	/**
-	 * 
-	 */
 	public Shipments() {
 
 	}
 
-
 	public Shipments(Integer shipmentId, String shipmentNumber, ShipmentType shipmentType, Status status,
-			LocalDateTime expectedDeliveryDate, LocalDateTime actualDeliveryDate, BigDecimal totalValue,
+			String origin, String destination, LocalDateTime expectedDeliveryDate, LocalDateTime actualDeliveryDate, BigDecimal totalValue,
 			LocalDateTime createdAt, Suppliers supplier, User createdBy) {
 		super();
 		this.shipmentId = shipmentId;
 		this.shipmentNumber = shipmentNumber;
 		this.shipmentType = shipmentType;
 		this.status = status;
+		this.origin = origin;
+		this.destination = destination;
 		this.expectedDeliveryDate = expectedDeliveryDate;
 		this.actualDeliveryDate = actualDeliveryDate;
 		this.totalValue = totalValue;
@@ -108,6 +116,22 @@ public class Shipments {
 
 	public void setStatus(Status status) {
 		this.status = status;
+	}
+
+	public String getOrigin() {
+		return origin;
+	}
+
+	public void setOrigin(String origin) {
+		this.origin = origin;
+	}
+
+	public String getDestination() {
+		return destination;
+	}
+
+	public void setDestination(String destination) {
+		this.destination = destination;
 	}
 
 	public LocalDateTime getExpectedDeliveryDate() {

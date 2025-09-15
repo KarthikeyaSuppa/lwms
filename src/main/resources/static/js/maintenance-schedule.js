@@ -6,8 +6,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const addMaintenanceForm = document.getElementById('addMaintenanceForm');
   const searchInput = document.getElementById('searchInput');
   const searchIcon = document.getElementById('searchIcon');
+  const API_BASE = '/maintenance-schedule/api'; // also /lwms/maintenance-schedule/api
 
   function toDatetimeLocal(text){ if(!text || text === '-') return ''; return text.replace(' ', 'T'); }
+
+  async function loadMaint(){
+    const q = searchInput?.value?.trim();
+    const url = q ? `${API_BASE}?q=${encodeURIComponent(q)}` : API_BASE;
+    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) { console.error('Failed to load maintenance'); return; }
+    const data = await res.json();
+    renderRows(Array.isArray(data) ? data : []);
+  }
 
   function toggleMsDropdown(dropdown){ document.querySelectorAll('.ms-dropdown').forEach(dd => { if(dd !== dropdown) dd.style.display = 'none'; }); dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block'; }
   document.addEventListener('click', (e) => { if(!e.target.closest('.ms-cell-container')){ document.querySelectorAll('.ms-dropdown').forEach(dd => dd.style.display = 'none'); } });
@@ -21,7 +31,29 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
     map.forEach(({cell, clsMap}) => { if(!cell) return; const span = cell.querySelector('.label'); if(!span) return; Object.values(clsMap).forEach(c => span.classList.remove(c)); const key = (span.textContent||'').trim().toLowerCase(); if(clsMap[key]) span.classList.add(clsMap[key]); });
   }
-  tbody.querySelectorAll('tr').forEach(applyBadges);
+
+  function renderRows(list){
+    tbody.innerHTML = '';
+    list.forEach(ms => {
+      const tr = document.createElement('tr');
+      tr.dataset.id = ms.scheduleId;
+      tr.innerHTML = `
+        <td><span class="label">${ms.equipmentId ?? ''}</span></td>
+        <td><span class="label">${ms.taskDescription ?? ''}</span></td>
+        <td><span class="label">${ms.maintenanceType ?? ''}</span></td>
+        <td><span class="label">${ms.priority ?? ''}</span></td>
+        <td><span class="label">${ms.scheduledDate ?? '-'}</span></td>
+        <td><span class="label">${ms.estimatedDuration ?? '-'}</span></td>
+        <td><span class="label">${ms.assignedTo ?? '-'}</span></td>
+        <td><span class="label">${ms.status ?? ''}</span></td>
+        <td><span class="label">${ms.completedDate ?? '-'}</span></td>
+        <td><span class="label">${ms.actualDuration ?? '-'}</span></td>
+        <td><span class="label">${ms.cost ?? '0.00'}</span></td>
+        <td><span class="label">${ms.notes ?? '-'}</span></td>
+        <td><button class="btn-edit-label edit-btn">Edit</button></td>`;
+      tbody.appendChild(tr); applyBadges(tr);
+    });
+  }
 
   function makeRowEditable(row){
     const cells = row.querySelectorAll('td:not(:last-child)');
@@ -41,20 +73,46 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function saveRowChanges(row){
+  async function saveRowChanges(row){
+    const id = row.dataset.id; if (!id) return;
     const cells = row.querySelectorAll('td');
-    cells.forEach((cell, index) => {
-      if(index===0 || index===6){ const i=cell.querySelector('.editable-input'); if(i){ const s=document.createElement('span'); s.className='label'; s.textContent=i.value; cell.innerHTML=''; cell.appendChild(s);} }
-      else if(index===1){ const i=cell.querySelector('.editable-input'); if(i){ const s=document.createElement('span'); s.className='label'; s.textContent=i.value; cell.innerHTML=''; cell.appendChild(s);} }
-      else if(index===2 || index===3 || index===7){ const dd=cell.querySelector('.ms-select'); if(dd){ const s=document.createElement('span'); s.className='label'; s.textContent= dd.dataset.currentValue || dd.textContent; cell.innerHTML=''; cell.appendChild(s);} }
-      else if(index===4 || index===8){ const i=cell.querySelector('.editable-input'); if(i){ const s=document.createElement('span'); s.className='label'; s.textContent= i.value ? i.value.replace('T',' ') : '-'; cell.innerHTML=''; cell.appendChild(s);} }
-      else if(index===5 || index===9){ const i=cell.querySelector('.editable-input'); if(i){ const s=document.createElement('span'); s.className='label'; s.textContent= i.value || '-'; cell.innerHTML=''; cell.appendChild(s);} }
-      else if(index===10){ const i=cell.querySelector('.editable-input'); if(i){ const s=document.createElement('span'); s.className='label'; const num=parseFloat(i.value||'0'); s.textContent = isNaN(num)?'0.00': num.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); cell.innerHTML=''; cell.appendChild(s);} }
-      else if(index===11){ const t=cell.querySelector('textarea.editable-input'); if(t){ const s=document.createElement('span'); s.className='label'; s.textContent=t.value || '-'; cell.innerHTML=''; cell.appendChild(s);} }
-      else if(index===12){ const actionsCell = row.querySelector('td:last-child'); actionsCell.innerHTML = '<button class="btn-edit-label edit-btn">Edit</button>'; }
+    const equipmentId = cells[0].querySelector('.editable-input')?.value?.trim() || cells[0].textContent.trim();
+    const taskDescription = cells[1].querySelector('.editable-input')?.value?.trim() || cells[1].textContent.trim();
+    const maintenanceType = cells[2].querySelector('.ms-select')?.dataset?.currentValue || cells[2].textContent.trim();
+    const priority = cells[3].querySelector('.ms-select')?.dataset?.currentValue || cells[3].textContent.trim();
+    const scheduledDate = cells[4].querySelector('.editable-input')?.value?.trim() || '';
+    const estimatedDuration = parseInt(cells[5].querySelector('.editable-input')?.value ?? '0', 10);
+    const assignedTo = cells[6].querySelector('.editable-input')?.value?.trim() || '';
+    const status = cells[7].querySelector('.ms-select')?.dataset?.currentValue || cells[7].textContent.trim();
+    const completedDate = cells[8].querySelector('.editable-input')?.value?.trim() || '';
+    const actualDuration = parseInt(cells[9].querySelector('.editable-input')?.value ?? '0', 10);
+    const cost = cells[10].querySelector('.editable-input')?.value?.trim() || '0.00';
+    const notes = cells[11].querySelector('textarea.editable-input')?.value?.trim() || '';
+
+    const res = await fetch(`${API_BASE}/${encodeURIComponent(id)}`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ equipmentId: parseInt(equipmentId, 10), taskDescription, maintenanceType, priority, scheduledDate, estimatedDuration, assignedTo: assignedTo ? parseInt(assignedTo, 10) : null, status, completedDate, actualDuration, cost, notes })
     });
+    if (!res.ok) { const err = await res.text(); alert(`Failed to update maintenance: ${err || res.status}`); return; }
+
+    const updated = await res.json();
+    cells[0].innerHTML = `<span class="label">${updated.equipmentId ?? equipmentId}</span>`;
+    cells[1].innerHTML = `<span class=\"label\">${updated.taskDescription ?? taskDescription}</span>`;
+    cells[2].innerHTML = `<span class=\"label\">${updated.maintenanceType ?? maintenanceType}</span>`;
+    cells[3].innerHTML = `<span class=\"label\">${updated.priority ?? priority}</span>`;
+    cells[4].innerHTML = `<span class=\"label\">${updated.scheduledDate ?? (scheduledDate ? scheduledDate.replace('T',' ') : '-')}</span>`;
+    cells[5].innerHTML = `<span class=\"label\">${updated.estimatedDuration ?? estimatedDuration}</span>`;
+    cells[6].innerHTML = `<span class=\"label\">${(updated.assignedTo ?? assignedTo) || '-'}</span>`;
+    cells[7].innerHTML = `<span class=\"label\">${updated.status ?? status}</span>`;
+    cells[8].innerHTML = `<span class=\"label\">${updated.completedDate ?? (completedDate ? completedDate.replace('T',' ') : '-')}</span>`;
+    cells[9].innerHTML = `<span class=\"label\">${(updated.actualDuration ?? actualDuration) || '-'}</span>`;
+    cells[10].innerHTML = `<span class=\"label\">${updated.cost ?? cost}</span>`;
+    cells[11].innerHTML = `<span class=\"label\">${(updated.notes ?? notes) || '-'}</span>`;
+    const actionsCell = row.querySelector('td:last-child'); actionsCell.innerHTML = '<button class="btn-edit-label edit-btn">Edit</button>';
     applyBadges(row);
   }
+
+  function applyBadgesRow(row){ applyBadges(row); }
 
   function deleteRow(row){ if(confirm('Delete this maintenance task?')) row.remove(); }
 
@@ -71,8 +129,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function normalize(text){ return (text||'').toString().toLowerCase().trim(); }
   function filterRows(){ const q=normalize(searchInput.value); const rows=tbody.querySelectorAll('tr'); rows.forEach(row=>{ const cells=row.querySelectorAll('td'); const values=Array.from(cells).slice(0,12).map(c=> normalize(c.querySelector('.editable-input')?.value || c.textContent)); row.style.display = values.some(v=>v.includes(q)) ? '' : 'none'; }); }
-  if(searchInput) searchInput.addEventListener('input', filterRows);
-  if(searchIcon) searchIcon.addEventListener('click', filterRows);
+  if(searchInput) searchInput.addEventListener('input', () => { loadMaint(); });
+  if(searchIcon) searchIcon.addEventListener('click', () => { loadMaint(); });
 
   function wireModalDropdown(selectId, dropdownId, hiddenId){ const select=document.getElementById(selectId); const dropdown=document.getElementById(dropdownId); const hidden=document.getElementById(hiddenId); if(!select || !dropdown || !hidden) return; select.addEventListener('click',(e)=>{ e.stopPropagation(); toggleMsDropdown(dropdown); }); dropdown.addEventListener('click',(e)=>{ const item=e.target.closest('.ms-dropdown-item'); if(!item) return; e.stopPropagation(); const val=item.dataset.value; select.textContent=val; select.dataset.currentValue=val; hidden.value=val; dropdown.querySelectorAll('.ms-dropdown-item').forEach(i=>i.classList.remove('selected')); item.classList.add('selected'); dropdown.style.display='none'; }); }
   wireModalDropdown('addMaintenanceTypeSelect','addMaintenanceTypeDropdown','addMaintenanceType');
@@ -83,15 +141,47 @@ document.addEventListener('DOMContentLoaded', () => {
   if (closeAddMaintenanceModal) closeAddMaintenanceModal.addEventListener('click', ()=>{ addMaintenanceModalOverlay.style.display='none'; document.body.style.overflow=''; });
   if (addMaintenanceModalOverlay) addMaintenanceModalOverlay.addEventListener('click', (e)=>{ if(e.target===addMaintenanceModalOverlay){ addMaintenanceModalOverlay.style.display='none'; document.body.style.overflow=''; } });
 
-  if (addMaintenanceForm) addMaintenanceForm.addEventListener('submit', (e)=>{
+  if (addMaintenanceForm) addMaintenanceForm.addEventListener('submit', async (e)=>{
     e.preventDefault();
-    const d = { equipmentId: document.getElementById('addEquipmentId').value, taskDescription: document.getElementById('addTaskDescription').value, maintenanceType: document.getElementById('addMaintenanceType').value, priority: document.getElementById('addPriority').value, scheduledDate: document.getElementById('addScheduledDate').value, estimatedDuration: document.getElementById('addEstimatedDuration').value, assignedTo: document.getElementById('addAssignedTo').value, status: document.getElementById('addStatus').value, completedDate: document.getElementById('addCompletedDate').value, actualDuration: document.getElementById('addActualDuration').value, cost: document.getElementById('addCost').value, notes: document.getElementById('addNotes').value };
+    const payload = {
+      equipmentId: parseInt(document.getElementById('addEquipmentId').value, 10),
+      taskDescription: document.getElementById('addTaskDescription').value,
+      maintenanceType: document.getElementById('addMaintenanceType').value,
+      priority: document.getElementById('addPriority').value,
+      scheduledDate: document.getElementById('addScheduledDate').value,
+      estimatedDuration: parseInt(document.getElementById('addEstimatedDuration').value || '0', 10),
+      assignedTo: document.getElementById('addAssignedTo').value ? parseInt(document.getElementById('addAssignedTo').value, 10) : null,
+      status: document.getElementById('addStatus').value,
+      completedDate: document.getElementById('addCompletedDate').value,
+      actualDuration: document.getElementById('addActualDuration').value ? parseInt(document.getElementById('addActualDuration').value, 10) : null,
+      cost: document.getElementById('addCost').value,
+      notes: document.getElementById('addNotes').value,
+      createdBy: parseInt(document.getElementById('addCreatedBy').value, 10)
+    };
+    const res = await fetch(API_BASE, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify(payload) });
+    if (!res.ok) { const err = await res.text(); alert(`Failed to add maintenance: ${err || res.status}`); return; }
+    const created = await res.json();
     const newRow = document.createElement('tr');
-    const costFormatted = (parseFloat(d.cost||'0')||0).toLocaleString(undefined,{minimumFractionDigits:2, maximumFractionDigits:2});
-    newRow.innerHTML = `<td><span class="label">${d.equipmentId}</span></td><td><span class="label">${d.taskDescription}</span></td><td><span class="label">${d.maintenanceType}</span></td><td><span class="label">${d.priority}</span></td><td><span class="label">${d.scheduledDate ? d.scheduledDate.replace('T',' ') : '-'}</span></td><td><span class="label">${d.estimatedDuration || '-'}</span></td><td><span class="label">${d.assignedTo || '-'}</span></td><td><span class="label">${d.status}</span></td><td><span class="label">${d.completedDate ? d.completedDate.replace('T',' ') : '-'}</span></td><td><span class="label">${d.actualDuration || '-'}</span></td><td><span class="label">${costFormatted}</span></td><td><span class="label">${d.notes || '-'}</span></td><td><button class="btn-edit-label edit-btn">Edit</button></td>`;
-    tbody.appendChild(newRow);
+    newRow.dataset.id = created.scheduleId;
+    newRow.innerHTML = `
+      <td><span class="label">${created.equipmentId ?? payload.equipmentId}</span></td>
+      <td><span class="label">${created.taskDescription ?? payload.taskDescription}</span></td>
+      <td><span class="label">${created.maintenanceType ?? payload.maintenanceType}</span></td>
+      <td><span class="label">${created.priority ?? payload.priority}</span></td>
+      <td><span class="label">${created.scheduledDate ?? (payload.scheduledDate ? payload.scheduledDate.replace('T',' ') : '-')}</span></td>
+      <td><span class="label">${created.estimatedDuration ?? payload.estimatedDuration}</span></td>
+      <td><span class="label">${created.assignedTo ?? (payload.assignedTo ?? '-')}</span></td>
+      <td><span class="label">${created.status ?? payload.status}</span></td>
+      <td><span class="label">${created.completedDate ?? (payload.completedDate ? payload.completedDate.replace('T',' ') : '-')}</span></td>
+      <td><span class="label">${created.actualDuration ?? (payload.actualDuration ?? '-')}</span></td>
+      <td><span class="label">${created.cost ?? payload.cost}</span></td>
+      <td><span class="label">${created.notes ?? (payload.notes || '-')}</span></td>
+      <td><button class="btn-edit-label edit-btn">Edit</button></td>`;
+    tbody.prepend(newRow);
     applyBadges(newRow);
-    if (typeof filterRows === 'function' && searchInput && searchInput.value.trim()!=='') filterRows();
     addMaintenanceModalOverlay.style.display='none'; document.body.style.overflow=''; addMaintenanceForm.reset();
   });
+
+  // Initial load
+  loadMaint();
 }); 

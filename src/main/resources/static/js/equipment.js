@@ -8,24 +8,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const addStatusSelect = document.getElementById('addStatus');
   const addStatusDropdown = document.getElementById('addStatusDropdown');
 
-  let nextId = 6;
+  const API_BASE = "/equipment/api"; // also available at /lwms/equipment/api
 
   // Search functionality
   if (searchInput) {
-    searchInput.addEventListener("input", (e) => {
-      filterTable(e.target.value);
+    searchInput.addEventListener("input", () => {
+      loadEquipment();
     });
   }
 
-  function filterTable(searchTerm) {
-    const term = (searchTerm || '').toLowerCase();
+  function filterTableLocal(term) {
+    const q = (term || '').toLowerCase();
     const rows = tbody.querySelectorAll("tr");
     rows.forEach(row => {
       const cells = row.querySelectorAll("td");
       let found = false;
       cells.forEach(cell => {
         const cellText = (cell.textContent || '').toLowerCase();
-        if (cellText.includes(term)) found = true;
+        if (cellText.includes(q)) found = true;
       });
       row.style.display = found ? "" : "none";
     });
@@ -73,11 +73,44 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Render helpers
+  function renderRows(list){
+    tbody.innerHTML = '';
+    list.forEach(eq => {
+      const row = document.createElement('tr');
+      row.dataset.id = eq.equipmentId;
+      row.innerHTML = `
+        <td><span class="label">${eq.equipmentName ?? ''}</span></td>
+        <td><span class="label">${eq.equipmentType ?? ''}</span></td>
+        <td><span class="label">${eq.serialNumber ?? ''}</span></td>
+        <td><span class="label">${eq.location ?? ''}</span></td>
+        <td><span class="label status-label">${eq.status ?? ''}</span></td>
+        <td><span class="label readonly-label">${eq.purchaseDate ?? ''}</span></td>
+        <td><span class="label readonly-label">${eq.warrantyExpiry ?? ''}</span></td>
+        <td>
+          <div class="action-icons-container">
+            <button class="btn-edit-label edit-btn">Edit Equipment</button>
+          </div>
+        </td>`;
+      tbody.appendChild(row);
+      updateStatusLabelStyles(row);
+    });
+  }
+
+  async function loadEquipment(){
+    const q = searchInput?.value?.trim();
+    const url = q ? `${API_BASE}?q=${encodeURIComponent(q)}` : API_BASE;
+    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) { console.error('Failed to load equipment'); return; }
+    const data = await res.json();
+    renderRows(Array.isArray(data) ? data : []);
+  }
+
   // Handle new equipment submission
   if (addEquipmentForm) {
-    addEquipmentForm.addEventListener('submit', (e) => {
+    addEquipmentForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const newEquipment = {
+      const payload = {
         equipmentName: document.getElementById('addEquipmentName').value,
         equipmentType: document.getElementById('addEquipmentType').value,
         serialNumber: document.getElementById('addSerialNumber').value,
@@ -86,25 +119,33 @@ document.addEventListener("DOMContentLoaded", () => {
         purchaseDate: document.getElementById('addPurchaseDate').value,
         warrantyExpiry: document.getElementById('addWarrantyExpiry').value
       };
-
+      const res = await fetch(API_BASE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const err = await res.text();
+        alert(`Failed to add equipment: ${err || res.status}`);
+        return;
+      }
+      const created = await res.json();
       const newRow = document.createElement('tr');
-      newRow.dataset.id = nextId++;
+      newRow.dataset.id = created.equipmentId;
       newRow.innerHTML = `
-        <td><span class="label">${newEquipment.equipmentName}</span></td>
-        <td><span class="label">${newEquipment.equipmentType}</span></td>
-        <td><span class="label">${newEquipment.serialNumber}</span></td>
-        <td><span class="label">${newEquipment.location}</span></td>
-        <td><span class="label status-label">${newEquipment.status}</span></td>
-        <td><span class="label readonly-label">${newEquipment.purchaseDate}</span></td>
-        <td><span class="label readonly-label">${newEquipment.warrantyExpiry}</span></td>
+        <td><span class="label">${created.equipmentName ?? payload.equipmentName}</span></td>
+        <td><span class="label">${created.equipmentType ?? payload.equipmentType}</span></td>
+        <td><span class="label">${created.serialNumber ?? payload.serialNumber}</span></td>
+        <td><span class="label">${created.location ?? payload.location}</span></td>
+        <td><span class="label status-label">${created.status ?? payload.status}</span></td>
+        <td><span class="label readonly-label">${created.purchaseDate ?? payload.purchaseDate}</span></td>
+        <td><span class="label readonly-label">${created.warrantyExpiry ?? payload.warrantyExpiry}</span></td>
         <td>
           <div class="action-icons-container">
             <button class="btn-edit-label edit-btn">Edit Equipment</button>
           </div>
-        </td>
-      `;
-      tbody.appendChild(newRow);
-
+        </td>`;
+      tbody.prepend(newRow);
       addEquipmentForm.reset();
       addEquipmentModalOverlay.style.display = 'none';
       document.body.style.overflow = '';
@@ -232,46 +273,54 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  function saveRowChanges(row) {
+  async function saveRowChanges(row) {
+    const id = row.dataset.id;
+    if (!id) return;
     const cells = row.querySelectorAll('td');
-    cells.forEach((cell, index) => {
-      let value = '';
-      const input = cell.querySelector('.editable-input');
-      const select = cell.querySelector('.status-select');
-      const readonlyLabel = cell.querySelector('.readonly-label');
+    const equipmentName = cells[0]?.querySelector('.editable-input')?.value?.trim();
+    const equipmentType = cells[1]?.querySelector('.editable-input')?.value?.trim();
+    const serialNumber = cells[2]?.querySelector('.editable-input')?.value?.trim();
+    const location = cells[3]?.querySelector('.editable-input')?.value?.trim() || cells[3]?.textContent?.trim();
+    const status = cells[4]?.querySelector('.status-select')?.dataset?.currentValue;
 
-      if (input) {
-        value = input.value;
-        const label = document.createElement('span');
-        label.className = 'label';
-        label.textContent = value;
-        cell.innerHTML = '';
-        cell.appendChild(label);
-      } else if (select) {
-        value = select.dataset.currentValue || select.textContent.trim();
-        const label = document.createElement('span');
-        label.className = 'label status-label';
-        label.textContent = value;
-        cell.innerHTML = '';
-        cell.appendChild(label);
-        updateStatusLabelStyles(row);
-      } else if (readonlyLabel) {
-        // keep as is
-      }
+    const res = await fetch(`${API_BASE}/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ equipmentName, equipmentType, serialNumber, location, status })
     });
+    if (!res.ok) {
+      const err = await res.text();
+      alert(`Failed to update equipment: ${err || res.status}`);
+      return;
+    }
+    const updated = await res.json();
 
+    cells[0].innerHTML = `<span class="label">${updated.equipmentName ?? ''}</span>`;
+    cells[1].innerHTML = `<span class=\"label\">${updated.equipmentType ?? ''}</span>`;
+    cells[2].innerHTML = `<span class=\"label\">${updated.serialNumber ?? ''}</span>`;
+    cells[3].innerHTML = `<span class=\"label\">${updated.location ?? ''}</span>`;
+    cells[4].innerHTML = `<span class=\"label status-label\">${updated.status ?? ''}</span>`;
+    updateStatusLabelStyles(row);
     const actionsCell = row.querySelector('td:last-child');
     actionsCell.innerHTML = `
       <div class="action-icons-container">
         <button class="btn-edit-label edit-btn">Edit Equipment</button>
-      </div>
-    `;
+      </div>`;
   }
 
-  function deleteRow(row) {
-    if (confirm('Are you sure you want to delete this equipment?')) {
-      row.remove();
+  function deleteRowUI(row) { row.remove(); }
+
+  async function deleteRow(row) {
+    if (!confirm('Are you sure you want to delete this equipment?')) return;
+    const id = row.dataset.id;
+    if (!id) { deleteRowUI(row); return; }
+    const res = await fetch(`${API_BASE}/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    if (!res.ok) {
+      const err = await res.text();
+      alert(`Failed to delete equipment: ${err || res.status}`);
+      return;
     }
+    deleteRowUI(row);
   }
 
   if (tbody) {
@@ -281,6 +330,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!row) return;
       if (target.classList.contains("edit-btn")) {
         makeRowEditable(row);
+        const actionsCell = row.querySelector('td:last-child');
+        actionsCell.innerHTML = `
+          <div class="action-icons-container">
+            <img src="/images/correct.png" class="action-icon save-btn" alt="Save">
+            <img src="/images/trash.png" class="action-icon delete-btn" alt="Delete">
+          </div>`;
       } else if (target.classList.contains("save-btn")) {
         saveRowChanges(row);
       } else if (target.classList.contains("delete-btn")) {
@@ -288,4 +343,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  // Initial load
+  loadEquipment();
 }); 

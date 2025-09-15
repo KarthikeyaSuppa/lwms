@@ -4,9 +4,12 @@ import com.lwms.backend.entities.Inventory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface InventoryRepository extends JpaRepository<Inventory, Integer> {
 	Optional<Inventory> findByItemCode(String itemCode);
+	List<Inventory> findByItemCodeContainingIgnoreCaseOrItemNameContainingIgnoreCase(String itemCode, String itemName);
+	List<Inventory> findByCategory_CategoryNameContainingIgnoreCase(String categoryName);
 } 

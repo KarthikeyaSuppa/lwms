@@ -1,27 +1,33 @@
 package com.lwms.backend.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 @Entity
-@Table(name = "Locations")
+@Table(name = "locations")
 public class Locations {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer locationId;
 
-    @Column(unique = true, nullable = false)
-    private String locationCode;
-
-    @Column(nullable = false)
+    @NotBlank
+    @Size(max = 10)
+    @Column(nullable = false, length = 10)
     private String zone;
 
-    @Column(nullable = false)
+    @NotBlank
+    @Size(max = 10)
+    @Column(nullable = false, length = 10)
     private String aisle;
 
-    @Column(nullable = false)
+    @NotBlank
+    @Size(max = 10)
+    @Column(nullable = false, length = 10)
     private String rack;
 
-    @Column(nullable = false)
+    @NotBlank
+    @Size(max = 10)
+    @Column(nullable = false, length = 10)
     private String shelf;
 
     private Integer capacity = 100;
@@ -46,7 +52,6 @@ public class Locations {
 
 	/**
 	 * @param locationId
-	 * @param locationCode
 	 * @param zone
 	 * @param aisle
 	 * @param rack
@@ -56,11 +61,10 @@ public class Locations {
 	 * @param locationType
 	 * @param isActive
 	 */
-	public Locations(Integer locationId, String locationCode, String zone, String aisle, String rack, String shelf,
+	public Locations(Integer locationId, String zone, String aisle, String rack, String shelf,
 			Integer capacity, Integer currentLoad, LocationType locationType, Boolean isActive) {
 		super();
 		this.locationId = locationId;
-		this.locationCode = locationCode;
 		this.zone = zone;
 		this.aisle = aisle;
 		this.rack = rack;
@@ -77,14 +81,6 @@ public class Locations {
 
 	public void setLocationId(Integer locationId) {
 		this.locationId = locationId;
-	}
-
-	public String getLocationCode() {
-		return locationCode;
-	}
-
-	public void setLocationCode(String locationCode) {
-		this.locationCode = locationCode;
 	}
 
 	public String getZone() {

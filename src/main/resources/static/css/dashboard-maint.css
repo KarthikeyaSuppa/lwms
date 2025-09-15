@@ -1,0 +1,22 @@
+.sheet{ background:linear-gradient(180deg, #e2caa1, #d9bb8e); border:1px solid rgba(62,47,25,.25); border-radius:.75rem; box-shadow:0 10px 30px rgba(62,47,25,.25), inset 0 1px 0 rgba(255,255,255,.35); position:relative; view-transition-name: sheet; }
+.box-card{ background:linear-gradient(180deg, #d7b785, #caa475); border:1px solid rgba(62,47,25,.3); border-radius:.75rem; padding:1rem; box-shadow:0 6px 16px rgba(62,47,25,.22), inset 0 1px 0 rgba(255,255,255,.25); position:relative; overflow:hidden; transition: transform .2s ease, box-shadow .2s ease, filter .2s ease; }
+.box-card:hover{ transform:translateY(-4px); box-shadow:0 12px 28px rgba(62,47,25,.28), inset 0 1px 0 rgba(255,255,255,.3); filter:brightness(1.03); }
+a.box-card:focus-visible{ outline:2px dashed rgba(62,47,25,.6); outline-offset:4px; }
+.box-card .flap{ position:absolute; top:-20px; right:-40px; width:120px; height:60px; background:linear-gradient(180deg, #c39a68, #b78957); transform:rotate(35deg); box-shadow: inset 0 1px 0 rgba(255,255,255,.25); }
+.box-card .label{ display:inline-block; padding:.35rem .5rem; font-weight:600; border:1px dashed rgba(62,47,25,.5); background:linear-gradient(180deg, #d7b785, #caa475); border-radius:.35rem; }
+.navbar{ background: rgba(201,164,112,.85) !important; -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); border-bottom:1px solid rgba(62,47,25,.25); }
+.nav-link img{ transition:.3s; filter:brightness(1); }
+.nav-link:hover img{ filter:brightness(1.2); transform:scale(1.05); }
+.nav-link:active img{ transform:scale(.95); }
+.modal-content.box-card{ box-shadow:0 10px 30px rgba(62,47,25,.25); }
+.modal-header .btn-close{ filter: invert(1) grayscale(100%) brightness(1.5) sepia(0) saturate(0); }
+.tabstrip{ display:flex; gap:.35rem; align-items:center; justify-content:center; background: rgba(201,164,112,.55); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); border:1px solid rgba(62,47,25,.25); border-radius: 14px; padding: .315rem .35rem; width: fit-content; margin: 1rem auto .5rem auto; }
+.tabstrip .tab{ display:inline-flex; align-items:center; gap:.35rem; padding: .5rem .85rem; border-radius: 12px; border:1px dashed transparent; background: transparent; color:#3e2f19; text-decoration:none; font-weight:600; transition: filter .2s ease, background .2s ease, border-color .2s ease; }
+.tabstrip .tab:hover{ filter: brightness(1.05); border-color: rgba(62,47,25,.35); background: rgba(255,255,255,.25); }
+.tabstrip .tab.active{ background: linear-gradient(180deg, #d7b785, #caa475); border:1px dashed rgba(62,47,25,.45); }
+body{ min-height:100vh; background:
+  radial-gradient(1200px 600px at 50% -10%, rgba(0,0,0,.12), transparent 60%) no-repeat,
+  repeating-linear-gradient(90deg, #cfae79 0 18px, #b9925e 18px 20px),
+  linear-gradient(#cfae79, #cfae79);
+  background-blend-mode: multiply, normal, normal;
+  color:#3e2f19; } 

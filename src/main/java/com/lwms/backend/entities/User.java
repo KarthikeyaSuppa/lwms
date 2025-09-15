@@ -1,13 +1,12 @@
 package com.lwms.backend.entities;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 import jakarta.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "Users", indexes = {
+@Table(name = "users", indexes = {
         @Index(name = "idx_users_username", columnList = "username"),
         @Index(name = "idx_users_email", columnList = "email")
 })
@@ -18,38 +17,36 @@ public class User {
     private Integer userId;
 
     @NotBlank
-    @Size(max = 64)
-    @Column(nullable = false, unique=true, length = 64)
+    @Size(max = 50)
+    @Column(nullable = false, unique=true, length = 50)
     private String username;
 
     @NotBlank
     @Email
-    @Size(max = 254)
-    @Column(nullable = false, unique=true, length = 254)
+    @Size(max = 100)
+    @Column(nullable = false, unique=true, length = 100)
     private String email;
 
     @Column(nullable = false)
     private String passwordHash;
 
-    // Transient field for form binding (not persisted to database)
     @Transient
     private String password;
 
     @NotBlank
-    @Size(max = 100)
-    @Column(nullable = false, length = 100)
+    @Size(max = 50)
+    @Column(nullable = false, length = 50)
     private String firstName;
 
     @NotBlank
-    @Size(max = 100)
-    @Column(nullable = false, length = 100)
+    @Size(max = 50)
+    @Column(nullable = false, length = 50)
     private String lastName;
 
-    @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
+    @Column(columnDefinition = "TINYINT(1) DEFAULT 1")
     private Boolean isActive;
 
-    @CreationTimestamp
-    @Column(updatable = false)
+    @Column(insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
     private LocalDateTime lastLogin;
@@ -59,11 +56,9 @@ public class User {
     @JsonIgnore
     private Role role;
 
-    // A no-argument constructor is required by JPA
     public User() {
     }
 
-    // Constructor with all fields
     public User(Integer userId, String username, String email, String passwordHash, String firstName, String lastName, Boolean isActive, LocalDateTime createdAt, LocalDateTime lastLogin, Role role) {
         this.userId = userId;
         this.username = username;
@@ -77,7 +72,6 @@ public class User {
         this.role = role;
     }
 
-    // Getters and Setters for all fields
     public Integer getUserId() {
         return userId;
     }

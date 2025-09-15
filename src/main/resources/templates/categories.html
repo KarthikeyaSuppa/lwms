@@ -53,7 +53,6 @@
             <th class="pb-3"><span class="label">Category Name</span></th>
             <th class="pb-3"><span class="label">Category Code</span></th>
             <th class="pb-3"><span class="label">Description</span></th>
-            <th class="pb-3"><span class="label">Parent Category</span></th>
             <th class="pb-3"><span class="label">Actions</span></th>
           </tr>
         </thead>
@@ -62,42 +61,36 @@
             <td><span class="label">Electronics</span></td>
             <td><span class="label">ELEC</span></td>
             <td><span class="label">Electronic devices and components</span></td>
-            <td><span class="label">-</span></td>
             <td><button class="btn-edit-label edit-btn">Edit Category</button></td>
           </tr>
           <tr>
             <td><span class="label">Computers</span></td>
             <td><span class="label">COMP</span></td>
             <td><span class="label">Desktop and laptop computers</span></td>
-            <td><span class="label">Electronics</span></td>
             <td><button class="btn-edit-label edit-btn">Edit Category</button></td>
           </tr>
           <tr>
             <td><span class="label">Furniture</span></td>
             <td><span class="label">FURN</span></td>
             <td><span class="label">Office and warehouse furniture</span></td>
-            <td><span class="label">-</span></td>
             <td><button class="btn-edit-label edit-btn">Edit Category</button></td>
           </tr>
           <tr>
             <td><span class="label">Office Chairs</span></td>
             <td><span class="label">CHAIR</span></td>
             <td><span class="label">Ergonomic office chairs</span></td>
-            <td><span class="label">Furniture</span></td>
             <td><button class="btn-edit-label edit-btn">Edit Category</button></td>
           </tr>
           <tr>
             <td><span class="label">Tools</span></td>
             <td><span class="label">TOOL</span></td>
             <td><span class="label">Hand and power tools</span></td>
-            <td><span class="label">-</span></td>
             <td><button class="btn-edit-label edit-btn">Edit Category</button></td>
           </tr>
           <tr>
             <td><span class="label">Safety Equipment</span></td>
             <td><span class="label">SAFE</span></td>
             <td><span class="label">Personal protective equipment</span></td>
-            <td><span class="label">-</span></td>
             <td><button class="btn-edit-label edit-btn">Edit Category</button></td>
           </tr>
         </tbody>
@@ -141,21 +134,6 @@
           <div class="field-group">
             <label for="addCategoryCode">Category Code</label>
             <input type="text" id="addCategoryCode" name="categoryCode" required />
-          </div>
-        </div>
-        <div class="field-col right">
-          <div class="field-group">
-            <label for="addParentCategory">Parent Category</label>
-            <div class="parent-category-cell-container">
-              <div class="parent-category-select" id="addParentCategorySelect">None (Top-level category)</div>
-              <div class="parent-category-dropdown" id="addParentCategoryDropdown">
-                <div class="parent-category-dropdown-item selected" data-value="">None (Top-level category)</div>
-                <div class="parent-category-dropdown-item" data-value="Electronics">Electronics</div>
-                <div class="parent-category-dropdown-item" data-value="Furniture">Furniture</div>
-                <div class="parent-category-dropdown-item" data-value="Tools">Tools</div>
-                <div class="parent-category-dropdown-item" data-value="Safety Equipment">Safety Equipment</div>
-              </div>
-            </div>
           </div>
         </div>
       </div>

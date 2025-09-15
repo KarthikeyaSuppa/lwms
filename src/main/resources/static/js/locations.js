@@ -8,6 +8,8 @@ document.addEventListener("DOMContentLoaded", () => {
     else if (text === 'Inactive') label.classList.add('status-inactive');
   });
 
+  const API_BASE = "/locations/api"; // also available at /lwms/locations/api
+
   function toggleDropdown(dropdown) {
     document.querySelectorAll('.type-dropdown, .status-dropdown').forEach(dd => {
       if (dd !== dropdown) { dd.style.display = 'none'; dd.classList.remove('shown'); }
@@ -112,34 +114,95 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function saveRowChanges(row) {
+  async function saveRowChanges(row) {
+    const id = row.dataset.id;
+    if (!id) return;
     const cells = row.querySelectorAll('td');
-    cells.forEach((cell, index) => {
-      if (index < 7) {
-        const input = cell.querySelector('.editable-input');
-        if (input) { const label = document.createElement('span'); label.className = 'label'; label.textContent = input.value; cell.innerHTML = ''; cell.appendChild(label); }
-      } else if (index === 7) {
-        const container = cell.querySelector('.dropdown-container'); if (container) {
-          const select = container.querySelector('.type-select'); const v = select.dataset.currentValue;
-          const label = document.createElement('span'); label.className = 'label'; label.textContent = v; cell.innerHTML = ''; cell.appendChild(label);
-        }
-      } else if (index === 8) {
-        const container = cell.querySelector('.dropdown-container'); if (container) {
-          const select = container.querySelector('.status-select'); const v = select.dataset.currentValue;
-          const label = document.createElement('span'); label.className = (v === 'Active' ? 'label status-active' : 'label status-inactive'); label.textContent = v;
-          label.style.background = v === 'Active' ? 'rgba(40, 167, 69, 0.3)' : 'rgba(220, 53, 69, 0.3)';
-          label.style.borderColor = v === 'Active' ? 'rgba(40, 167, 69, 0.6)' : 'rgba(220, 53, 69, 0.6)';
-          label.style.color = v === 'Active' ? '#155724' : '#721c24';
-          cell.innerHTML = ''; cell.appendChild(label);
-        }
-      } else if (index === 9) {
-        const actionsCell = row.querySelector('td:last-child'); actionsCell.innerHTML = '<button class="btn-edit-label edit-btn">Edit Location</button>';
-      }
+    const zone = cells[1]?.querySelector('.editable-input')?.value?.trim();
+    const aisle = cells[2]?.querySelector('.editable-input')?.value?.trim();
+    const rack = cells[3]?.querySelector('.editable-input')?.value?.trim();
+    const shelf = cells[4]?.querySelector('.editable-input')?.value?.trim();
+    const capacity = parseInt(cells[5]?.querySelector('.editable-input')?.value ?? '0', 10);
+    const currentLoad = parseInt(cells[6]?.querySelector('.editable-input')?.value ?? '0', 10);
+    const locationType = cells[7]?.querySelector('.type-select')?.dataset?.currentValue;
+    const isActiveText = cells[8]?.querySelector('.status-select')?.dataset?.currentValue;
+    const isActive = isActiveText === 'Active';
+
+    const res = await fetch(`${API_BASE}/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ zone, aisle, rack, shelf, capacity, currentLoad, locationType, isActive })
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      alert(`Failed to update location: ${err || res.status}`);
+      return;
+    }
+    const updated = await res.json();
+
+    // Re-render row
+    cells[0].innerHTML = `<span class="label">${updated.locationCode ?? ''}</span>`;
+    cells[1].innerHTML = `<span class=\"label\">${updated.zone ?? ''}</span>`;
+    cells[2].innerHTML = `<span class=\"label\">${updated.aisle ?? ''}</span>`;
+    cells[3].innerHTML = `<span class=\"label\">${updated.rack ?? ''}</span>`;
+    cells[4].innerHTML = `<span class=\"label\">${updated.shelf ?? ''}</span>`;
+    cells[5].innerHTML = `<span class=\"label\">${updated.capacity ?? ''}</span>`;
+    cells[6].innerHTML = `<span class=\"label\">${updated.currentLoad ?? ''}</span>`;
+    cells[7].innerHTML = `<span class=\"label\">${updated.locationType ?? ''}</span>`;
+    const statusSpan = document.createElement('span');
+    statusSpan.className = `label ${updated.isActive ? 'status-active' : 'status-inactive'}`;
+    statusSpan.textContent = updated.isActive ? 'Active' : 'Inactive';
+    statusSpan.style.background = updated.isActive ? 'rgba(40, 167, 69, 0.3)' : 'rgba(220, 53, 69, 0.3)';
+    statusSpan.style.borderColor = updated.isActive ? 'rgba(40, 167, 69, 0.6)' : 'rgba(220, 53, 69, 0.6)';
+    statusSpan.style.color = updated.isActive ? '#155724' : '#721c24';
+    cells[8].innerHTML = ''; cells[8].appendChild(statusSpan);
+    const actionsCell = row.querySelector('td:last-child'); actionsCell.innerHTML = '<button class="btn-edit-label edit-btn">Edit Location</button>';
+  }
+
+  async function deleteRow(row) {
+    if (!confirm('Are you sure you want to delete this location?')) return;
+    const id = row.dataset.id;
+    if (!id) { row.remove(); return; }
+    const res = await fetch(`${API_BASE}/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    if (!res.ok) {
+      const err = await res.text();
+      alert(`Failed to delete location: ${err || res.status}`);
+      return;
+    }
+    row.remove();
+  }
+
+  function createLocationCode(zone, aisle, rack, shelf){
+    return `${zone}${aisle}-${rack}-${shelf}`;
+  }
+
+  function renderRows(list){
+    tbody.innerHTML = '';
+    list.forEach(loc => {
+      const row = document.createElement('tr');
+      row.dataset.id = loc.locationId;
+      row.innerHTML = `
+        <td><span class="label">${loc.locationCode ?? createLocationCode(loc.zone, loc.aisle, loc.rack, loc.shelf)}</span></td>
+        <td><span class="label">${loc.zone ?? ''}</span></td>
+        <td><span class="label">${loc.aisle ?? ''}</span></td>
+        <td><span class="label">${loc.rack ?? ''}</span></td>
+        <td><span class="label">${loc.shelf ?? ''}</span></td>
+        <td><span class="label">${loc.capacity ?? ''}</span></td>
+        <td><span class="label">${loc.currentLoad ?? ''}</span></td>
+        <td><span class="label">${loc.locationType ?? ''}</span></td>
+        <td><span class="label ${loc.isActive ? 'status-active' : 'status-inactive'}" style="background: ${loc.isActive ? 'rgba(40, 167, 69, 0.3)' : 'rgba(220, 53, 69, 0.3)'}; border-color: ${loc.isActive ? 'rgba(40, 167, 69, 0.6)' : 'rgba(220, 53, 69, 0.6)'}; color: ${loc.isActive ? '#155724' : '#721c24'};">${loc.isActive ? 'Active' : 'Inactive'}</span></td>
+        <td><button class="btn-edit-label edit-btn">Edit Location</button></td>`;
+      tbody.appendChild(row);
     });
   }
 
-  function deleteRow(row) {
-    if (confirm('Are you sure you want to delete this location?')) { row.remove(); }
+  async function loadLocations(){
+    const q = document.getElementById('searchInput')?.value?.trim();
+    const url = q ? `${API_BASE}?q=${encodeURIComponent(q)}` : API_BASE;
+    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) { console.error('Failed to load locations'); return; }
+    const data = await res.json();
+    renderRows(Array.isArray(data) ? data : []);
   }
 
   if (tbody) {
@@ -238,61 +301,52 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    addLocationForm.addEventListener('submit', (e) => {
+    addLocationForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const zone = document.getElementById('addZone').value;
       const aisle = document.getElementById('addAisle').value;
       const rack = document.getElementById('addRack').value;
       const shelf = document.getElementById('addShelf').value;
       const locationCode = `${zone}${aisle}-${rack}-${shelf}`;
-      const data = {
-        locationCode,
+      const payload = {
         zone,
         aisle,
         rack,
         shelf,
-        capacity: document.getElementById('addCapacity').value,
-        currentLoad: document.getElementById('addCurrentLoad').value,
+        capacity: parseInt(document.getElementById('addCapacity').value, 10),
+        currentLoad: parseInt(document.getElementById('addCurrentLoad').value, 10),
         locationType: document.getElementById('addLocationType').dataset.currentValue,
         isActive: document.getElementById('addIsActive').dataset.currentValue === 'Active'
       };
-      addLocationToTable(data);
+      const res = await fetch(API_BASE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const err = await res.text();
+        alert(`Failed to add location: ${err || res.status}`);
+        return;
+      }
+      const created = await res.json();
+      const newRow = document.createElement('tr');
+      newRow.dataset.id = created.locationId;
+      newRow.innerHTML = `
+        <td><span class="label">${created.locationCode ?? locationCode}</span></td>
+        <td><span class="label">${created.zone ?? zone}</span></td>
+        <td><span class="label">${created.aisle ?? aisle}</span></td>
+        <td><span class="label">${created.rack ?? rack}</span></td>
+        <td><span class="label">${created.shelf ?? shelf}</span></td>
+        <td><span class="label">${created.capacity ?? payload.capacity}</span></td>
+        <td><span class="label">${created.currentLoad ?? payload.currentLoad}</span></td>
+        <td><span class="label">${created.locationType ?? payload.locationType}</span></td>
+        <td><span class="label ${created.isActive ? 'status-active' : 'status-inactive'}" style="background: ${created.isActive ? 'rgba(40, 167, 69, 0.3)' : 'rgba(220, 53, 69, 0.3)'}; border-color: ${created.isActive ? 'rgba(40, 167, 69, 0.6)' : 'rgba(220, 53, 69, 0.6)'}; color: ${created.isActive ? '#155724' : '#721c24'};">${created.isActive ? 'Active' : 'Inactive'}</span></td>
+        <td><button class="btn-edit-label edit-btn">Edit Location</button></td>`;
+      tbody.prepend(newRow);
       addLocationModalOverlay.style.display = 'none'; document.body.style.overflow = ''; addLocationForm.reset();
     });
   }
 
-  function addLocationToTable(data){
-    const newRow = document.createElement('tr');
-    newRow.innerHTML = `
-      <td><span class="label">${data.locationCode}</span></td>
-      <td><span class="label">${data.zone}</span></td>
-      <td><span class="label">${data.aisle}</span></td>
-      <td><span class="label">${data.rack}</span></td>
-      <td><span class="label">${data.shelf}</span></td>
-      <td><span class="label">${data.capacity}</span></td>
-      <td><span class="label">${data.currentLoad}</span></td>
-      <td><span class="label">${data.locationType}</span></td>
-      <td><span class="label ${data.isActive ? 'status-active' : 'status-inactive'}" style="background: ${data.isActive ? 'rgba(40, 167, 69, 0.3)' : 'rgba(220, 53, 69, 0.3)'}; border-color: ${data.isActive ? 'rgba(40, 167, 69, 0.6)' : 'rgba(220, 53, 69, 0.6)'}; color: ${data.isActive ? '#155724' : '#721c24'};">${data.isActive ? 'Active' : 'Inactive'}</span></td>
-      <td><button class="btn-edit-label edit-btn">Edit Location</button></td>`;
-    tbody.appendChild(newRow);
-    const searchInput = document.getElementById('searchInput');
-    function normalize(text){ return (text || '').toString().toLowerCase().trim(); }
-    function filterRows(){
-      const query = normalize(searchInput.value);
-      const rows = tbody.querySelectorAll('tr');
-      rows.forEach(row => {
-        const cells = row.querySelectorAll('td');
-        const locationCode = normalize(cells[0]?.textContent);
-        const zone = normalize(cells[1]?.textContent);
-        const aisle = normalize(cells[2]?.textContent);
-        const rack = normalize(cells[3]?.textContent);
-        const shelf = normalize(cells[4]?.textContent);
-        const locationType = normalize(cells[7]?.textContent);
-        const status = normalize(cells[8]?.textContent);
-        const matches = locationCode.includes(query) || zone.includes(query) || aisle.includes(query) || rack.includes(query) || shelf.includes(query) || locationType.includes(query) || status.includes(query);
-        row.style.display = matches ? '' : 'none';
-      });
-    }
-    if (typeof filterRows === 'function' && searchInput && searchInput.value.trim() !== '') { filterRows(); }
-  }
+  // Initial load
+  loadLocations();
 }); 

@@ -2,16 +2,19 @@ package com.lwms.backend.entities;
 
 import jakarta.persistence.*;
 import java.util.Set;
+import jakarta.validation.constraints.*;
 
 @Entity
-@Table(name = "Roles")
+@Table(name = "roles")
 public class Role {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer roleId;
 
-    @Column(unique = true, nullable = false)
+    @NotBlank
+    @Size(max = 50)
+    @Column(unique = true, nullable = false, length = 50)
     private String roleName;
 
     @Column(columnDefinition = "TEXT")

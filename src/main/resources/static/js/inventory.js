@@ -2,22 +2,66 @@ document.addEventListener('DOMContentLoaded', () => {
   // Search functionality
   const searchInput = document.getElementById('searchInput');
   const table = document.getElementById('inventoryTable');
-  if (searchInput && table) {
-    searchInput.addEventListener('keyup', function() {
-      const searchTerm = this.value.toLowerCase();
-      const rows = table.querySelectorAll('tbody tr');
-      rows.forEach(row => {
-        const itemCode = row.querySelector('[data-label="Item Code"] .label').textContent.toLowerCase();
-        const itemName = row.querySelector('[data-label="Item Name"] .label').textContent.toLowerCase();
-        const category = row.querySelector('[data-label="Category"] .label').textContent.toLowerCase();
-        const status = row.querySelector('[data-label="Status"] .label').textContent.toLowerCase();
-        row.style.display = (itemCode.includes(searchTerm) || itemName.includes(searchTerm) || category.includes(searchTerm) || status.includes(searchTerm)) ? '' : 'none';
-      });
+  const tbody = document.querySelector('#inventoryTable tbody');
+  const API_BASE = '/inventory/api';
+
+  function renderRows(list){
+    tbody.innerHTML = '';
+    list.forEach(item => {
+      const tr = document.createElement('tr');
+      tr.dataset.id = item.itemId;
+      tr.innerHTML = `
+        <td data-label="Item Code"><span class="label">${item.itemCode ?? ''}</span></td>
+        <td data-label="Item Name"><span class="label">${item.itemName ?? ''}</span></td>
+        <td data-label="Category"><span class="label">${item.category ?? ''}</span></td>
+        <td><span class="label">${item.location ?? ''}</span></td>
+        <td><span class="label">${item.quantity ?? 0}</span></td>
+        <td><span class="label">${item.minStockLevel ?? 0}</span></td>
+        <td><span class="label">${item.maxStockLevel ?? 0}</span></td>
+        <td><span class="label">$${(item.unitPrice ?? 0).toString()}</span></td>
+        <td data-label="Status"><span class="label" data-status="${computeStatus(item)}">${humanizeStatus(computeStatus(item))}</span></td>
+        <td>
+          <button class="btn-edit-label edit-btn">Edit Item</button>
+          <div class="action-icons-container">
+            <img src="/images/correct.png" class="action-icon save-btn" alt="Save">
+            <img src="/images/trash.png" class="action-icon delete-btn" alt="Delete">
+          </div>
+        </td>`;
+      tbody.appendChild(tr);
     });
   }
 
-  // Edit/Save/Delete functionality
-  const tbody = document.querySelector('#inventoryTable tbody');
+  function computeStatus(item){
+    const q = Number(item.quantity ?? 0);
+    const min = Number(item.minStockLevel ?? 0);
+    const max = Number(item.maxStockLevel ?? 0);
+    if (q <= 0) return 'out-of-stock';
+    if (q < min) return 'low-stock';
+    if (q > max) return 'overstock';
+    return 'optimal';
+  }
+  function humanizeStatus(s){
+    if (s === 'out-of-stock') return 'Out of Stock';
+    if (s === 'low-stock') return 'Low Stock';
+    if (s === 'overstock') return 'Overstock';
+    return 'Optimal';
+  }
+
+  async function loadInventory(){
+    const q = searchInput?.value?.trim();
+    const url = q ? `${API_BASE}?q=${encodeURIComponent(q)}` : API_BASE;
+    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) { console.error('Failed to load inventory'); return; }
+    const data = await res.json();
+    renderRows(Array.isArray(data) ? data : []);
+  }
+
+  if (searchInput && table) {
+    searchInput.addEventListener('input', function() {
+      loadInventory();
+    });
+  }
+
   function makeRowEditable(row) {
     const cells = row.querySelectorAll('td');
     const editableIndexes = [0,1,2,3,4,5,6,7];
@@ -36,25 +80,45 @@ document.addEventListener('DOMContentLoaded', () => {
     row.classList.add('edit-mode');
   }
 
-  function saveRow(row) {
+  async function saveRow(row) {
+    const id = row.dataset.id; if (!id) return;
     const cells = row.querySelectorAll('td');
-    const editableIndexes = [0,1,2,3,4,5,6,7];
-    editableIndexes.forEach(idx => {
-      const cell = cells[idx];
-      const input = cell.querySelector('input');
-      if (!input) return;
-      const span = document.createElement('span');
-      span.className = 'label';
-      const val = input.value.trim();
-      span.textContent = idx === 7 ? `$${Number(val).toFixed(2)}` : val;
-      cell.innerHTML = '';
-      cell.appendChild(span);
-    });
+    const payload = {
+      itemCode: cells[0].querySelector('input')?.value?.trim(),
+      itemName: cells[1].querySelector('input')?.value?.trim(),
+      category: cells[2].querySelector('input')?.value?.trim(),
+      location: cells[3].querySelector('input')?.value?.trim(),
+      quantity: Number(cells[4].querySelector('input')?.value ?? '0'),
+      minStockLevel: Number(cells[5].querySelector('input')?.value ?? '0'),
+      maxStockLevel: Number(cells[6].querySelector('input')?.value ?? '0'),
+      unitPrice: Number(cells[7].querySelector('input')?.value ?? '0'),
+    };
+    const res = await fetch(`${API_BASE}/${encodeURIComponent(id)}`, { method:'PATCH', headers:{'Content-Type':'application/json','Accept':'application/json'}, body: JSON.stringify(payload) });
+    if (!res.ok){ const err = await res.text(); alert(`Failed to update item: ${err || res.status}`); return; }
+    const updated = await res.json();
+    // Re-render
+    cells[0].innerHTML = `<span class="label">${updated.itemCode ?? payload.itemCode}</span>`;
+    cells[1].innerHTML = `<span class="label">${updated.itemName ?? payload.itemName}</span>`;
+    cells[2].innerHTML = `<span class="label">${updated.category ?? payload.category}</span>`;
+    cells[3].innerHTML = `<span class="label">${updated.location ?? payload.location}</span>`;
+    cells[4].innerHTML = `<span class="label">${updated.quantity ?? payload.quantity}</span>`;
+    cells[5].innerHTML = `<span class="label">${updated.minStockLevel ?? payload.minStockLevel}</span>`;
+    cells[6].innerHTML = `<span class="label">${updated.maxStockLevel ?? payload.maxStockLevel}</span>`;
+    cells[7].innerHTML = `<span class="label">$${(updated.unitPrice ?? payload.unitPrice).toString()}</span>`;
     row.classList.remove('edit-mode');
   }
 
-  if (tbody) {
-    tbody.addEventListener('click', (e) => {
+  async function deleteRow(row){
+    const id = row.dataset.id; if (!id){ row.remove(); return; }
+    if (!confirm('Are you sure you want to delete this item?')) return;
+    const res = await fetch(`${API_BASE}/${encodeURIComponent(id)}`, { method:'DELETE' });
+    if (!res.ok){ const err = await res.text(); alert(`Failed to delete item: ${err || res.status}`); return; }
+    row.remove();
+  }
+
+  const tbodyExisting = document.querySelector('#inventoryTable tbody');
+  if (tbodyExisting) {
+    tbodyExisting.addEventListener('click', (e) => {
       const target = e.target;
       const row = target.closest('tr');
       if (!row) return;
@@ -63,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else if (target.classList.contains('save-btn')) {
         saveRow(row);
       } else if (target.classList.contains('delete-btn')) {
-        if (confirm('Are you sure you want to delete this item?')) row.remove();
+        deleteRow(row);
       }
     });
   }
@@ -74,49 +138,38 @@ document.addEventListener('DOMContentLoaded', () => {
   const closeAddItemModal = document.getElementById('closeAddItemModal');
   const addItemForm = document.getElementById('addItemForm');
 
-  if (addItemIcon) {
-    addItemIcon.addEventListener('click', () => {
-      addItemModalOverlay.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-    });
-  }
-  if (closeAddItemModal) {
-    closeAddItemModal.addEventListener('click', () => {
-      addItemModalOverlay.style.display = 'none';
-      document.body.style.overflow = '';
-    });
-  }
-  if (addItemModalOverlay) {
-    addItemModalOverlay.addEventListener('click', (e) => {
-      if (e.target === addItemModalOverlay) {
-        addItemModalOverlay.style.display = 'none';
-        document.body.style.overflow = '';
-      }
-    });
-  }
+  if (addItemIcon) { addItemIcon.addEventListener('click', () => { addItemModalOverlay.style.display = 'flex'; document.body.style.overflow = 'hidden'; }); }
+  if (closeAddItemModal) { closeAddItemModal.addEventListener('click', () => { addItemModalOverlay.style.display = 'none'; document.body.style.overflow = ''; }); }
+  if (addItemModalOverlay) { addItemModalOverlay.addEventListener('click', (e) => { if (e.target === addItemModalOverlay) { addItemModalOverlay.style.display = 'none'; document.body.style.overflow = ''; } }); }
 
   if (addItemForm) {
-    addItemForm.addEventListener('submit', (e) => {
+    addItemForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const data = {
+      const payload = {
         itemCode: document.getElementById('addItemCode').value,
         itemName: document.getElementById('addItemName').value,
         category: document.getElementById('addCategory').value,
         location: document.getElementById('addLocation').value,
-        quantity: document.getElementById('addQuantity').value,
-        unitPrice: document.getElementById('addUnitPrice').value
+        quantity: Number(document.getElementById('addQuantity').value),
+        minStockLevel: 0,
+        maxStockLevel: 0,
+        unitPrice: Number(document.getElementById('addUnitPrice').value)
       };
+      const res = await fetch(API_BASE, { method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'}, body: JSON.stringify(payload) });
+      if (!res.ok){ const err = await res.text(); alert(`Failed to add item: ${err || res.status}`); return; }
+      const created = await res.json();
       const tr = document.createElement('tr');
+      tr.dataset.id = created.itemId;
       tr.innerHTML = `
-        <td data-label="Item Code"><span class="label">${data.itemCode}</span></td>
-        <td data-label="Item Name"><span class="label">${data.itemName}</span></td>
-        <td data-label="Category"><span class="label">${data.category}</span></td>
-        <td><span class="label">${data.location}</span></td>
-        <td><span class="label">${data.quantity}</span></td>
-        <td><span class="label">0</span></td>
-        <td><span class="label">0</span></td>
-        <td><span class="label">$${Number(data.unitPrice).toFixed(2)}</span></td>
-        <td data-label="Status"><span class="label" data-status="optimal">Optimal</span></td>
+        <td data-label="Item Code"><span class="label">${created.itemCode ?? payload.itemCode}</span></td>
+        <td data-label="Item Name"><span class="label">${created.itemName ?? payload.itemName}</span></td>
+        <td data-label="Category"><span class="label">${created.category ?? payload.category}</span></td>
+        <td><span class="label">${created.location ?? payload.location}</span></td>
+        <td><span class="label">${created.quantity ?? payload.quantity}</span></td>
+        <td><span class="label">${created.minStockLevel ?? 0}</span></td>
+        <td><span class="label">${created.maxStockLevel ?? 0}</span></td>
+        <td><span class="label">$${(created.unitPrice ?? payload.unitPrice).toString()}</span></td>
+        <td data-label="Status"><span class="label" data-status="${computeStatus(created)}">${humanizeStatus(computeStatus(created))}</span></td>
         <td>
           <button class="btn-edit-label edit-btn">Edit Item</button>
           <div class="action-icons-container">
@@ -124,14 +177,17 @@ document.addEventListener('DOMContentLoaded', () => {
             <img src="/images/trash.png" class="action-icon delete-btn" alt="Delete">
           </div>
         </td>`;
-      table.querySelector('tbody').appendChild(tr);
+      table.querySelector('tbody').prepend(tr);
       addItemModalOverlay.style.display = 'none';
       document.body.style.overflow = '';
       addItemForm.reset();
     });
   }
 
-  // Initialize existing delete buttons image paths
+  // Fix icon paths if needed
   document.querySelectorAll('.action-icons-container img[src="trash.png"]').forEach(el => { el.src = '/images/trash.png'; });
   document.querySelectorAll('.action-icons-container img[src="correct.png"]').forEach(el => { el.src = '/images/correct.png'; });
+
+  // Initial load
+  loadInventory();
 }); 

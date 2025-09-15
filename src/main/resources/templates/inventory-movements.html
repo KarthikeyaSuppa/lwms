@@ -17,7 +17,7 @@
     <div id="nav" class="collapse navbar-collapse">
       <ul class="navbar-nav ms-auto">
         <li class="nav-item">
-          <a class="nav-link fw-semibold d-flex align-items-center" th:href="@{/dashboard}" title="Back">
+          <a class="nav-link fw-semibold d-flex align-items-center" th:href="@{/dashboard2}" title="Back">
             Back <img th:src="@{/images/back-button.png}" alt="Back" style="width: 20px; height: 20px; margin-left: 5px;">
           </a>
         </li>
@@ -115,7 +115,7 @@
 <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content box-card">
-      <div class="modal-header d-flex justify-content-between align-items-start">
+      <div class="modal-header d-flex justify-content_between align-items-start">
         <div>
           <h5 class="modal-title" id="profileModalLabel">User Profile</h5>
           <div class="label mt-2">Personal Information</div>
@@ -141,7 +141,7 @@
       <div class="field-col">
         <label for="addItemId">Item ID</label>
         <div class="inv-cell-container">
-          <div class="inv-select" id="addItemIdSelect" data-current-value="ITEM001">ITEM001</div>
+          <div class="inv-select" id="addItemIdSelect" data-current_value="ITEM001">ITEM001</div>
           <div class="inv-dropdown" id="addItemIdDropdown">
             <div class="inv-dropdown-item selected" data-value="ITEM001">ITEM001</div>
             <div class="inv-dropdown-item" data-value="ITEM002">ITEM002</div>
@@ -160,8 +160,8 @@
       </div>
       <div class="field-col">
         <label for="addMovementType">Movement Type</label>
-        <div class="inv-cell-container">
-          <div class="inv-select" id="addMovementTypeSelect" data-current-value="IN">IN</div>
+        <div class="inv-cell_container">
+          <div class="inv-select" id="addMovementTypeSelect" data-current_value="IN">IN</div>
           <div class="inv-dropdown" id="addMovementTypeDropdown">
             <div class="inv-dropdown-item selected" data-value="IN">IN</div>
             <div class="inv-dropdown-item" data-value="OUT">OUT</div>
@@ -181,7 +181,7 @@
         <label for="addQuantity">Quantity</label>
         <input type="number" id="addQuantity" name="quantity" min="1" required />
       </div>
-      <div class="field-col">
+      <div class="field_col">
         <label for="addFromLocation">From Location</label>
         <input type="text" id="addFromLocation" name="fromLocation" placeholder="A1-B2-S3 (leave empty for IN movements)" />
       </div>
@@ -193,7 +193,7 @@
       <div class="field-col">
         <label for="addReferenceType">Reference Type</label>
         <div class="inv-cell-container">
-          <div class="inv-select" id="addReferenceTypeSelect" data-current-value="Shipment">Shipment</div>
+          <div class="inv-select" id="addReferenceTypeSelect" data-current_value="Shipment">Shipment</div>
           <div class="inv-dropdown" id="addReferenceTypeDropdown">
             <div class="inv-dropdown-item selected" data-value="Shipment">Shipment</div>
             <div class="inv-dropdown-item" data-value="Transfer">Transfer</div>

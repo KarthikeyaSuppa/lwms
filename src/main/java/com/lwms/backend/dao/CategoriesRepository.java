@@ -4,9 +4,11 @@ import com.lwms.backend.entities.Categories;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface CategoriesRepository extends JpaRepository<Categories, Integer> {
 	Optional<Categories> findByCategoryCode(String categoryCode);
+	List<Categories> findByCategoryNameContainingIgnoreCaseOrCategoryCodeContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String name, String code, String description);
 } 

@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface ShipmentItemsRepository extends JpaRepository<ShipmentItems, Integer> {
 	List<ShipmentItems> findByShipment_ShipmentId(Integer shipmentId);
+	List<ShipmentItems> findByShipment_ShipmentNumber(String shipmentNumber);
 } 

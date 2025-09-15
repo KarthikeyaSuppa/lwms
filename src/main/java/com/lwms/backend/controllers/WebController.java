@@ -81,6 +81,15 @@ public class WebController {
         return "dashboard";
     }
 
+    @GetMapping("/dashboard2")
+    public String showDashboard2(@AuthenticationPrincipal UserDetails principal, Model model) {
+        if (principal != null) {
+            userService.findWithRoleByUsernameOrEmail(principal.getUsername())
+                .ifPresent(u -> model.addAttribute("user", u));
+        }
+        return "dashboard2";
+    }
+
     /**
      * Handles requests for the settings page using the authenticated principal.
      */

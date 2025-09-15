@@ -4,9 +4,11 @@ import com.lwms.backend.entities.Equipment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface EquipmentRepository extends JpaRepository<Equipment, Integer> {
 	Optional<Equipment> findBySerialNumber(String serialNumber);
+	List<Equipment> findByEquipmentNameContainingIgnoreCaseOrEquipmentTypeContainingIgnoreCaseOrSerialNumberContainingIgnoreCase(String name, String type, String serial);
 } 

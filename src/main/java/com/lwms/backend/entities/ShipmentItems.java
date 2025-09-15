@@ -2,9 +2,12 @@ package com.lwms.backend.entities;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "ShipmentItems")
+@Table(name = "shipmentitems", uniqueConstraints = {
+    @UniqueConstraint(name = "unique_shipment_item", columnNames = {"shipmentId", "itemId"})
+})
 public class ShipmentItems {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -13,18 +16,20 @@ public class ShipmentItems {
     @Column(nullable = false)
     private Integer quantity;
 
-    @Column(precision = 19, scale = 2)
+    @Column(precision = 10, scale = 2)
     private BigDecimal unitPrice;
 
-    @Column(precision = 19, scale = 2)
+    @Column(precision = 12, scale = 2)
     private BigDecimal totalPrice;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shipmentId", nullable = false)
+    @JsonIgnore
     private Shipments shipment;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "itemId", nullable = false)
+    @JsonIgnore
     private Inventory item;
 
 	/**

@@ -3,24 +3,31 @@ package com.lwms.backend.entities;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import jakarta.validation.constraints.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "Equipment")
+@Table(name = "equipment", indexes = {
+    @Index(name = "idx_equipment_location", columnList = "locationId")
+})
 public class Equipment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer equipmentId;
 
-    @Column(nullable = false)
+    @NotBlank
+    @Size(max = 100)
+    @Column(nullable = false, length = 100)
     private String equipmentName;
 
-    @Column(nullable = false)
+    @NotBlank
+    @Size(max = 50)
+    @Column(nullable = false, length = 50)
     private String equipmentType;
 
-    @Column(unique = true)
+    @Size(max = 100)
+    @Column(unique = true, length = 100)
     private String serialNumber;
-
-    private String location;
 
     @Enumerated(EnumType.STRING)
     private Status status = Status.Active;
@@ -29,8 +36,13 @@ public class Equipment {
 
     private LocalDate warrantyExpiry;
 
-    @Column(updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(insertable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "locationId")
+    @JsonIgnore
+    private Locations location;
 
     public enum Status {
         Active, Maintenance, Inactive
@@ -40,29 +52,18 @@ public class Equipment {
 
 	}
 
-	/**
-	 * @param equipmentId
-	 * @param equipmentName
-	 * @param equipmentType
-	 * @param serialNumber
-	 * @param location
-	 * @param status
-	 * @param purchaseDate
-	 * @param warrantyExpiry
-	 * @param createdAt
-	 */
 	public Equipment(Integer equipmentId, String equipmentName, String equipmentType, String serialNumber,
-			String location, Status status, LocalDate purchaseDate, LocalDate warrantyExpiry, LocalDateTime createdAt) {
+			Status status, LocalDate purchaseDate, LocalDate warrantyExpiry, LocalDateTime createdAt, Locations location) {
 		super();
 		this.equipmentId = equipmentId;
 		this.equipmentName = equipmentName;
 		this.equipmentType = equipmentType;
 		this.serialNumber = serialNumber;
-		this.location = location;
 		this.status = status;
 		this.purchaseDate = purchaseDate;
 		this.warrantyExpiry = warrantyExpiry;
 		this.createdAt = createdAt;
+		this.location = location;
 	}
 
 	public Integer getEquipmentId() {
@@ -97,14 +98,6 @@ public class Equipment {
 		this.serialNumber = serialNumber;
 	}
 
-	public String getLocation() {
-		return location;
-	}
-
-	public void setLocation(String location) {
-		this.location = location;
-	}
-
 	public Status getStatus() {
 		return status;
 	}
@@ -137,6 +130,13 @@ public class Equipment {
 		this.createdAt = createdAt;
 	}
 
+	public Locations getLocation() {
+		return location;
+	}
 
-	
+	public void setLocation(Locations location) {
+		this.location = location;
+	}
+
+
 }

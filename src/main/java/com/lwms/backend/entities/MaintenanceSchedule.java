@@ -3,16 +3,22 @@ package com.lwms.backend.entities;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
-import org.hibernate.annotations.CreationTimestamp;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.JdbcTypeCode;
+import java.sql.Types;
 
 @Entity
-@Table(name = "MaintenanceSchedule")
+@Table(name = "maintenanceschedule", indexes = {
+    @Index(name = "idx_ms_equipment", columnList = "equipmentId"),
+    @Index(name = "idx_ms_assignedTo", columnList = "assignedTo"),
+    @Index(name = "idx_ms_createdBy", columnList = "createdBy")
+})
 public class MaintenanceSchedule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer scheduleId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)
     private String taskDescription;
 
     @Enumerated(EnumType.STRING)
@@ -27,7 +33,9 @@ public class MaintenanceSchedule {
 
     private Integer estimatedDuration = 60;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = MaintenanceScheduleStatusConverter.class)
+    @JdbcTypeCode(Types.CHAR)
+    @Column(columnDefinition = "enum('Scheduled','In Progress','Completed','Cancelled')")
     private Status status = Status.Scheduled;
 
     private LocalDateTime completedDate;
@@ -37,22 +45,25 @@ public class MaintenanceSchedule {
     @Column(precision = 10, scale = 2)
     private BigDecimal cost = BigDecimal.ZERO;
 
+    @Column(columnDefinition = "TEXT")
     private String notes;
 
-    @CreationTimestamp
-    @Column(updatable = false)
+    @Column(insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "equipmentId", nullable = false)
+    @JsonIgnore
     private Equipment equipment;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assignedTo")
+    @JsonIgnore
     private User assignedTo;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "createdBy", nullable = false)
+    @JsonIgnore
     private User createdBy;
 
     public enum MaintenanceType {
@@ -67,9 +78,6 @@ public class MaintenanceSchedule {
         Scheduled, In_Progress, Completed, Cancelled
     }
 
-	/**
-	 * 
-	 */
 	public MaintenanceSchedule() {
 
 	}
