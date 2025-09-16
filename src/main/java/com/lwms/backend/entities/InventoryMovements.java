@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.JdbcTypeCode;
 import java.sql.Types;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "inventorymovements", indexes = {
@@ -31,10 +33,12 @@ public class InventoryMovements {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fromLocationId")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Locations fromLocation;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "toLocationId")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Locations toLocation;
 
     @JdbcTypeCode(Types.CHAR)

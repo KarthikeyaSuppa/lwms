@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "inventory", indexes = {
@@ -43,6 +45,7 @@ public class Inventory {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "locationId", nullable = false)
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	@NotNull
 	@JsonIgnore
 	private Locations location;

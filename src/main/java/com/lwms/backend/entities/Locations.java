@@ -2,6 +2,9 @@ package com.lwms.backend.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import java.util.List;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "locations")
@@ -38,6 +41,19 @@ public class Locations {
     private LocationType locationType = LocationType.Storage;
 
     private Boolean isActive = true;
+
+    // Cascade deletions to dependent rows that reference this location
+    @OneToMany(mappedBy = "location", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Inventory> inventories;
+
+    @OneToMany(mappedBy = "location", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Equipment> equipmentList;
+
+    @OneToMany(mappedBy = "fromLocation", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<InventoryMovements> movementsFrom;
+
+    @OneToMany(mappedBy = "toLocation", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<InventoryMovements> movementsTo;
 
     public enum LocationType {
         Storage, Receiving, Shipping, Quality
@@ -146,6 +162,5 @@ public class Locations {
 	public void setIsActive(Boolean isActive) {
 		this.isActive = isActive;
 	}
-
 
 }
