@@ -40,7 +40,6 @@
     <div class="header-row d-flex align-items-center justify-content-between mb-4">
       <div class="d-flex align-items-center">
         <h3 class="mb-0">Reports & Analytics</h3>
-        <img th:src="@{/images/report-add-icon.png}" alt="Generate Report" class="generate-report-icon" width="24" height="24" id="generateReportIcon">
       </div>
       <div class="filter-container">
         <select class="filter-select" id="timeRangeFilter">
@@ -49,9 +48,6 @@
           <option value="90">Last 90 Days</option>
           <option value="365">Last Year</option>
         </select>
-        <button class="refresh-btn" id="refreshDataBtn" title="Refresh Data">
-          <img th:src="@{/images/search.png}" alt="Refresh" width="20" height="20">
-        </button>
       </div>
     </div>
 

@@ -5,12 +5,16 @@ import java.math.BigDecimal;
 public class InventoryCreateRequest {
 	private String itemCode;
 	private String itemName;
-	private String category; // label from UI
-	private String location; // label from UI
+	private String category; // legacy label from UI
+	private String location; // legacy label from UI
 	private Integer quantity;
 	private Integer minStockLevel;
 	private Integer maxStockLevel;
 	private BigDecimal unitPrice;
+	// New: prefer IDs when provided
+	private Integer categoryId;
+	private Integer locationId;
+	private Integer supplierId;
 
 	public String getItemCode() { return itemCode; }
 	public void setItemCode(String itemCode) { this.itemCode = itemCode; }
@@ -28,4 +32,10 @@ public class InventoryCreateRequest {
 	public void setMaxStockLevel(Integer maxStockLevel) { this.maxStockLevel = maxStockLevel; }
 	public BigDecimal getUnitPrice() { return unitPrice; }
 	public void setUnitPrice(BigDecimal unitPrice) { this.unitPrice = unitPrice; }
+	public Integer getCategoryId() { return categoryId; }
+	public void setCategoryId(Integer categoryId) { this.categoryId = categoryId; }
+	public Integer getLocationId() { return locationId; }
+	public void setLocationId(Integer locationId) { this.locationId = locationId; }
+	public Integer getSupplierId() { return supplierId; }
+	public void setSupplierId(Integer supplierId) { this.supplierId = supplierId; }
 } 

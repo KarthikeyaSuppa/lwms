@@ -3,12 +3,14 @@ package com.lwms.backend.services;
 import com.lwms.backend.dao.InventoryRepository;
 import com.lwms.backend.dao.CategoriesRepository;
 import com.lwms.backend.dao.LocationsRepository;
+import com.lwms.backend.dao.SuppliersRepository;
 import com.lwms.backend.dto.InventoryCreateRequest;
 import com.lwms.backend.dto.InventorySummaryDto;
 import com.lwms.backend.dto.InventoryUpdateRequest;
 import com.lwms.backend.entities.Categories;
 import com.lwms.backend.entities.Inventory;
 import com.lwms.backend.entities.Locations;
+import com.lwms.backend.entities.Suppliers;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -25,11 +27,13 @@ public class InventoryService {
 	private final InventoryRepository inventoryRepository;
 	private final CategoriesRepository categoriesRepository;
 	private final LocationsRepository locationsRepository;
+	private final SuppliersRepository suppliersRepository;
 
-	public InventoryService(InventoryRepository inventoryRepository, CategoriesRepository categoriesRepository, LocationsRepository locationsRepository) {
+	public InventoryService(InventoryRepository inventoryRepository, CategoriesRepository categoriesRepository, LocationsRepository locationsRepository, SuppliersRepository suppliersRepository) {
 		this.inventoryRepository = inventoryRepository;
 		this.categoriesRepository = categoriesRepository;
 		this.locationsRepository = locationsRepository;
+		this.suppliersRepository = suppliersRepository;
 	}
 
 	@Transactional(readOnly = true)
@@ -43,8 +47,8 @@ public class InventoryService {
 			agg.addAll(byCodeOrName); 
 			agg.addAll(byCategory);
 			results = new ArrayList<>(Map.copyOf(agg.stream().collect(Collectors.toMap(Inventory::getItemId, i -> i, (a,b)->a))).values());//Uses a Map to remove duplicates based on itemId. 
-																																		   //If duplicates exist, keeps the first occurrence ((a,b) -> a).
-																																		   //Converts the map values back to a list.
+																																																																																					//If duplicates exist, keeps the first occurrence ((a,b) -> a).
+																																																																					//Converts the map values back to a list.
 		} else {
 			results = inventoryRepository.findAll();
 		}
@@ -54,17 +58,21 @@ public class InventoryService {
 	@Transactional
 	public InventorySummaryDto create(InventoryCreateRequest req) {
 		validateCreate(req);//Ensures the request meets business rules (e.g., required fields, valid values).
-							//Likely throws an exception if validation fails.
 		Inventory inv = new Inventory();
 		inv.setItemCode(req.getItemCode());
 		inv.setItemName(req.getItemName());
 		inv.setQuantity(Optional.ofNullable(req.getQuantity()).orElse(0));//Uses Optional.ofNullable(...).orElse(...)
-																		  //to provide default values if the request fields are null
 		inv.setMinStockLevel(Optional.ofNullable(req.getMinStockLevel()).orElse(0));
 		inv.setMaxStockLevel(Optional.ofNullable(req.getMaxStockLevel()).orElse(0));
 		inv.setUnitPrice(Optional.ofNullable(req.getUnitPrice()).orElse(BigDecimal.ZERO));
-		inv.setCategory(resolveCategory(req.getCategory()));
-		inv.setLocation(resolveLocation(req.getLocation()));
+		// Resolve associations: prefer IDs if present, otherwise legacy label resolution
+		inv.setCategory(resolveCategory(req.getCategoryId(), req.getCategory()));
+		inv.setLocation(resolveLocation(req.getLocationId(), req.getLocation()));
+		if (req.getSupplierId() != null) {
+			Suppliers s = suppliersRepository.findById(req.getSupplierId())
+				.orElseThrow(() -> new RuntimeException("Supplier not found: " + req.getSupplierId()));
+			inv.setSupplier(s);
+		}
 		Inventory saved = inventoryRepository.save(inv);
 		return toDto(saved);
 	}
@@ -79,8 +87,25 @@ public class InventoryService {
 		if (req.getMinStockLevel() != null) inv.setMinStockLevel(req.getMinStockLevel());
 		if (req.getMaxStockLevel() != null) inv.setMaxStockLevel(req.getMaxStockLevel());
 		if (req.getUnitPrice() != null) inv.setUnitPrice(req.getUnitPrice());
-		if (StringUtils.hasText(req.getCategory())) inv.setCategory(resolveCategory(req.getCategory()));
-		if (StringUtils.hasText(req.getLocation())) inv.setLocation(resolveLocation(req.getLocation()));
+		if (req.getCategoryId() != null) {
+			Categories c = categoriesRepository.findById(req.getCategoryId())
+					.orElseThrow(() -> new RuntimeException("Category not found: " + req.getCategoryId()));
+			inv.setCategory(c);
+		} else if (StringUtils.hasText(req.getCategory())) {
+			inv.setCategory(resolveCategory(null, req.getCategory()));
+		}
+		if (req.getLocationId() != null) {
+			Locations l = locationsRepository.findById(req.getLocationId())
+					.orElseThrow(() -> new RuntimeException("Location not found: " + req.getLocationId()));
+			inv.setLocation(l);
+		} else if (StringUtils.hasText(req.getLocation())) {
+			inv.setLocation(resolveLocation(null, req.getLocation()));
+		}
+		if (req.getSupplierId() != null) {
+			Suppliers s = suppliersRepository.findById(req.getSupplierId())
+					.orElseThrow(() -> new RuntimeException("Supplier not found: " + req.getSupplierId()));
+			inv.setSupplier(s);
+		}
 		Inventory saved = inventoryRepository.save(inv);
 		return toDto(saved);
 	}
@@ -91,7 +116,11 @@ public class InventoryService {
 		inventoryRepository.deleteById(itemId);
 	}
 
-	private Categories resolveCategory(String labelOrCode) {
+	private Categories resolveCategory(Integer categoryId, String labelOrCode) {
+		if (categoryId != null) {
+			return categoriesRepository.findById(categoryId)
+				.orElseThrow(() -> new RuntimeException("Category not found: " + categoryId));
+		}
 		if (!StringUtils.hasText(labelOrCode)) throw new IllegalArgumentException("category is required");
 		String val = labelOrCode.trim();
 		// Prefer exact code match, otherwise exact name (case-insensitive)
@@ -101,7 +130,11 @@ public class InventoryService {
 						.orElseThrow(() -> new RuntimeException("Category not found: " + val)));
 	}
 
-	private Locations resolveLocation(String label) {
+	private Locations resolveLocation(Integer locationId, String label) {
+		if (locationId != null) {
+			return locationsRepository.findById(locationId)
+				.orElseThrow(() -> new RuntimeException("Location not found: " + locationId));
+		}
 		if (!StringUtils.hasText(label)) throw new IllegalArgumentException("location is required");
 		String target = normalizeLocationLabel(label);
 		return locationsRepository.findAll().stream()
@@ -145,7 +178,8 @@ public class InventoryService {
 	private void validateCreate(InventoryCreateRequest req) {
 		if (!StringUtils.hasText(req.getItemCode())) throw new IllegalArgumentException("itemCode is required");
 		if (!StringUtils.hasText(req.getItemName())) throw new IllegalArgumentException("itemName is required");
-		if (!StringUtils.hasText(req.getCategory())) throw new IllegalArgumentException("category is required");
-		if (!StringUtils.hasText(req.getLocation())) throw new IllegalArgumentException("location is required");
+		// Ensure either IDs or legacy labels provided
+		if (req.getCategoryId() == null && !StringUtils.hasText(req.getCategory())) throw new IllegalArgumentException("categoryId or category is required");
+		if (req.getLocationId() == null && !StringUtils.hasText(req.getLocation())) throw new IllegalArgumentException("locationId or location is required");
 	}
 } 

@@ -31,10 +31,15 @@ body{ min-height:100vh; background: radial-gradient(1200px 600px at 50% -10%, rg
 .add-item-modal{ background:linear-gradient(180deg,#d7b785,#caa475); border:1px solid rgba(62,47,25,.3); border-radius:1rem; box-shadow:0 8px 32px rgba(62,47,25,.22), inset 0 1px 0 rgba(255,255,255,.25); padding:1.25rem 1.5rem 1rem 1.5rem; min-width:340px; max-width:95vw; width:520px; position:relative; color:#3e2f19; }
 .add-item-modal-title{ font-size:1.25rem; font-weight:700; text-align:center; margin-bottom:.75rem; }
 .add-item-modal-close{ position:absolute; top:.75rem; right:.75rem; background:none; border:0; font-size:1.5rem; cursor:pointer; color:#3e2f19; opacity:.7; }
+/* Ensure close button glyph is visible when using &times; */
+.add-item-modal-close{ line-height:1; }
 .add-item-modal-close:hover{ opacity:1; }
 .add-item-form{ display:flex; flex-direction:column; gap:.6rem; }
 .add-item-form label{ font-weight:600; margin-bottom:.15rem; }
-.add-item-form input{ background:rgba(255,255,255,.25); border:1px dashed rgba(62,47,25,.5); border-radius:.35rem; padding:.45rem .6rem; font-weight:600; color:#3e2f19; }
+.add-item-form input{ background:rgba(255,255,255,.25); border:1px dashed rgba(62,47,25,.5); border-radius:.35rem; padding:.45rem .6rem; font-weight:600; color:#3e2f19; width:100%; box-sizing:border-box; }
+.add-item-form .form-row{ display:flex; gap:1rem; flex-wrap:wrap; }
+.add-item-form .form-row>div{ flex:1 1 0; min-width:0; }
+@media (max-width: 576px){ .add-item-form .form-row{ flex-direction:column; } }
 .editable-input{ background:rgba(255,255,255,.25); border:1px dashed rgba(62,47,25,.5); border-radius:.35rem; padding:.35rem .5rem; color:#3e2f19; font-weight:600; width:100%; max-width:100%; box-sizing:border-box; transition:all .2s ease; }
 .editable-input:focus{ outline:none; border-color:rgba(62,47,25,.7); background:rgba(255,255,255,.35); box-shadow:0 0 0 2px rgba(62,47,25,.10); }
 .editable-input:hover{ background:rgba(255,255,255,.30); }
