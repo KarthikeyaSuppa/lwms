@@ -32,7 +32,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                                         : "Username not found: " + usernameOrEmail)));
 
         String roleName = user.getRole().getRoleName();
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + roleName);
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + (roleName == null ? "" : roleName.toUpperCase()));
 
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),

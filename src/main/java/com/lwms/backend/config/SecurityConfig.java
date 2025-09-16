@@ -72,7 +72,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/login", "/signup", "/lwms/register", "/api/users/register",
                         "/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
-                .requestMatchers("/settings").hasAnyRole("Admin", "Manager")
+                .requestMatchers("/settings").hasAnyRole("ADMIN", "MANAGER")
                 .anyRequest().authenticated()
             )
             .authenticationProvider(authenticationProvider)

@@ -101,6 +101,22 @@ public class WebController {
             userService.findWithRoleByUsernameOrEmail(principal.getUsername())
                 .ifPresent(u -> { model.addAttribute("user", u); model.addAttribute("permissionsJson", u.getRole() != null ? u.getRole().getPermissions() : null); model.addAttribute("allowSettings", u.getRole() != null && ("admin".equalsIgnoreCase(u.getRole().getRoleName()) || "manager".equalsIgnoreCase(u.getRole().getRoleName()))); });
         }
+        // Fallbacks to avoid template errors if user not resolved
+        if (!model.containsAttribute("user")) {
+            com.lwms.backend.entities.User fallback = new com.lwms.backend.entities.User();
+            fallback.setFirstName("");
+            fallback.setLastName("");
+            fallback.setUsername("");
+            fallback.setEmail("");
+            fallback.setActive(true);
+            model.addAttribute("user", fallback);
+        }
+        if (!model.containsAttribute("permissionsJson")) {
+            model.addAttribute("permissionsJson", null);
+        }
+        if (!model.containsAttribute("allowSettings")) {
+            model.addAttribute("allowSettings", false);
+        }
         return "settings";
     }
 

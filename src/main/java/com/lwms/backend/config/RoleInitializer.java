@@ -9,51 +9,70 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.time.LocalDateTime;
 
 import java.util.Optional;
 
 @Configuration
 public class RoleInitializer {
 
+	private static final Logger logger = LoggerFactory.getLogger(RoleInitializer.class);
+
 	@Bean
-	@Transactional
 	CommandLineRunner initDefaultUsers(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder encoder) {
 		return args -> {
+			logger.info("Seeding default roles and users (idempotent)");
 			// Ensure roles exist
 			Role adminRole = roleRepository.findByRoleName("Admin").orElseGet(() -> {
+				logger.info("Creating role: Admin");
 				Role r = new Role(); r.setRoleName("Admin"); r.setDescription("Administrator"); r.setPermissions("{\"users\":\"full\",\"reports\":\"full\",\"settings\":\"full\",\"inventory\":\"full\",\"shipments\":\"full\"}");
-				return roleRepository.save(r);
+				return roleRepository.saveAndFlush(r);
 			});
 			Role managerRole = roleRepository.findByRoleName("Manager").orElseGet(() -> {
+				logger.info("Creating role: Manager");
 				Role r = new Role(); r.setRoleName("Manager"); r.setDescription("Manager"); r.setPermissions("{\"users\":\"limited\",\"reports\":\"full\",\"inventory\":\"full\",\"shipments\":\"full\"}");
-				return roleRepository.save(r);
+				return roleRepository.saveAndFlush(r);
 			});
 
-			// Admin user
-			if (userRepository.findByUsername("admin123").isEmpty() && userRepository.findByEmail("admin@cognizant.com").isEmpty()) {
-				User u = new User();
-				u.setUsername("admin123");
-				u.setEmail("admin@cognizant.com");
-				u.setFirstName("admin");
-				u.setLastName("cogni");
-				u.setPasswordHash(encoder.encode("SuperCardboard@123"));
-				u.setRole(adminRole);
-				u.setActive(true);
-				userRepository.save(u);
-			}
-
-			// Manager user
-			if (userRepository.findByUsername("manager123").isEmpty() && userRepository.findByEmail("manager@cognizant.com").isEmpty()) {
-				User u = new User();
-				u.setUsername("manager123");
-				u.setEmail("manager@cognizant.com");
-				u.setFirstName("manager");
-				u.setLastName("cogni");
-				u.setPasswordHash(encoder.encode("SuperCardboard@456"));
-				u.setRole(managerRole);
-				u.setActive(true);
-				userRepository.save(u);
-			}
+			upsertUser(userRepository, encoder,
+				"admin123", "admin@cognizant.com", "admin", "cogni", "SuperCardboard@123", adminRole);
+			upsertUser(userRepository, encoder,
+				"manager123", "manager@cognizant.com", "manager", "cogni", "SuperCardboard@456", managerRole);
 		};
+	}
+
+	@Transactional
+	void upsertUser(UserRepository userRepository, PasswordEncoder encoder,
+					String username, String email, String firstName, String lastName, String rawPassword, Role role) {
+		Optional<User> byUsername = userRepository.findByUsername(username);
+		Optional<User> byEmail = userRepository.findByEmail(email);
+		User u = byUsername.orElseGet(() -> byEmail.orElse(null));
+		if (u == null) {
+			logger.info("Creating default user '{}' (role={})", username, role.getRoleName());
+			u = new User();
+			u.setUsername(username);
+			u.setEmail(email);
+			u.setFirstName(firstName);
+			u.setLastName(lastName);
+			u.setPasswordHash(encoder.encode(rawPassword));
+			u.setRole(role);
+			u.setActive(true);
+			u.setLastLogin(LocalDateTime.now());
+			u = userRepository.saveAndFlush(u);
+			logger.info("Default user created: id={} username={}", u.getUserId(), u.getUsername());
+		} else {
+			logger.info("Ensuring default user '{}' exists and is updated (role={})", username, role.getRoleName());
+			u.setUsername(username);
+			u.setEmail(email);
+			u.setFirstName(firstName);
+			u.setLastName(lastName);
+			u.setPasswordHash(encoder.encode(rawPassword));
+			u.setRole(role);
+			u.setActive(true);
+			u = userRepository.saveAndFlush(u);
+			logger.info("Default user upserted: id={} username={}", u.getUserId(), u.getUsername());
+		}
 	}
 }
