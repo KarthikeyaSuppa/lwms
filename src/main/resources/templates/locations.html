@@ -97,7 +97,7 @@
 </div>
 
 <!-- Add Location Modal -->
-<div class="add-location-modal-overlay" id="addLocationModalOverlay">
+<div class="add-location-modal-overlay" id="addLocationModalOverlay" style="display: none;">
   <div class="add-location-modal">
     <div class="add-location-modal-header">
       <h3 class="add-location-modal-title">Add New Location</h3>
@@ -134,8 +134,8 @@
           <input type="number" id="addCurrentLoad" name="currentLoad" min="0" required>
         </div>
       </div>
-      <div class="form-row">
-        <div class="form-group">
+      <div class="form-row" style="display: flex; gap: 1rem;">
+        <div class="form-group" style="flex: 1;">
           <label for="addLocationType">Location Type</label>
           <div class="dropdown-container">
             <div class="type-select" id="addLocationType" data-current-value="Storage">Storage</div>
@@ -147,7 +147,7 @@
             </div>
           </div>
         </div>
-        <div class="form-group">
+        <div class="form-group" style="flex: 1;">
           <label for="addIsActive">Status</label>
           <div class="dropdown-container">
             <div class="status-select" id="addIsActive" data-current-value="Active" style="color: #155724; background-color: rgba(40, 167, 69, 0.3); border-color: rgba(40, 167, 69, 0.6);">Active</div>
