@@ -78,14 +78,14 @@
       <div class="modal-body">
         <div class="row">
           <div class="col-md-6">
-            <p><strong>First Name:</strong> <span th:text="">John</span></p>
-            <p><strong>Last Name:</strong> <span th:text="">Doe</span></p>
-            <p><strong>Username:</strong> <span th:text="">johndoe</span></p>
+            <p><strong>First Name:</strong> <span th:text="${user != null ? user.firstName : ''}">John</span></p>
+            <p><strong>Last Name:</strong> <span th:text="${user != null ? user.lastName : ''}">Doe</span></p>
+            <p><strong>Username:</strong> <span th:text="${user != null ? user.username : ''}">johndoe</span></p>
           </div>
           <div class="col-md-6">
-            <p><strong>Email:</strong> <span th:text="">john.doe@example.com</span></p>
-            <p><strong>Role:</strong> <span th:text="">Manager</span></p>
-            <p><strong>Status:</strong> <span th:text="">Active</span></p>
+            <p><strong>Email:</strong> <span th:text="${user != null ? user.email : ''}">john.doe@example.com</span></p>
+            <p><strong>Role:</strong> <span th:text="${user != null && user.role != null ? user.role.roleName : ''}">Manager</span></p>
+            <p><strong>Status:</strong> <span th:text="${user != null && user.active ? 'Active' : 'Inactive'}">Active</span></p>
           </div>
         </div>
       </div>
@@ -98,7 +98,7 @@
   <div class="add-supplier-modal">
     <div class="add-supplier-modal-header">
       <h3 class="add-supplier-modal-title">Add New Supplier</h3>
-      <button class="add-supplier-modal-close" id="closeAddSupplierModal"></button>
+      <button class="add-supplier-modal-close" id="closeAddSupplierModal" title="Close"></button>
     </div>
     <form id="addSupplierForm" class="add-supplier-form">
       <div class="form-row">

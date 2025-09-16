@@ -111,11 +111,11 @@
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
-					<p><strong>Name:</strong> <span th:text="${user.firstName + ' ' + user.lastName}">John Doe</span></p>
-					<p><strong>Username:</strong> <span th:text="${user.username}">johndoe</span></p>
-					<p><strong>Email:</strong> <span th:text="${user.email}">john@example.com</span></p>
-					<p><strong>Role:</strong> <span th:text="${user.role.roleName}">Viewer</span></p>
-					<p><strong>Status:</strong> <span th:text="${user.active} ? 'Active' : 'Inactive'">Active</span></p>
+					<p><strong>Name:</strong> <span th:text="${user != null ? user.firstName + ' ' + user.lastName : ''}">John Doe</span></p>
+					<p><strong>Username:</strong> <span th:text="${user != null ? user.username : ''}">johndoe</span></p>
+					<p><strong>Email:</strong> <span th:text="${user != null ? user.email : ''}">john@example.com</span></p>
+					<p><strong>Role:</strong> <span th:text="${user != null && user.role != null ? user.role.roleName : ''}">Viewer</span></p>
+					<p><strong>Status:</strong> <span th:text="${user != null && user.active ? 'Active' : 'Inactive'}">Active</span></p>
 				</div>
 			</div>
 		</div>
