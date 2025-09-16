@@ -11,6 +11,8 @@ body{ min-height:100vh; background: radial-gradient(1200px 600px at 50% -10%, rg
 .locations-management .table-responsive{ flex:1 1 auto; min-height:0; overflow-y:auto; }
 .search-icon{ cursor:pointer; margin-right:2.75rem; }
 .search-container{ position:relative; display:flex; align-items:center; margin-left:2.75rem; }
+/* Ensure dropdowns position relative to their container */
+.dropdown-container{ position:relative; }
 .search-input{ background:rgba(255,255,255,.25); border:1px dashed rgba(62,47,25,.5); border-radius:.35rem; padding:.35rem .5rem; color:#3e2f19; font-weight:600; width:200px; opacity:1; margin-right:.5rem; }
 .search-input:focus{ outline:none; border-color:rgba(62,47,25,.7); background:rgba(255,255,255,.35); }
 .header-row{ position:relative; padding-right:90px; z-index:1; }

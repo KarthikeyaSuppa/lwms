@@ -127,3 +127,8 @@ body {
 .table thead th{ position: sticky; top: 0; z-index: 2; background: linear-gradient(180deg, #d7b785, #caa475) !important; } 
 .modal-content.box-card { box-shadow: 0 10px 30px rgba(62, 47, 25, .25); }
 .modal-header .btn-close { filter: invert(1) grayscale(100%) brightness(1.5) sepia(0) saturate(0); } 
+/* Tabs similar to dashboard */
+.tabstrip{ display:flex; gap:.35rem; align-items:center; justify-content:center; background: rgba(201,164,112,.55); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); border:1px solid rgba(62,47,25,.25); border-radius: 14px; padding: .315rem .35rem; width: fit-content; margin: 1rem auto .5rem auto; }
+.tabstrip .tab{ display:inline-flex; align-items:center; gap:.35rem; padding: .5rem .85rem; border-radius: 12px; border:1px dashed transparent; background: transparent; color:#3e2f19; text-decoration:none; font-weight:600; transition: filter .2s ease, background .2s ease, border-color .2s ease; }
+.tabstrip .tab:hover{ filter: brightness(1.05); border-color: rgba(62,47,25,.35); background: rgba(255,255,255,.25); }
+.tabstrip .tab.active{ background: linear-gradient(180deg, #d7b785, #caa475); border:1px dashed rgba(62,47,25,.45); } 

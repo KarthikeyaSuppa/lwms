@@ -1,72 +1,59 @@
 package com.lwms.backend.config;
 
 import com.lwms.backend.dao.RoleRepository;
+import com.lwms.backend.dao.UserRepository;
 import com.lwms.backend.entities.Role;
-import jakarta.annotation.PostConstruct;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import com.lwms.backend.entities.User;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Optional;
 
-/**
- * Ensures required roles exist in the database at application startup.
- * - Single Responsibility: Only manages role initialization.
- * - Open/Closed: Can add more roles without changing core logic.
- * - Dependency Inversion: Relies on RoleRepository abstraction, not implementation.
- */
-@Component
+@Configuration
 public class RoleInitializer {
 
-    private static final Logger logger = LoggerFactory.getLogger(RoleInitializer.class);
+	@Bean
+	@Transactional
+	CommandLineRunner initDefaultUsers(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder encoder) {
+		return args -> {
+			// Ensure roles exist
+			Role adminRole = roleRepository.findByRoleName("Admin").orElseGet(() -> {
+				Role r = new Role(); r.setRoleName("Admin"); r.setDescription("Administrator"); r.setPermissions("{\"users\":\"full\",\"reports\":\"full\",\"settings\":\"full\",\"inventory\":\"full\",\"shipments\":\"full\"}");
+				return roleRepository.save(r);
+			});
+			Role managerRole = roleRepository.findByRoleName("Manager").orElseGet(() -> {
+				Role r = new Role(); r.setRoleName("Manager"); r.setDescription("Manager"); r.setPermissions("{\"users\":\"limited\",\"reports\":\"full\",\"inventory\":\"full\",\"shipments\":\"full\"}");
+				return roleRepository.save(r);
+			});
 
-    private final RoleRepository roleRepository;
+			// Admin user
+			if (userRepository.findByUsername("admin123").isEmpty() && userRepository.findByEmail("admin@cognizant.com").isEmpty()) {
+				User u = new User();
+				u.setUsername("admin123");
+				u.setEmail("admin@cognizant.com");
+				u.setFirstName("admin");
+				u.setLastName("cogni");
+				u.setPasswordHash(encoder.encode("SuperCardboard@123"));
+				u.setRole(adminRole);
+				u.setActive(true);
+				userRepository.save(u);
+			}
 
-    public RoleInitializer(RoleRepository roleRepository) {
-        this.roleRepository = roleRepository;
-    }
-
-    @PostConstruct
-    public void initRoles() {
-        logger.info("Starting role initialization...");
-
-        List<Role> predefinedRoles = getPredefinedRoles();
-
-        predefinedRoles.forEach(role -> 
-            roleRepository.findByRoleName(role.getRoleName())
-                .ifPresentOrElse(
-                    existingRole -> logger.debug("Role '{}' already exists, skipping.", existingRole.getRoleName()),
-                    () -> {
-                        roleRepository.save(role);
-                        logger.info("Role '{}' created successfully.", role.getRoleName());
-                    }
-                )
-        );
-
-        logger.info("Role initialization complete.");
-    }
-
-    private List<Role> getPredefinedRoles() {
-        return Arrays.asList(
-                new Role("Admin",
-                        "Full system access including users, inventory, shipments, and reports.",
-                        "{\"users\":\"full\",\"reports\":\"full\",\"settings\":\"full\",\"inventory\":\"full\",\"shipments\":\"full\"}"),
-                new Role("Manager",
-                        "Manages warehouse operations, inventory levels, and reporting.",
-                        "{\"users\":\"limited\",\"reports\":\"full\",\"inventory\":\"full\",\"shipments\":\"full\"}"),
-                new Role("Supervisor",
-                        "Supervises daily tasks, assigns work, and handles exceptions.",
-                        "{\"reports\":\"read\",\"inventory\":\"read_write\",\"shipments\":\"read_write\"}"),
-                new Role("Inventory Controller",
-                        "Maintains stock levels, cycle counts, and adjustments.",
-                        "{\"reports\":\"read\",\"inventory\":\"read_write\"}"),
-                new Role("Operator",
-                        "Executes picking, packing, loading, unloading, and scanning.",
-                        "{\"inventory\":\"read\",\"shipments\":\"read\"}"),
-                new Role("Viewer",
-                        "Read-only access for monitoring warehouse activities.",
-                        "{\"reports\":\"read\",\"inventory\":\"read\",\"shipments\":\"read\"}")
-        );
-    }
+			// Manager user
+			if (userRepository.findByUsername("manager123").isEmpty() && userRepository.findByEmail("manager@cognizant.com").isEmpty()) {
+				User u = new User();
+				u.setUsername("manager123");
+				u.setEmail("manager@cognizant.com");
+				u.setFirstName("manager");
+				u.setLastName("cogni");
+				u.setPasswordHash(encoder.encode("SuperCardboard@456"));
+				u.setRole(managerRole);
+				u.setActive(true);
+				userRepository.save(u);
+			}
+		};
+	}
 }

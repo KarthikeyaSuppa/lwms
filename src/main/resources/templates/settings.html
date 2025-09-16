@@ -6,6 +6,7 @@
 <title>Settings | LWMS</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" th:href="@{/css/settings.css}">
+<link rel="stylesheet" th:href="@{/css/roles.css}">
 
 </head>
 <body>
@@ -53,7 +54,12 @@
   </div>
 </div>
 
-<section class="user-management">
+<div class="tabstrip" role="tablist" aria-label="Settings tabs">
+  <a href="#" class="tab active" role="tab" aria-selected="true" id="tab-users">Users</a>
+  <a th:href="@{/roles}" class="tab" role="tab" aria-selected="false" id="tab-roles">Roles</a>
+</div>
+
+<section class="user-management" id="users-section" aria-labelledby="tab-users">
   <div class="box-card">
     <div class="flap"></div>
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -149,7 +155,184 @@
 </script>
 -->
 
+<section class="roles-management" id="roles-section" aria-labelledby="tab-roles" style="display:none;">
+  <div class="box-card">
+    <div class="flap"></div>
+    <div class="header-row d-flex align-items-center justify-content-between mb-4">
+      <div class="d-flex align-items-center">
+        <h3 class="mb-0">Role Management</h3>
+        <img th:src="@{/images/add-user.png}" alt="Add Role" class="add-role-icon" width="24" height="24" id="addRoleIcon">
+      </div>
+      <div class="search-container">
+        <input type="text" class="search-input" placeholder="Search roles..." id="rolesSearchInput">
+        <img th:src="@{/images/search.png}" alt="Search" class="search-icon" width="24" height="24" id="rolesSearchIcon">
+      </div>
+    </div>
+    <div class="table-responsive table-body-scrollable">
+      <table class="table table-borderless mb-0 fixed-header-table">
+        <thead>
+          <tr>
+            <th class="pb-3"><span class="label" class="text-bolder">Role Name</span></th>
+            <th class="pb-3"><span class="label" class="text-bolder">Description</span></th>
+            <th class="pb-3"><span class="label" class="text-bolder">Permissions</span></th>
+            <th class="pb-3"><span class="label" class="text-bolder">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody id="rolesTbody">
+          <tr>
+            <td><span class="label">Admin</span></td>
+            <td><span class="label">Full system access including users, inventory, shipments, and reports.</span></td>
+            <td><span class="label">{"users": "full", "reports": "full", "settings": "full", "inventory": "full", "shipments": "full"}</span></td>
+            <td><button class="btn-edit-label edit-role-btn">Edit Role</button></td>
+          </tr>
+          <tr>
+            <td><span class="label">Manager</span></td>
+            <td><span class="label">Manages warehouse operations, inventory levels, and reporting.</span></td>
+            <td><span class="label">{"users": "limited", "reports": "full", "inventory": "full", "shipments": "full"}</span></td>
+            <td><button class="btn-edit-label edit-role-btn">Edit Role</button></td>
+          </tr>
+          <tr>
+            <td><span class="label">Supervisor</span></td>
+            <td><span class="label">Supervises daily tasks, assigns work, and handles exceptions.</span></td>
+            <td><span class="label">{"reports": "read", "inventory": "read_write", "shipments": "read_write"}</span></td>
+            <td><button class="btn-edit-label edit-role-btn">Edit Role</button></td>
+          </tr>
+          <tr>
+            <td><span class="label">Inventory Controller</span></td>
+            <td><span class="label">Maintains stock levels, cycle counts, and adjustments.</span></td>
+            <td><span class="label">{"reports": "read", "inventory": "read_write"}</span></td>
+            <td><button class="btn-edit-label edit-role-btn">Edit Role</button></td>
+          </tr>
+          <tr>
+            <td><span class="label">Operator</span></td>
+            <td><span class="label">Executes picking, packing, loading, unloading, and scanning.</span></td>
+            <td><span class="label">{"inventory": "read", "shipments": "read"}</span></td>
+            <td><button class="btn-edit-label edit-role-btn">Edit Role</button></td>
+          </tr>
+          <tr>
+            <td><span class="label">Viewer</span></td>
+            <td><span class="label">Read-only access for monitoring warehouse activities.</span></td>
+            <td><span class="label">{"reports": "read", "inventory": "read", "shipments": "read"}</span></td>
+            <td><button class="btn-edit-label edit-role-btn">Edit Role</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
 
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const tabUsers = document.getElementById('tab-users');
+    const tabRoles = document.getElementById('tab-roles');
+    const usersSection = document.getElementById('users-section');
+    const rolesSection = document.getElementById('roles-section');
+
+    function setActive(tab) {
+      document.querySelectorAll('.tabstrip .tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    }
+
+    tabUsers?.addEventListener('click', (e) => {
+      e.preventDefault(); setActive(tabUsers);
+      usersSection.style.display = '';
+      rolesSection.style.display = 'none';
+    });
+    tabRoles?.addEventListener('click', (e) => {
+      e.preventDefault(); setActive(tabRoles);
+      usersSection.style.display = 'none';
+      rolesSection.style.display = '';
+    });
+
+    // Basic inline roles table interactions (edit/save/delete) & search
+    const rolesTbody = document.getElementById('rolesTbody');
+    const rolesSearchInput = document.getElementById('rolesSearchInput');
+    const rolesSearchIcon = document.getElementById('rolesSearchIcon');
+
+    function renderRoles(rows){
+      rolesTbody.innerHTML = '';
+      rows.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.dataset.roleId = r.roleId;
+        tr.innerHTML = `
+          <td><span class="label">${r.roleName || ''}</span></td>
+          <td><span class="label">${r.description || ''}</span></td>
+          <td><span class="label">${r.permissions || ''}</span></td>
+          <td><button class="btn-edit-label edit-role-btn">Edit Role</button></td>
+        `;
+        rolesTbody.appendChild(tr);
+      });
+    }
+
+    function loadRoles(q){
+      const url = q ? `/roles/api?q=${encodeURIComponent(q)}` : '/roles/api';
+      fetch(url).then(r => r.json()).then(renderRoles).catch(()=>{});
+    }
+
+    function makeRoleRowEditable(row){
+      const cells = row.querySelectorAll('td:not(:last-child)');
+      cells.forEach((cell, index) => {
+        const label = cell.querySelector('.label');
+        if (!label) return;
+        if (index === 0) {
+          const input = document.createElement('input');
+          input.type = 'text'; input.className = 'editable-input'; input.value = label.textContent.trim();
+          cell.innerHTML = ''; cell.appendChild(input);
+        } else {
+          const textarea = document.createElement('textarea');
+          textarea.className = 'editable-input'; textarea.value = label.textContent.trim();
+          textarea.rows = index === 1 ? 3 : 4;
+          cell.innerHTML = ''; cell.appendChild(textarea);
+        }
+      });
+    }
+
+    function collectRoleRow(row){
+      const cells = row.querySelectorAll('td');
+      const roleName = cells[0].querySelector('.editable-input')?.value?.trim();
+      const description = cells[1].querySelector('.editable-input')?.value?.trim();
+      const permissions = cells[2].querySelector('.editable-input')?.value?.trim();
+      return { roleName, description, permissions };
+    }
+
+    function saveRoleRow(row){
+      const roleId = row.dataset.roleId;
+      const payload = collectRoleRow(row);
+      const method = roleId ? 'PATCH' : 'POST';
+      const url = roleId ? `/roles/api/${encodeURIComponent(roleId)}` : '/roles/api';
+      fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+        .then(async res => { if (!res.ok) throw new Error(await res.text() || 'Save failed'); return res.json(); })
+        .then(() => loadRoles(rolesSearchInput.value))
+        .catch(()=>{});
+    }
+
+    function deleteRoleRow(row){
+      const roleId = row.dataset.roleId;
+      if (!roleId) { row.remove(); return; }
+      if (!confirm('Are you sure you want to delete this role?')) return;
+      fetch(`/roles/api/${encodeURIComponent(roleId)}`, { method: 'DELETE' })
+        .then(res => { if (!res.ok && res.status !== 204) throw new Error('Delete failed'); row.remove(); })
+        .catch(()=>{});
+    }
+
+    rolesTbody?.addEventListener('click', (e) => {
+      const target = e.target; const row = target.closest('tr'); if (!row) return;
+      if (target.classList.contains('edit-role-btn')) {
+        makeRoleRowEditable(row);
+        row.querySelector('td:last-child').innerHTML = '<div class="action-icons-container"><img src="/images/correct.png" class="action-icon save-role-btn" alt="Save"><img src="/images/trash.png" class="action-icon delete-role-btn" alt="Delete"></div>';
+      }
+      if (target.classList.contains('save-role-btn')) saveRoleRow(row);
+      if (target.classList.contains('delete-role-btn')) deleteRoleRow(row);
+    });
+
+    function filterRoleRows(){ loadRoles(rolesSearchInput.value); }
+    rolesSearchInput?.addEventListener('input', filterRoleRows);
+    rolesSearchIcon?.addEventListener('click', filterRoleRows);
+
+    // Initial load when Roles tab is opened first time
+    let rolesLoaded = false;
+    tabRoles?.addEventListener('click', () => { if (!rolesLoaded) { loadRoles(''); rolesLoaded = true; } });
+  });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

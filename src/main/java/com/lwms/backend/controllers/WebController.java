@@ -51,6 +51,8 @@ public class WebController {
         try {
             User user = userService.authenticateUser(usernameOrEmail, password);
             model.addAttribute("user", user);
+            model.addAttribute("permissionsJson", user.getRole() != null ? user.getRole().getPermissions() : null);
+            model.addAttribute("allowSettings", user.getRole() != null && ("admin".equalsIgnoreCase(user.getRole().getRoleName()) || "manager".equalsIgnoreCase(user.getRole().getRoleName())));
             return "dashboard";
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
@@ -76,7 +78,7 @@ public class WebController {
     public String showDashboard(@AuthenticationPrincipal UserDetails principal, Model model) {
         if (principal != null) {
             userService.findWithRoleByUsernameOrEmail(principal.getUsername())
-                .ifPresent(u -> model.addAttribute("user", u));
+                .ifPresent(u -> { model.addAttribute("user", u); model.addAttribute("permissionsJson", u.getRole() != null ? u.getRole().getPermissions() : null); model.addAttribute("allowSettings", u.getRole() != null && ("admin".equalsIgnoreCase(u.getRole().getRoleName()) || "manager".equalsIgnoreCase(u.getRole().getRoleName()))); });
         }
         return "dashboard";
     }
@@ -85,7 +87,7 @@ public class WebController {
     public String showDashboard2(@AuthenticationPrincipal UserDetails principal, Model model) {
         if (principal != null) {
             userService.findWithRoleByUsernameOrEmail(principal.getUsername())
-                .ifPresent(u -> model.addAttribute("user", u));
+                .ifPresent(u -> { model.addAttribute("user", u); model.addAttribute("permissionsJson", u.getRole() != null ? u.getRole().getPermissions() : null); model.addAttribute("allowSettings", u.getRole() != null && ("admin".equalsIgnoreCase(u.getRole().getRoleName()) || "manager".equalsIgnoreCase(u.getRole().getRoleName()))); });
         }
         return "dashboard2";
     }
@@ -97,16 +99,25 @@ public class WebController {
     public String showSettings(@AuthenticationPrincipal UserDetails principal, Model model) {
         if (principal != null) {
             userService.findWithRoleByUsernameOrEmail(principal.getUsername())
-                .ifPresent(u -> model.addAttribute("user", u));
+                .ifPresent(u -> { model.addAttribute("user", u); model.addAttribute("permissionsJson", u.getRole() != null ? u.getRole().getPermissions() : null); model.addAttribute("allowSettings", u.getRole() != null && ("admin".equalsIgnoreCase(u.getRole().getRoleName()) || "manager".equalsIgnoreCase(u.getRole().getRoleName()))); });
         }
         return "settings";
+    }
+
+    @GetMapping("/roles")
+    public String showRoles(@AuthenticationPrincipal UserDetails principal, Model model) {
+        if (principal != null) {
+            userService.findWithRoleByUsernameOrEmail(principal.getUsername())
+                .ifPresent(u -> { model.addAttribute("user", u); model.addAttribute("permissionsJson", u.getRole() != null ? u.getRole().getPermissions() : null); model.addAttribute("allowSettings", u.getRole() != null && ("admin".equalsIgnoreCase(u.getRole().getRoleName()) || "manager".equalsIgnoreCase(u.getRole().getRoleName()))); });
+        }
+        return "roles";
     }
 
     @GetMapping("/suppliers")
     public String showSuppliers(@AuthenticationPrincipal UserDetails principal, Model model) {
         if (principal != null) {
             userService.findWithRoleByUsernameOrEmail(principal.getUsername())
-                .ifPresent(u -> model.addAttribute("user", u));
+                .ifPresent(u -> { model.addAttribute("user", u); model.addAttribute("permissionsJson", u.getRole() != null ? u.getRole().getPermissions() : null); model.addAttribute("allowSettings", u.getRole() != null && ("admin".equalsIgnoreCase(u.getRole().getRoleName()) || "manager".equalsIgnoreCase(u.getRole().getRoleName()))); });
         }
         return "suppliers";
     }
@@ -115,7 +126,7 @@ public class WebController {
     public String showCategories(@AuthenticationPrincipal UserDetails principal, Model model) {
         if (principal != null) {
             userService.findWithRoleByUsernameOrEmail(principal.getUsername())
-                .ifPresent(u -> model.addAttribute("user", u));
+                .ifPresent(u -> { model.addAttribute("user", u); model.addAttribute("permissionsJson", u.getRole() != null ? u.getRole().getPermissions() : null); model.addAttribute("allowSettings", u.getRole() != null && ("admin".equalsIgnoreCase(u.getRole().getRoleName()) || "manager".equalsIgnoreCase(u.getRole().getRoleName()))); });
         }
         return "categories";
     }
@@ -124,7 +135,7 @@ public class WebController {
     public String showEquipment(@AuthenticationPrincipal UserDetails principal, Model model) {
         if (principal != null) {
             userService.findWithRoleByUsernameOrEmail(principal.getUsername())
-                .ifPresent(u -> model.addAttribute("user", u));
+                .ifPresent(u -> { model.addAttribute("user", u); model.addAttribute("permissionsJson", u.getRole() != null ? u.getRole().getPermissions() : null); model.addAttribute("allowSettings", u.getRole() != null && ("admin".equalsIgnoreCase(u.getRole().getRoleName()) || "manager".equalsIgnoreCase(u.getRole().getRoleName()))); });
         }
         return "equipment";
     }
@@ -133,7 +144,7 @@ public class WebController {
     public String showLocations(@AuthenticationPrincipal UserDetails principal, Model model) {
         if (principal != null) {
             userService.findWithRoleByUsernameOrEmail(principal.getUsername())
-                .ifPresent(u -> model.addAttribute("user", u));
+                .ifPresent(u -> { model.addAttribute("user", u); model.addAttribute("permissionsJson", u.getRole() != null ? u.getRole().getPermissions() : null); model.addAttribute("allowSettings", u.getRole() != null && ("admin".equalsIgnoreCase(u.getRole().getRoleName()) || "manager".equalsIgnoreCase(u.getRole().getRoleName()))); });
         }
         return "locations";
     }
@@ -142,7 +153,7 @@ public class WebController {
     public String showInventory(@AuthenticationPrincipal UserDetails principal, Model model) {
         if (principal != null) {
             userService.findWithRoleByUsernameOrEmail(principal.getUsername())
-                .ifPresent(u -> model.addAttribute("user", u));
+                .ifPresent(u -> { model.addAttribute("user", u); model.addAttribute("permissionsJson", u.getRole() != null ? u.getRole().getPermissions() : null); model.addAttribute("allowSettings", u.getRole() != null && ("admin".equalsIgnoreCase(u.getRole().getRoleName()) || "manager".equalsIgnoreCase(u.getRole().getRoleName()))); });
         }
         return "inventory";
     }
@@ -151,7 +162,7 @@ public class WebController {
     public String showShipments(@AuthenticationPrincipal UserDetails principal, Model model) {
         if (principal != null) {
             userService.findWithRoleByUsernameOrEmail(principal.getUsername())
-                .ifPresent(u -> model.addAttribute("user", u));
+                .ifPresent(u -> { model.addAttribute("user", u); model.addAttribute("permissionsJson", u.getRole() != null ? u.getRole().getPermissions() : null); model.addAttribute("allowSettings", u.getRole() != null && ("admin".equalsIgnoreCase(u.getRole().getRoleName()) || "manager".equalsIgnoreCase(u.getRole().getRoleName()))); });
         }
         return "shipments";
     }
@@ -160,7 +171,7 @@ public class WebController {
     public String showShipmentItems(@AuthenticationPrincipal UserDetails principal, Model model) {
         if (principal != null) {
             userService.findWithRoleByUsernameOrEmail(principal.getUsername())
-                .ifPresent(u -> model.addAttribute("user", u));
+                .ifPresent(u -> { model.addAttribute("user", u); model.addAttribute("permissionsJson", u.getRole() != null ? u.getRole().getPermissions() : null); model.addAttribute("allowSettings", u.getRole() != null && ("admin".equalsIgnoreCase(u.getRole().getRoleName()) || "manager".equalsIgnoreCase(u.getRole().getRoleName()))); });
         }
         return "shipment-items";
     }
@@ -169,7 +180,7 @@ public class WebController {
     public String showMaintenanceSchedule(@AuthenticationPrincipal UserDetails principal, Model model) {
         if (principal != null) {
             userService.findWithRoleByUsernameOrEmail(principal.getUsername())
-                .ifPresent(u -> model.addAttribute("user", u));
+                .ifPresent(u -> { model.addAttribute("user", u); model.addAttribute("permissionsJson", u.getRole() != null ? u.getRole().getPermissions() : null); model.addAttribute("allowSettings", u.getRole() != null && ("admin".equalsIgnoreCase(u.getRole().getRoleName()) || "manager".equalsIgnoreCase(u.getRole().getRoleName()))); });
         }
         return "maintenance-schedule";
     }
@@ -178,7 +189,7 @@ public class WebController {
     public String showInventoryMovements(@AuthenticationPrincipal UserDetails principal, Model model) {
         if (principal != null) {
             userService.findWithRoleByUsernameOrEmail(principal.getUsername())
-                .ifPresent(u -> model.addAttribute("user", u));
+                .ifPresent(u -> { model.addAttribute("user", u); model.addAttribute("permissionsJson", u.getRole() != null ? u.getRole().getPermissions() : null); model.addAttribute("allowSettings", u.getRole() != null && ("admin".equalsIgnoreCase(u.getRole().getRoleName()) || "manager".equalsIgnoreCase(u.getRole().getRoleName()))); });
         }
         return "inventory-movements";
     }

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Role Management | LWMS</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" th:href="@{/css/roles.css}">
+</head>
+
+<body>
+	<nav class="navbar navbar-expand-lg">
+		<div class="container">
+			<a class="navbar-brand fw-bold d-flex align-items-center" href="#" data-bs-toggle="modal" data-bs-target="#profileModal">
+				<img th:src="@{/images/User-Profile-Circle--Streamline-Nova.png}" alt="Profile" style="width: 24px; height: 24px; margin-right: 8px;"> Cardboard Co.
+			</a>
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation" title="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+			<div id="nav" class="collapse navbar-collapse">
+				<ul class="navbar-nav ms-auto">
+					<li class="nav-item">
+						<a class="nav-link fw-semibold d-flex align-items-center" th:href="@{/settings}" title="Back">
+							Back <img th:src="@{/images/back-button.png}" alt="Back" style="width: 20px; height: 20px; margin-left: 5px;">
+						</a>
+					</li>
+					<li class="nav-item d-flex align-items-center">
+						<form th:action="@{/logout}" method="post" class="m-0 p-0">
+							<button type="submit" class="btn btn-link nav-link fw-semibold d-flex align-items-center p-0">
+								Logout <img th:src="@{/images/User-Log-Out--Streamline-Nova.png}" alt="Logout" style="width: 20px; height: 20px; margin-left: 5px;">
+							</button>
+						</form>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<section class="container roles-management">
+		<div class="box-card">
+			<div class="flap"></div>
+			<div class="header-row d-flex align-items-center justify-content-between mb-4">
+				<div class="d-flex align-items-center">
+					<h3 class="mb-0">Role Management</h3>
+					<img th:src="@{/images/add-user.png}" alt="Add Role" class="add-role-icon" width="24" height="24" id="addRoleIcon">
+				</div>
+				<div class="search-container">
+					<input type="text" class="search-input" placeholder="Search roles..." id="searchInput">
+					<img th:src="@{/images/search.png}" alt="Search" class="search-icon" width="24" height="24" id="searchIcon">
+				</div>
+			</div>
+			<div class="table-responsive table-body-scrollable">
+				<table class="table table-borderless mb-0 fixed-header-table">
+					<thead>
+						<tr>
+							<th class="pb-3"><span class="label" class="text-bolder">Role Name</span></th>
+							<th class="pb-3"><span class="label" class="text-bolder">Description</span></th>
+							<th class="pb-3"><span class="label" class="text-bolder">Permissions</span></th>
+							<th class="pb-3"><span class="label" class="text-bolder">Actions</span></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><span class="label">Admin</span></td>
+							<td><span class="label">Full system access including users, inventory, shipments, and reports.</span></td>
+							<td><span class="label">{"users": "full", "reports": "full", "settings": "full", "inventory": "full", "shipments": "full"}</span></td>
+							<td><button class="btn-edit-label edit-btn">Edit Role</button></td>
+						</tr>
+						<tr>
+							<td><span class="label">Manager</span></td>
+							<td><span class="label">Manages warehouse operations, inventory levels, and reporting.</span></td>
+							<td><span class="label">{"users": "limited", "reports": "full", "inventory": "full", "shipments": "full"}</span></td>
+							<td><button class="btn-edit-label edit-btn">Edit Role</button></td>
+						</tr>
+						<tr>
+							<td><span class="label">Supervisor</span></td>
+							<td><span class="label">Supervises daily tasks, assigns work, and handles exceptions.</span></td>
+							<td><span class="label">{"reports": "read", "inventory": "read_write", "shipments": "read_write"}</span></td>
+							<td><button class="btn-edit-label edit-btn">Edit Role</button></td>
+						</tr>
+						<tr>
+							<td><span class="label">Inventory Controller</span></td>
+							<td><span class="label">Maintains stock levels, cycle counts, and adjustments.</span></td>
+							<td><span class="label">{"reports": "read", "inventory": "read_write"}</span></td>
+							<td><button class="btn-edit-label edit-btn">Edit Role</button></td>
+						</tr>
+						<tr>
+							<td><span class="label">Operator</span></td>
+							<td><span class="label">Executes picking, packing, loading, unloading, and scanning.</span></td>
+							<td><span class="label">{"inventory": "read", "shipments": "read"}</span></td>
+							<td><button class="btn-edit-label edit-btn">Edit Role</button></td>
+						</tr>
+						<tr>
+							<td><span class="label">Viewer</span></td>
+							<td><span class="label">Read-only access for monitoring warehouse activities.</span></td>
+							<td><span class="label">{"reports": "read", "inventory": "read", "shipments": "read"}</span></td>
+							<td><button class="btn-edit-label edit-btn">Edit Role</button></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</section>
+
+	<div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content box-card">
+				<div class="modal-header d-flex justify-content-between align-items-start">
+					<div>
+						<h5 class="modal-title" id="profileModalLabel">User Profile</h5>
+						<div class="label mt-2">Personal Information</div>
+					</div>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p><strong>Name:</strong> <span th:text="${user.firstName + ' ' + user.lastName}">John Doe</span></p>
+					<p><strong>Username:</strong> <span th:text="${user.username}">johndoe</span></p>
+					<p><strong>Email:</strong> <span th:text="${user.email}">john@example.com</span></p>
+					<p><strong>Role:</strong> <span th:text="${user.role.roleName}">Viewer</span></p>
+					<p><strong>Status:</strong> <span th:text="${user.active} ? 'Active' : 'Inactive'">Active</span></p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="addRoleModalOverlay" class="add-role-modal-overlay" style="display:none;">
+		<div class="add-role-modal">
+			<button class="add-role-modal-close" id="closeAddRoleModal" title="Close">&times;</button>
+			<div class="add-role-modal-title">Add New Role</div>
+			<form class="add-role-form" id="addRoleForm" autocomplete="off">
+				<div>
+					<label for="addRoleName">Role Name</label>
+					<input type="text" id="addRoleName" name="roleName" required />
+				</div>
+				<div>
+					<label for="addDescription">Description</label>
+					<textarea id="addDescription" name="description" rows="3" required></textarea>
+				</div>
+				<div>
+					<label for="addPermissions">Permissions (JSON)</label>
+					<textarea id="addPermissions" name="permissions" rows="4" placeholder='{"users": "full", "reports": "read", "inventory": "read_write"}' required></textarea>
+				</div>
+				<button type="submit" class="add-role-btn">Add Role</button>
+			</form>
+		</div>
+	</div>
+
+	<script th:src="@{/js/roles.js}"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

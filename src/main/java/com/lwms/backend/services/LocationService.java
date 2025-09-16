@@ -56,7 +56,7 @@ public class LocationService {
 		l.setCapacity(req.getCapacity());
 		l.setCurrentLoad(req.getCurrentLoad());
 		if (StringUtils.hasText(req.getLocationType())) {
-			l.setLocationType(Locations.LocationType.valueOf(req.getLocationType()));
+			l.setLocationType(parseLocationType(req.getLocationType()));
 		}
 		l.setIsActive(req.getIsActive() != null ? req.getIsActive() : Boolean.TRUE);
 		Locations saved = locationsRepository.save(l);
@@ -73,7 +73,7 @@ public class LocationService {
 		if (req.getShelf() != null) l.setShelf(req.getShelf());
 		if (req.getCapacity() != null) l.setCapacity(req.getCapacity());
 		if (req.getCurrentLoad() != null) l.setCurrentLoad(req.getCurrentLoad());
-		if (req.getLocationType() != null) l.setLocationType(Locations.LocationType.valueOf(req.getLocationType()));
+		if (req.getLocationType() != null) l.setLocationType(parseLocationType(req.getLocationType()));
 		if (req.getIsActive() != null) l.setIsActive(req.getIsActive());
 		Locations saved = locationsRepository.save(l);
 		return toDto(saved);
@@ -114,5 +114,16 @@ public class LocationService {
 		dto.setIsActive(l.getIsActive());
 		dto.setLocationCode(computeLocationCode(l));
 		return dto;
+	}
+
+	private Locations.LocationType parseLocationType(String raw) {
+		if (!StringUtils.hasText(raw)) return null;
+		String trimmed = raw.trim();
+		for (Locations.LocationType type : Locations.LocationType.values()) {
+			if (type.name().equalsIgnoreCase(trimmed)) {
+				return type;
+			}
+		}
+		throw new IllegalArgumentException("Invalid locationType: " + raw);
 	}
 } 
