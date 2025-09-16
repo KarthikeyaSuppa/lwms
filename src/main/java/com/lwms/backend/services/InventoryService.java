@@ -33,15 +33,18 @@ public class InventoryService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<InventorySummaryDto> listInventory(String query) {
+	public List<InventorySummaryDto> listInventory(String query) { // query means search from frontend
 		List<Inventory> results;
-		if (StringUtils.hasText(query)) {
+		if (StringUtils.hasText(query)) { //Uses Spring’s StringUtils.hasText() to check if the query is not null and not just whitespace.
 			String q = query.trim();
-			List<Inventory> byCodeOrName = inventoryRepository.findByItemCodeContainingIgnoreCaseOrItemNameContainingIgnoreCase(q, q);
+			List<Inventory> byCodeOrName = inventoryRepository.findByItemCodeContainingIgnoreCaseOrItemNameContainingIgnoreCase(q, q); //here findByItemCodeContaining = where its containing by ignoringcase
 			List<Inventory> byCategory = inventoryRepository.findByCategory_CategoryNameContainingIgnoreCase(q);
 			List<Inventory> agg = new ArrayList<>();
-			agg.addAll(byCodeOrName); agg.addAll(byCategory);
-			results = new ArrayList<>(Map.copyOf(agg.stream().collect(Collectors.toMap(Inventory::getItemId, i -> i, (a,b)->a))).values());
+			agg.addAll(byCodeOrName); 
+			agg.addAll(byCategory);
+			results = new ArrayList<>(Map.copyOf(agg.stream().collect(Collectors.toMap(Inventory::getItemId, i -> i, (a,b)->a))).values());//Uses a Map to remove duplicates based on itemId. 
+																																		   //If duplicates exist, keeps the first occurrence ((a,b) -> a).
+																																		   //Converts the map values back to a list.
 		} else {
 			results = inventoryRepository.findAll();
 		}
@@ -50,11 +53,13 @@ public class InventoryService {
 
 	@Transactional
 	public InventorySummaryDto create(InventoryCreateRequest req) {
-		validateCreate(req);
+		validateCreate(req);//Ensures the request meets business rules (e.g., required fields, valid values).
+							//Likely throws an exception if validation fails.
 		Inventory inv = new Inventory();
 		inv.setItemCode(req.getItemCode());
 		inv.setItemName(req.getItemName());
-		inv.setQuantity(Optional.ofNullable(req.getQuantity()).orElse(0));
+		inv.setQuantity(Optional.ofNullable(req.getQuantity()).orElse(0));//Uses Optional.ofNullable(...).orElse(...)
+																		  //to provide default values if the request fields are null
 		inv.setMinStockLevel(Optional.ofNullable(req.getMinStockLevel()).orElse(0));
 		inv.setMaxStockLevel(Optional.ofNullable(req.getMaxStockLevel()).orElse(0));
 		inv.setUnitPrice(Optional.ofNullable(req.getUnitPrice()).orElse(BigDecimal.ZERO));

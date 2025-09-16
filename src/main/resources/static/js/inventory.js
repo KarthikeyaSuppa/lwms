@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+﻿document.addEventListener('DOMContentLoaded', () => {
   // Search functionality
   const searchInput = document.getElementById('searchInput');
   const table = document.getElementById('inventoryTable');
@@ -10,23 +10,23 @@ document.addEventListener('DOMContentLoaded', () => {
     list.forEach(item => {
       const tr = document.createElement('tr');
       tr.dataset.id = item.itemId;
-      tr.innerHTML = `
-        <td data-label="Item Code"><span class="label">${item.itemCode ?? ''}</span></td>
-        <td data-label="Item Name"><span class="label">${item.itemName ?? ''}</span></td>
-        <td data-label="Category"><span class="label">${item.category ?? ''}</span></td>
-        <td><span class="label">${item.location ?? ''}</span></td>
-        <td><span class="label">${item.quantity ?? 0}</span></td>
-        <td><span class="label">${item.minStockLevel ?? 0}</span></td>
-        <td><span class="label">${item.maxStockLevel ?? 0}</span></td>
-        <td><span class="label">$${(item.unitPrice ?? 0).toString()}</span></td>
-        <td data-label="Status"><span class="label" data-status="${computeStatus(item)}">${humanizeStatus(computeStatus(item))}</span></td>
+      tr.innerHTML = 
+        <td data-label="Item Code"><span class="label"></span></td>
+        <td data-label="Item Name"><span class="label"></span></td>
+        <td data-label="Category"><span class="label"></span></td>
+        <td><span class="label"></span></td>
+        <td><span class="label"></span></td>
+        <td><span class="label"></span></td>
+        <td><span class="label"></span></td>
+        <td><span class="label">q{(item.unitPrice ?? 0).toString()}</span></td>
+        <td data-label="Status"><span class="label" data-status=""></span></td>
         <td>
           <button class="btn-edit-label edit-btn">Edit Item</button>
           <div class="action-icons-container">
             <img src="/images/correct.png" class="action-icon save-btn" alt="Save">
             <img src="/images/trash.png" class="action-icon delete-btn" alt="Delete">
           </div>
-        </td>`;
+        </td>;
       tbody.appendChild(tr);
     });
   }
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function loadInventory(){
     const q = searchInput?.value?.trim();
-    const url = q ? `${API_BASE}?q=${encodeURIComponent(q)}` : API_BASE;
+    const url = q ? ${API_BASE}?q= : API_BASE;
     const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
     if (!res.ok) { console.error('Failed to load inventory'); return; }
     const data = await res.json();
@@ -81,7 +81,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function saveRow(row) {
-    const id = row.dataset.id; if (!id) return;
+    const id = row.dataset.id; 
+    if (!id) return;
+    
     const cells = row.querySelectorAll('td');
     const payload = {
       itemCode: cells[0].querySelector('input')?.value?.trim(),
@@ -93,27 +95,61 @@ document.addEventListener('DOMContentLoaded', () => {
       maxStockLevel: Number(cells[6].querySelector('input')?.value ?? '0'),
       unitPrice: Number(cells[7].querySelector('input')?.value ?? '0'),
     };
-    const res = await fetch(`${API_BASE}/${encodeURIComponent(id)}`, { method:'PATCH', headers:{'Content-Type':'application/json','Accept':'application/json'}, body: JSON.stringify(payload) });
-    if (!res.ok){ const err = await res.text(); alert(`Failed to update item: ${err || res.status}`); return; }
-    const updated = await res.json();
-    // Re-render
-    cells[0].innerHTML = `<span class="label">${updated.itemCode ?? payload.itemCode}</span>`;
-    cells[1].innerHTML = `<span class="label">${updated.itemName ?? payload.itemName}</span>`;
-    cells[2].innerHTML = `<span class="label">${updated.category ?? payload.category}</span>`;
-    cells[3].innerHTML = `<span class="label">${updated.location ?? payload.location}</span>`;
-    cells[4].innerHTML = `<span class="label">${updated.quantity ?? payload.quantity}</span>`;
-    cells[5].innerHTML = `<span class="label">${updated.minStockLevel ?? payload.minStockLevel}</span>`;
-    cells[6].innerHTML = `<span class="label">${updated.maxStockLevel ?? payload.maxStockLevel}</span>`;
-    cells[7].innerHTML = `<span class="label">$${(updated.unitPrice ?? payload.unitPrice).toString()}</span>`;
-    row.classList.remove('edit-mode');
+    
+    try {
+      const res = await fetch(${API_BASE}/, { 
+        method:'PATCH', 
+        headers:{'Content-Type':'application/json','Accept':'application/json'}, 
+        body: JSON.stringify(payload) 
+      });
+      
+      if (!res.ok){ 
+        const err = await res.text(); 
+        throw new Error(err || HTTP );
+      }
+      
+      const updated = await res.json();
+      
+      // Re-render
+      cells[0].innerHTML = <span class="label"></span>;
+      cells[1].innerHTML = <span class="label"></span>;
+      cells[2].innerHTML = <span class="label"></span>;
+      cells[3].innerHTML = <span class="label"></span>;
+      cells[4].innerHTML = <span class="label"></span>;
+      cells[5].innerHTML = <span class="label"></span>;
+      cells[6].innerHTML = <span class="label"></span>;
+      cells[7].innerHTML = <span class="label">q{(updated.unitPrice ?? payload.unitPrice).toString()}</span>;
+      row.classList.remove('edit-mode');
+      
+      window.toastManager.success('Inventory item updated successfully');
+    } catch (error) {
+      window.toastManager.error(Failed to update item: );
+    }
   }
 
   async function deleteRow(row){
-    const id = row.dataset.id; if (!id){ row.remove(); return; }
+    const id = row.dataset.id; 
+    if (!id){ 
+      row.remove(); 
+      window.toastManager.success('Inventory item deleted successfully');
+      return; 
+    }
+    
     if (!confirm('Are you sure you want to delete this item?')) return;
-    const res = await fetch(`${API_BASE}/${encodeURIComponent(id)}`, { method:'DELETE' });
-    if (!res.ok){ const err = await res.text(); alert(`Failed to delete item: ${err || res.status}`); return; }
-    row.remove();
+    
+    try {
+      const res = await fetch(${API_BASE}/, { method:'DELETE' });
+      
+      if (!res.ok){ 
+        const err = await res.text(); 
+        throw new Error(err || HTTP );
+      }
+      
+      row.remove();
+      window.toastManager.success('Inventory item deleted successfully');
+    } catch (error) {
+      window.toastManager.error(Failed to delete item: );
+    }
   }
 
   const tbodyExisting = document.querySelector('#inventoryTable tbody');
@@ -155,32 +191,48 @@ document.addEventListener('DOMContentLoaded', () => {
         maxStockLevel: 0,
         unitPrice: Number(document.getElementById('addUnitPrice').value)
       };
-      const res = await fetch(API_BASE, { method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'}, body: JSON.stringify(payload) });
-      if (!res.ok){ const err = await res.text(); alert(`Failed to add item: ${err || res.status}`); return; }
-      const created = await res.json();
-      const tr = document.createElement('tr');
-      tr.dataset.id = created.itemId;
-      tr.innerHTML = `
-        <td data-label="Item Code"><span class="label">${created.itemCode ?? payload.itemCode}</span></td>
-        <td data-label="Item Name"><span class="label">${created.itemName ?? payload.itemName}</span></td>
-        <td data-label="Category"><span class="label">${created.category ?? payload.category}</span></td>
-        <td><span class="label">${created.location ?? payload.location}</span></td>
-        <td><span class="label">${created.quantity ?? payload.quantity}</span></td>
-        <td><span class="label">${created.minStockLevel ?? 0}</span></td>
-        <td><span class="label">${created.maxStockLevel ?? 0}</span></td>
-        <td><span class="label">$${(created.unitPrice ?? payload.unitPrice).toString()}</span></td>
-        <td data-label="Status"><span class="label" data-status="${computeStatus(created)}">${humanizeStatus(computeStatus(created))}</span></td>
-        <td>
-          <button class="btn-edit-label edit-btn">Edit Item</button>
-          <div class="action-icons-container">
-            <img src="/images/correct.png" class="action-icon save-btn" alt="Save">
-            <img src="/images/trash.png" class="action-icon delete-btn" alt="Delete">
-          </div>
-        </td>`;
-      table.querySelector('tbody').prepend(tr);
-      addItemModalOverlay.style.display = 'none';
-      document.body.style.overflow = '';
-      addItemForm.reset();
+      
+      try {
+        const res = await fetch(API_BASE, { 
+          method:'POST', 
+          headers:{'Content-Type':'application/json','Accept':'application/json'}, 
+          body: JSON.stringify(payload) 
+        });
+        
+        if (!res.ok){ 
+          const err = await res.text(); 
+          throw new Error(err || HTTP );
+        }
+        
+        const created = await res.json();
+        const tr = document.createElement('tr');
+        tr.dataset.id = created.itemId;
+        tr.innerHTML = 
+          <td data-label="Item Code"><span class="label"></span></td>
+          <td data-label="Item Name"><span class="label"></span></td>
+          <td data-label="Category"><span class="label"></span></td>
+          <td><span class="label"></span></td>
+          <td><span class="label"></span></td>
+          <td><span class="label"></span></td>
+          <td><span class="label"></span></td>
+          <td><span class="label">q{(created.unitPrice ?? payload.unitPrice).toString()}</span></td>
+          <td data-label="Status"><span class="label" data-status=""></span></td>
+          <td>
+            <button class="btn-edit-label edit-btn">Edit Item</button>
+            <div class="action-icons-container">
+              <img src="/images/correct.png" class="action-icon save-btn" alt="Save">
+              <img src="/images/trash.png" class="action-icon delete-btn" alt="Delete">
+            </div>
+          </td>;
+        table.querySelector('tbody').prepend(tr);
+        addItemModalOverlay.style.display = 'none';
+        document.body.style.overflow = '';
+        addItemForm.reset();
+        
+        window.toastManager.success('Inventory item created successfully');
+      } catch (error) {
+        window.toastManager.error(Failed to create item: );
+      }
     });
   }
 
@@ -190,4 +242,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initial load
   loadInventory();
-}); 
+});

@@ -1,4 +1,4 @@
-package com.lwms.backend.controllers;
+﻿package com.lwms.backend.controllers;
 
 import com.lwms.backend.entities.User;
 import com.lwms.backend.services.UserService;
@@ -208,5 +208,14 @@ public class WebController {
                 .ifPresent(u -> { model.addAttribute("user", u); model.addAttribute("permissionsJson", u.getRole() != null ? u.getRole().getPermissions() : null); model.addAttribute("allowSettings", u.getRole() != null && ("admin".equalsIgnoreCase(u.getRole().getRoleName()) || "manager".equalsIgnoreCase(u.getRole().getRoleName()))); });
         }
         return "inventory-movements";
+    }
+
+    @GetMapping("/reports")
+    public String showReports(@AuthenticationPrincipal UserDetails principal, Model model) {
+        if (principal != null) {
+            userService.findWithRoleByUsernameOrEmail(principal.getUsername())
+                .ifPresent(u -> { model.addAttribute("user", u); model.addAttribute("permissionsJson", u.getRole() != null ? u.getRole().getPermissions() : null); model.addAttribute("allowSettings", u.getRole() != null && ("admin".equalsIgnoreCase(u.getRole().getRoleName()) || "manager".equalsIgnoreCase(u.getRole().getRoleName()))); });
+        }
+        return "reports";
     }
 }

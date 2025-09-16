@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿<!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="utf-8" />
@@ -9,6 +9,7 @@
   <link rel="stylesheet" th:href="@{/css/dashboard-ops.css}" />
   <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<meta th:if="" name="permissions-json" th:content="">
 </head>
 <body>
   <nav class="navbar navbar-expand-lg navbar-light">
@@ -21,7 +22,7 @@
       </button>
       <div id="nav" class="collapse navbar-collapse">
         <ul class="navbar-nav ms-auto">
-          <li class="nav-item" th:if="${allowSettings}">
+                     <li class="nav-item" th:if="">
             <a class="nav-link fw-semibold d-flex align-items-center" th:href="@{/settings}" title="Settings">
               Settings <img th:src="@{/images/settings.png}" alt="Settings" style="width: 20px; height: 20px; margin-left: 5px;">
             </a>
@@ -47,11 +48,11 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <p><strong>Name:</strong> <span th:text="${user != null ? user.firstName + ' ' + user.lastName : ''}">John Doe</span></p>
-          <p><strong>Username:</strong> <span th:text="${user != null ? user.username : ''}">johndoe</span></p>
-          <p><strong>Email:</strong> <span th:text="${user != null ? user.email : ''}">john@example.com</span></p>
-          <p><strong>Role:</strong> <span th:text="${user != null && user.role != null ? user.role.roleName : ''}">Viewer</span></p>
-          <p><strong>Status:</strong> <span th:text="${user != null && user.active ? 'Active' : 'Inactive'}">Active</span></p>
+          <p><strong>Name:</strong> <span th:text="">John Doe</span></p>
+          <p><strong>Username:</strong> <span th:text="">johndoe</span></p>
+          <p><strong>Email:</strong> <span th:text="">john@example.com</span></p>
+          <p><strong>Role:</strong> <span th:text="">Viewer</span></p>
+          <p><strong>Status:</strong> <span th:text=" ? 'Active' : 'Inactive'">Active</span></p>
         </div>
       </div>
     </div>

@@ -1,0 +1,267 @@
+﻿<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Reports & Analytics | LWMS</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<link rel="stylesheet" th:href="@{/css/reports.css}">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand fw-bold d-flex align-items-center" href="#" data-bs-toggle="modal" data-bs-target="#profileModal">
+      <img th:src="@{/images/User-Profile-Circle--Streamline-Nova.png}" alt="Profile" style="width: 24px; height: 24px; margin-right: 8px;"> Cardboard Co.
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+    <div id="nav" class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link fw-semibold d-flex align-items-center" th:href="@{/dashboard}" title="Back">
+            Back <img th:src="@{/images/back-button.png}" alt="Back" style="width: 20px; height: 20px; margin-left: 5px;">
+          </a>
+        </li>
+        <li class="nav-item d-flex align-items-center">
+          <form th:action="@{/logout}" method="post" class="m-0 p-0">
+            <button type="submit" class="btn btn-link nav-link fw-semibold d-flex align-items-center p-0">
+              Logout <img th:src="@{/images/User-Log-Out--Streamline-Nova.png}" alt="Logout" style="width: 20px; height: 20px; margin-left: 5px;">
+            </button>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<section class="container reports-management">
+  <div class="box-card">
+    <div class="flap"></div>
+    <div class="header-row d-flex align-items-center justify-content-between mb-4">
+      <div class="d-flex align-items-center">
+        <h3 class="mb-0">Reports & Analytics</h3>
+        <img th:src="@{/images/report-add-icon.png}" alt="Generate Report" class="generate-report-icon" width="24" height="24" id="generateReportIcon">
+      </div>
+      <div class="filter-container">
+        <select class="filter-select" id="timeRangeFilter">
+          <option value="7">Last 7 Days</option>
+          <option value="30" selected>Last 30 Days</option>
+          <option value="90">Last 90 Days</option>
+          <option value="365">Last Year</option>
+        </select>
+        <button class="refresh-btn" id="refreshDataBtn" title="Refresh Data">
+          <img th:src="@{/images/search.png}" alt="Refresh" width="20" height="20">
+        </button>
+      </div>
+    </div>
+
+    <!-- Key Metrics Cards -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="metric-card">
+          <div class="metric-icon inventory-icon"></div>
+          <div class="metric-content">
+            <div class="metric-value" id="totalInventory">--</div>
+            <div class="metric-label">Total Inventory Items</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="metric-card">
+          <div class="metric-icon shipment-icon"></div>
+          <div class="metric-content">
+            <div class="metric-value" id="totalShipments">--</div>
+            <div class="metric-label">Active Shipments</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="metric-card">
+          <div class="metric-icon equipment-icon"></div>
+          <div class="metric-content">
+            <div class="metric-value" id="activeEquipment">--</div>
+            <div class="metric-label">Active Equipment</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="metric-card">
+          <div class="metric-icon value-icon"></div>
+          <div class="metric-content">
+            <div class="metric-value" id="totalValue">--</div>
+            <div class="metric-label">Total Inventory Value</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="row mb-4">
+      <div class="col-lg-6">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h4>Inventory Status Distribution</h4>
+            <div class="chart-controls">
+              <button class="chart-btn active" data-chart="donut">Donut</button>
+              <button class="chart-btn" data-chart="pie">Pie</button>
+            </div>
+          </div>
+          <div class="chart-container">
+            <div id="inventoryStatusChart" class="chart-wrapper">
+              <div class="chart-center">
+                <span id="chart-percentage" class="h2 fw-bold text-dark">--%</span>
+                <span id="chart-category" class="d-block text-muted mt-1">Select a status</span>
+              </div>
+            </div>
+            <div id="inventoryLegend" class="chart-legend"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h4>Shipment Status Overview</h4>
+            <div class="chart-controls">
+              <button class="chart-btn active" data-chart="bar">Bar</button>
+              <button class="chart-btn" data-chart="line">Line</button>
+            </div>
+          </div>
+          <div class="chart-container">
+            <div id="shipmentStatusChart" class="chart-wrapper bar-chart"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="row mb-4">
+      <div class="col-lg-6">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h4>Equipment Status Heatmap</h4>
+            <div class="chart-controls">
+              <button class="chart-btn active" data-chart="heatmap">Heatmap</button>
+              <button class="chart-btn" data-chart="grid">Grid</button>
+            </div>
+          </div>
+          <div class="chart-container">
+            <div id="equipmentHeatmapChart" class="chart-wrapper heatmap-chart"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h4>Inventory Movement Trends</h4>
+            <div class="chart-controls">
+              <button class="chart-btn active" data-chart="line">Line</button>
+              <button class="chart-btn" data-chart="area">Area</button>
+            </div>
+          </div>
+          <div class="chart-container">
+            <div id="movementTrendsChart" class="chart-wrapper line-chart"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row 3 -->
+    <div class="row mb-4">
+      <div class="col-lg-6">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h4>Location Utilization</h4>
+            <div class="chart-controls">
+              <button class="chart-btn active" data-chart="bar">Bar</button>
+              <button class="chart-btn" data-chart="horizontal">Horizontal</button>
+            </div>
+          </div>
+          <div class="chart-container">
+            <div id="locationUtilizationChart" class="chart-wrapper bar-chart"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h4>Supplier Performance</h4>
+            <div class="chart-controls">
+              <button class="chart-btn active" data-chart="radar">Radar</button>
+              <button class="chart-btn" data-chart="polar">Polar</button>
+            </div>
+          </div>
+          <div class="chart-container">
+            <div id="supplierPerformanceChart" class="chart-wrapper radar-chart"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Tables -->
+    <div class="row">
+      <div class="col-12">
+        <div class="table-card">
+          <div class="table-header">
+            <h4>Recent Activity Summary</h4>
+            <div class="table-controls">
+              <select class="filter-select" id="activityFilter">
+                <option value="all">All Activities</option>
+                <option value="inventory">Inventory</option>
+                <option value="shipments">Shipments</option>
+                <option value="equipment">Equipment</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-borderless mb-0">
+              <thead>
+                <tr>
+                  <th><span class="label text-bolder">Type</span></th>
+                  <th><span class="label text-bolder">Description</span></th>
+                  <th><span class="label text-bolder">Status</span></th>
+                  <th><span class="label text-bolder">Date</span></th>
+                  <th><span class="label text-bolder">User</span></th>
+                </tr>
+              </thead>
+              <tbody id="activityTableBody">
+                <!-- Dynamic content -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Profile Modal -->
+<div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content box-card">
+      <div class="modal-header">
+        <h5 class="modal-title" id="profileModalLabel">Profile Information</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>First Name:</strong> <span th:text="">John</span></p>
+            <p><strong>Last Name:</strong> <span th:text="">Doe</span></p>
+            <p><strong>Username:</strong> <span th:text="">johndoe</span></p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Email:</strong> <span th:text="">john.doe@example.com</span></p>
+            <p><strong>Role:</strong> <span th:text="">Manager</span></p>
+            <p><strong>Status:</strong> <span th:text="">Active</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script th:src="@{/js/toast-utils.js}"></script>
+<script th:src="@{/js/reports.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+﻿document.addEventListener("DOMContentLoaded", () => {
   const tbody = document.querySelector("tbody");
   const addCategoryIcon = document.getElementById("addCategoryIcon");
   const addCategoryModalOverlay = document.getElementById("addCategoryModalOverlay");
@@ -16,18 +16,18 @@ document.addEventListener("DOMContentLoaded", () => {
     categories.forEach(cat => {
       const row = document.createElement("tr");
       row.dataset.id = cat.categoryId;
-      row.innerHTML = `
-        <td><span class="label">${cat.categoryName ?? ""}</span></td>
-        <td><span class="label">${cat.categoryCode ?? ""}</span></td>
-        <td><span class="label">${cat.description ?? ""}</span></td>
-        <td><button class="btn-edit-label edit-btn">Edit Category</button></td>`;
+      row.innerHTML = 
+        <td><span class="label"></span></td>
+        <td><span class="label"></span></td>
+        <td><span class="label"></span></td>
+        <td><button class="btn-edit-label edit-btn">Edit Category</button></td>;
       tbody.appendChild(row);
     });
   }
 
   async function loadCategories(){
     const q = searchInput?.value?.trim();
-    const url = q ? `${API_BASE}?q=${encodeURIComponent(q)}` : API_BASE;
+    const url = q ? ${API_BASE}?q= : API_BASE;
     const res = await fetch(url, { headers: { "Accept": "application/json" } });
     if (!res.ok) { console.error("Failed to load categories"); return; }
     const data = await res.json();
@@ -60,37 +60,56 @@ document.addEventListener("DOMContentLoaded", () => {
     const categoryCode = cells[1]?.querySelector(".editable-input")?.value?.trim();
     const description = cells[2]?.querySelector("textarea.editable-input")?.value?.trim();
 
-    const res = await fetch(`${API_BASE}/${encodeURIComponent(id)}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json", "Accept": "application/json" },
-      body: JSON.stringify({ categoryName, categoryCode, description })
-    });
-    if (!res.ok) {
-      const errText = await res.text();
-      alert(`Failed to update category: ${errText || res.status}`);
-      return;
-    }
-    const updated = await res.json();
+    try {
+      const res = await fetch(${API_BASE}/, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({ categoryName, categoryCode, description })
+      });
+      
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText || HTTP );
+      }
+      
+      const updated = await res.json();
 
-    // Re-render row in read mode using returned values
-    cells[0].innerHTML = `<span class="label">${updated.categoryName ?? ""}</span>`;
-    cells[1].innerHTML = `<span class="label">${updated.categoryCode ?? ""}</span>`;
-    cells[2].innerHTML = `<span class="label">${updated.description ?? ""}</span>`;
-    const actionsCell = row.querySelector("td:last-child");
-    actionsCell.innerHTML = "<button class=\"btn-edit-label edit-btn\">Edit Category</button>";
+      // Re-render row in read mode using returned values
+      cells[0].innerHTML = <span class="label"></span>;
+      cells[1].innerHTML = <span class="label"></span>;
+      cells[2].innerHTML = <span class="label"></span>;
+      const actionsCell = row.querySelector("td:last-child");
+      actionsCell.innerHTML = "<button class=\"btn-edit-label edit-btn\">Edit Category</button>";
+      
+      window.toastManager.success('Category updated successfully');
+    } catch (error) {
+      window.toastManager.error(Failed to update category: );
+    }
   }
 
   async function deleteRow(row) {
     if (!confirm("Are you sure you want to delete this category?")) return;
     const id = row.dataset.id;
-    if (!id) { row.remove(); return; }
-    const res = await fetch(`${API_BASE}/${encodeURIComponent(id)}`, { method: "DELETE" });
-    if (!res.ok) {
-      const errText = await res.text();
-      alert(`Failed to delete category: ${errText || res.status}`);
-      return;
+    
+    try {
+      if (!id) { 
+        row.remove(); 
+        window.toastManager.success('Category deleted successfully');
+        return; 
+      }
+      
+      const res = await fetch(${API_BASE}/, { method: "DELETE" });
+      
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText || HTTP );
+      }
+      
+      row.remove();
+      window.toastManager.success('Category deleted successfully');
+    } catch (error) {
+      window.toastManager.error(Failed to delete category: );
     }
-    row.remove();
   }
 
   function filterRowsLocal(){
@@ -112,11 +131,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (target.classList.contains("edit-btn")) {
       makeRowEditable(row);
       const actionsCell = row.querySelector("td:last-child");
-      actionsCell.innerHTML = `
+      actionsCell.innerHTML = 
         <div class="action-icons-container">
           <img src="/images/correct.png" class="action-icon save-btn" alt="Save">
           <img src="/images/trash.png" class="action-icon delete-btn" alt="Delete">
-        </div>`;
+        </div>;
     }
     if (target.classList.contains("save-btn")) { saveRowChanges(row); }
     if (target.classList.contains("delete-btn")) { deleteRow(row); }
@@ -140,30 +159,37 @@ document.addEventListener("DOMContentLoaded", () => {
       categoryCode: document.getElementById("addCategoryCode").value,
       description: document.getElementById("addDescription").value,
     };
-    const res = await fetch(API_BASE, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Accept": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    if (!res.ok) {
-      const errText = await res.text();
-      alert(`Failed to add category: ${errText || res.status}`);
-      return;
-    }
-    const created = await res.json();
-    // Prepend new row
-    const newRow = document.createElement("tr");
-    newRow.dataset.id = created.categoryId;
-    newRow.innerHTML = `
-      <td><span class="label">${created.categoryName ?? ""}</span></td>
-      <td><span class="label">${created.categoryCode ?? ""}</span></td>
-      <td><span class="label">${created.description ?? ""}</span></td>
-      <td><button class="btn-edit-label edit-btn">Edit Category</button></td>`;
-    tbody.prepend(newRow);
+    
+    try {
+      const res = await fetch(API_BASE, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText || HTTP );
+      }
+      
+      const created = await res.json();
+      // Prepend new row
+      const newRow = document.createElement("tr");
+      newRow.dataset.id = created.categoryId;
+      newRow.innerHTML = 
+        <td><span class="label"></span></td>
+        <td><span class="label"></span></td>
+        <td><span class="label"></span></td>
+        <td><button class="btn-edit-label edit-btn">Edit Category</button></td>;
+      tbody.prepend(newRow);
 
-    addCategoryModalOverlay.style.display = "none"; document.body.style.overflow = ""; addCategoryForm.reset();
+      addCategoryModalOverlay.style.display = "none"; document.body.style.overflow = ""; addCategoryForm.reset();
+      window.toastManager.success('Category created successfully');
+    } catch (error) {
+      window.toastManager.error(Failed to create category: );
+    }
   });
 
   // Initial load
   loadCategories();
-}); 
+});

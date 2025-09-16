@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+﻿document.addEventListener("DOMContentLoaded", () => {
   const tbody = document.querySelector("#suppliersTbody");
   const addSupplierIcon = document.getElementById('addSupplierIcon');
   const addSupplierModalOverlay = document.getElementById('addSupplierModalOverlay');
@@ -6,16 +6,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const addSupplierForm = document.getElementById('addSupplierForm');
   const searchInput = document.getElementById('searchInput');
   const searchIcon = document.getElementById('searchIcon');
-  const toastContainer = document.getElementById('toast-container');
-
-  function showToast(message, variant = 'success', timeoutMs = 2500) {
-    const toast = document.createElement('div');
-    toast.className = `toast ${variant === 'error' ? 'toast-error' : 'toast-success'}`;
-    toast.innerHTML = `<span class="msg">${message}</span><button class="close-btn" aria-label="Close">×</button>`;
-    toast.querySelector('.close-btn').addEventListener('click', () => toast.remove());
-    toastContainer.appendChild(toast);
-    setTimeout(() => toast.remove(), timeoutMs);
-  }
 
   function statusStyles(statusText){
     const isActive = statusText === 'Active';
@@ -31,14 +21,14 @@ document.addEventListener("DOMContentLoaded", () => {
     tr.dataset.supplierId = s.supplierId;
     const statusText = s.active ? 'Active' : 'Inactive';
     const styles = statusStyles(statusText);
-    tr.innerHTML = `
-      <td><span class="label">${s.supplierName || ''}</span></td>
-      <td><span class="label">${s.contactPerson || ''}</span></td>
-      <td><span class="label">${s.email || ''}</span></td>
-      <td><span class="label">${s.phone || ''}</span></td>
-      <td><span class="label">${s.address || ''}</span></td>
-      <td><span class="label" style="background:${styles.background};border-color:${styles.borderColor};color:${styles.color};">${statusText}</span></td>
-      <td><button class="btn-edit-label edit-btn">Edit Supplier</button></td>`;
+    tr.innerHTML = 
+      <td><span class="label"></span></td>
+      <td><span class="label"></span></td>
+      <td><span class="label"></span></td>
+      <td><span class="label"></span></td>
+      <td><span class="label"></span></td>
+      <td><span class="label" style="background:;border-color:;color:;"></span></td>
+      <td><button class="btn-edit-label edit-btn">Edit Supplier</button></td>;
     tbody.appendChild(tr);
   }
 
@@ -60,12 +50,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const params = new URLSearchParams();
       if (q && q.trim().length > 0) params.append('q', q.trim());
       if (status) params.append('status', status);
-      const res = await fetch(`/lwms/suppliers/api${params.toString() ? ('?' + params.toString()) : ''}`);
+      const res = await fetch(/lwms/suppliers/api);
       if (!res.ok) throw new Error('Failed to load suppliers');
       const data = await res.json();
       renderSuppliers(data);
     } catch (e) {
-      showToast(e.message || 'Failed to load suppliers', 'error');
+      window.toastManager.error(e.message || 'Failed to load suppliers');
     }
   }
 
@@ -99,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function saveRowChanges(row) {
     const supplierId = row.dataset.supplierId;
-    if (!supplierId) { showToast('Missing supplier id', 'error'); return; }
+    if (!supplierId) { window.toastManager.error('Missing supplier id'); return; }
     const cells = row.querySelectorAll('td');
     const payload = {};
     // 0 name, 1 contact, 2 email, 3 phone, 4 address, 5 status
@@ -111,7 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const statusSelect = cells[5].querySelector('select.editable-input'); if (statusSelect) payload.active = (statusSelect.value === 'Active');
 
     try {
-      const res = await fetch(`/lwms/suppliers/api/${encodeURIComponent(supplierId)}`, {
+      const res = await fetch(/lwms/suppliers/api/, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -121,17 +111,17 @@ document.addEventListener("DOMContentLoaded", () => {
       // Re-render row from server response
       const statusText = s.active ? 'Active' : 'Inactive';
       const styles = statusStyles(statusText);
-      cells[0].innerHTML = `<span class="label">${s.supplierName || ''}</span>`;
-      cells[1].innerHTML = `<span class="label">${s.contactPerson || ''}</span>`;
-      cells[2].innerHTML = `<span class="label">${s.email || ''}</span>`;
-      cells[3].innerHTML = `<span class="label">${s.phone || ''}</span>`;
-      cells[4].innerHTML = `<span class="label">${s.address || ''}</span>`;
-      cells[5].innerHTML = `<span class="label" style="background:${styles.background};border-color:${styles.borderColor};color:${styles.color};">${statusText}</span>`;
+      cells[0].innerHTML = <span class="label"></span>;
+      cells[1].innerHTML = <span class="label"></span>;
+      cells[2].innerHTML = <span class="label"></span>;
+      cells[3].innerHTML = <span class="label"></span>;
+      cells[4].innerHTML = <span class="label"></span>;
+      cells[5].innerHTML = <span class="label" style="background:;border-color:;color:;"></span>;
       const actionsCell = row.querySelector('td:last-child');
       actionsCell.innerHTML = '<button class="btn-edit-label edit-btn">Edit Supplier</button>';
-      showToast('Supplier updated successfully');
+      window.toastManager.success('Supplier updated successfully');
     } catch (e) {
-      showToast(e.message || 'Failed to update supplier', 'error');
+      window.toastManager.error(e.message || 'Failed to update supplier');
     }
   }
 
@@ -140,68 +130,71 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!supplierId) { row.remove(); return; }
     if (!confirm('Are you sure you want to delete this supplier?')) return;
     try {
-      const res = await fetch(`/lwms/suppliers/api/${encodeURIComponent(supplierId)}`, { method: 'DELETE' });
+      const res = await fetch(/lwms/suppliers/api/, { method: 'DELETE' });
       if (res.status !== 204 && !res.ok) throw new Error('Failed to delete supplier');
       row.remove();
-      showToast('Supplier deleted successfully');
+      window.toastManager.success('Supplier deleted successfully');
     } catch (e) {
-      showToast(e.message || 'Failed to delete supplier', 'error');
+      window.toastManager.error(e.message || 'Failed to delete supplier');
     }
   }
 
-  tbody.addEventListener("click", (e) => {
-    const target = e.target; const row = target.closest("tr"); if (!row) return;
-    if (target.classList.contains("edit-btn")) {
+  // Event delegation for row actions
+  tbody.addEventListener('click', (e) => {
+    const target = e.target; const row = target.closest('tr'); if (!row) return;
+    if (target.classList.contains('edit-btn')) {
       makeRowEditable(row);
       const actionsCell = row.querySelector('td:last-child');
-      actionsCell.innerHTML = `
+      actionsCell.innerHTML = 
         <div class="action-icons-container">
           <img src="/images/correct.png" class="action-icon save-btn" alt="Save">
           <img src="/images/trash.png" class="action-icon delete-btn" alt="Delete">
-        </div>`;
+        </div>;
     }
-    if (target.classList.contains("save-btn")) { saveRowChanges(row); }
-    if (target.classList.contains("delete-btn")) { deleteRow(row); }
+    if (target.classList.contains('save-btn')) { saveRowChanges(row); }
+    if (target.classList.contains('delete-btn')) { deleteRow(row); }
   });
 
-  // Server-side search by name/contact and status
-  let searchDebounce;
-  function triggerSearch(){
-    const q = searchInput.value || '';
+  // Search functionality
+  function onSearch() {
+    const q = searchInput.value.trim();
     const status = deriveStatusFromQuery(q);
     fetchSuppliers({ q, status });
   }
-  if (searchInput) searchInput.addEventListener('input', () => { clearTimeout(searchDebounce); searchDebounce = setTimeout(triggerSearch, 300); });
-  if (searchIcon) searchIcon.addEventListener('click', triggerSearch);
+  if (searchInput) searchInput.addEventListener('input', onSearch);
+  if (searchIcon) searchIcon.addEventListener('click', onSearch);
 
-  addSupplierIcon.addEventListener('click', () => { addSupplierModalOverlay.style.display = 'flex'; document.body.style.overflow = 'hidden'; });
-  closeAddSupplierModal.addEventListener('click', () => { addSupplierModalOverlay.style.display = 'none'; document.body.style.overflow = ''; });
-  addSupplierModalOverlay.addEventListener('click', (e) => { if (e.target === addSupplierModalOverlay) { addSupplierModalOverlay.style.display = 'none'; document.body.style.overflow = ''; } });
+  // Add modal open/close
+  if (addSupplierIcon) addSupplierIcon.addEventListener('click', () => { addSupplierModalOverlay.style.display = 'flex'; document.body.style.overflow = 'hidden'; });
+  if (closeAddSupplierModal) closeAddSupplierModal.addEventListener('click', () => { addSupplierModalOverlay.style.display = 'none'; document.body.style.overflow = ''; });
+  if (addSupplierModalOverlay) addSupplierModalOverlay.addEventListener('click', (e) => { if (e.target === addSupplierModalOverlay) { addSupplierModalOverlay.style.display = 'none'; document.body.style.overflow = ''; } });
 
-  addSupplierForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const supplierName = document.getElementById('addSupplierName').value.trim();
-    const contactPerson = document.getElementById('addContactPerson').value.trim();
-    const email = document.getElementById('addEmail').value.trim();
-    const phone = document.getElementById('addPhone').value.trim();
-    const address = document.getElementById('addAddress').value.trim();
-    const statusVal = document.getElementById('addStatus').value;
-    const active = statusVal === 'Active';
-    try {
-      const res = await fetch('/lwms/suppliers/api', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ supplierName, contactPerson, email, phone, address, active })
-      });
-      if (!res.ok) throw new Error('Failed to create supplier');
-      const created = await res.json();
-      appendSupplierRow(created);
-      addSupplierModalOverlay.style.display = 'none';
-      document.body.style.overflow = '';
-      addSupplierForm.reset();
-      showToast('Supplier added successfully');
-    } catch (err) {
-      showToast(err.message || 'Failed to create supplier', 'error');
-    }
-  });
-}); 
+  // Create supplier
+  if (addSupplierForm) {
+    addSupplierForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        supplierName: document.getElementById('addSupplierName').value,
+        contactPerson: document.getElementById('addContactPerson').value,
+        email: document.getElementById('addEmail').value,
+        phone: document.getElementById('addPhone').value,
+        address: document.getElementById('addAddress').value,
+        active: document.getElementById('addActive').checked
+      };
+      try {
+        const res = await fetch('/lwms/suppliers/api', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error('Failed to create supplier');
+        const s = await res.json();
+        appendSupplierRow(s);
+        addSupplierModalOverlay.style.display = 'none'; document.body.style.overflow = ''; addSupplierForm.reset();
+        window.toastManager.success('Supplier created successfully');
+      } catch (e) {
+        window.toastManager.error(e.message || 'Failed to create supplier');
+      }
+    });
+  }
+});

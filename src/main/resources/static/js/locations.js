@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+﻿document.addEventListener("DOMContentLoaded", () => {
   const tbody = document.querySelector("tbody");
 
   // Apply status classes to all existing status labels
@@ -128,52 +128,71 @@ document.addEventListener("DOMContentLoaded", () => {
     const isActiveText = cells[8]?.querySelector('.status-select')?.dataset?.currentValue;
     const isActive = isActiveText === 'Active';
 
-    const res = await fetch(`${API_BASE}/${encodeURIComponent(id)}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ zone, aisle, rack, shelf, capacity, currentLoad, locationType, isActive })
-    });
-    if (!res.ok) {
-      const err = await res.text();
-      alert(`Failed to update location: ${err || res.status}`);
-      return;
-    }
-    const updated = await res.json();
+    try {
+      const res = await fetch(${API_BASE}/, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ zone, aisle, rack, shelf, capacity, currentLoad, locationType, isActive })
+      });
+      
+      if (!res.ok) {
+        const err = await res.text();
+        throw new Error(err || HTTP );
+      }
+      
+      const updated = await res.json();
 
-    // Re-render row
-    cells[0].innerHTML = `<span class="label">${updated.locationCode ?? ''}</span>`;
-    cells[1].innerHTML = `<span class=\"label\">${updated.zone ?? ''}</span>`;
-    cells[2].innerHTML = `<span class=\"label\">${updated.aisle ?? ''}</span>`;
-    cells[3].innerHTML = `<span class=\"label\">${updated.rack ?? ''}</span>`;
-    cells[4].innerHTML = `<span class=\"label\">${updated.shelf ?? ''}</span>`;
-    cells[5].innerHTML = `<span class=\"label\">${updated.capacity ?? ''}</span>`;
-    cells[6].innerHTML = `<span class=\"label\">${updated.currentLoad ?? ''}</span>`;
-    cells[7].innerHTML = `<span class=\"label\">${updated.locationType ?? ''}</span>`;
-    const statusSpan = document.createElement('span');
-    statusSpan.className = `label ${updated.isActive ? 'status-active' : 'status-inactive'}`;
-    statusSpan.textContent = updated.isActive ? 'Active' : 'Inactive';
-    statusSpan.style.background = updated.isActive ? 'rgba(40, 167, 69, 0.3)' : 'rgba(220, 53, 69, 0.3)';
-    statusSpan.style.borderColor = updated.isActive ? 'rgba(40, 167, 69, 0.6)' : 'rgba(220, 53, 69, 0.6)';
-    statusSpan.style.color = updated.isActive ? '#155724' : '#721c24';
-    cells[8].innerHTML = ''; cells[8].appendChild(statusSpan);
-    const actionsCell = row.querySelector('td:last-child'); actionsCell.innerHTML = '<button class="btn-edit-label edit-btn">Edit Location</button>';
+      // Re-render row
+      cells[0].innerHTML = <span class="label"></span>;
+      cells[1].innerHTML = <span class=\"label\"></span>;
+      cells[2].innerHTML = <span class=\"label\"></span>;
+      cells[3].innerHTML = <span class=\"label\"></span>;
+      cells[4].innerHTML = <span class=\"label\"></span>;
+      cells[5].innerHTML = <span class=\"label\"></span>;
+      cells[6].innerHTML = <span class=\"label\"></span>;
+      cells[7].innerHTML = <span class=\"label\"></span>;
+      const statusSpan = document.createElement('span');
+      statusSpan.className = label ;
+      statusSpan.textContent = updated.isActive ? 'Active' : 'Inactive';
+      statusSpan.style.background = updated.isActive ? 'rgba(40, 167, 69, 0.3)' : 'rgba(220, 53, 69, 0.3)';
+      statusSpan.style.borderColor = updated.isActive ? 'rgba(40, 167, 69, 0.6)' : 'rgba(220, 53, 69, 0.6)';
+      statusSpan.style.color = updated.isActive ? '#155724' : '#721c24';
+      cells[8].innerHTML = ''; cells[8].appendChild(statusSpan);
+      const actionsCell = row.querySelector('td:last-child'); actionsCell.innerHTML = '<button class="btn-edit-label edit-btn">Edit Location</button>';
+      
+      window.toastManager.success('Location updated successfully');
+    } catch (error) {
+      window.toastManager.error(Failed to update location: );
+    }
   }
 
   async function deleteRow(row) {
     if (!confirm('Are you sure you want to delete this location?')) return;
     const id = row.dataset.id;
-    if (!id) { row.remove(); return; }
-    const res = await fetch(`${API_BASE}/${encodeURIComponent(id)}`, { method: 'DELETE' });
-    if (!res.ok) {
-      const err = await res.text();
-      alert(`Failed to delete location: ${err || res.status}`);
-      return;
+    
+    try {
+      if (!id) { 
+        row.remove(); 
+        window.toastManager.success('Location deleted successfully');
+        return; 
+      }
+      
+      const res = await fetch(${API_BASE}/, { method: 'DELETE' });
+      
+      if (!res.ok) {
+        const err = await res.text();
+        throw new Error(err || HTTP );
+      }
+      
+      row.remove();
+      window.toastManager.success('Location deleted successfully');
+    } catch (error) {
+      window.toastManager.error(Failed to delete location: );
     }
-    row.remove();
   }
 
   function createLocationCode(zone, aisle, rack, shelf){
-    return `${zone}${aisle}-${rack}-${shelf}`;
+    return ${zone}--;
   }
 
   function renderRows(list){
@@ -181,24 +200,24 @@ document.addEventListener("DOMContentLoaded", () => {
     list.forEach(loc => {
       const row = document.createElement('tr');
       row.dataset.id = loc.locationId;
-      row.innerHTML = `
-        <td><span class="label">${loc.locationCode ?? createLocationCode(loc.zone, loc.aisle, loc.rack, loc.shelf)}</span></td>
-        <td><span class="label">${loc.zone ?? ''}</span></td>
-        <td><span class="label">${loc.aisle ?? ''}</span></td>
-        <td><span class="label">${loc.rack ?? ''}</span></td>
-        <td><span class="label">${loc.shelf ?? ''}</span></td>
-        <td><span class="label">${loc.capacity ?? ''}</span></td>
-        <td><span class="label">${loc.currentLoad ?? ''}</span></td>
-        <td><span class="label">${loc.locationType ?? ''}</span></td>
-        <td><span class="label ${loc.isActive ? 'status-active' : 'status-inactive'}" style="background: ${loc.isActive ? 'rgba(40, 167, 69, 0.3)' : 'rgba(220, 53, 69, 0.3)'}; border-color: ${loc.isActive ? 'rgba(40, 167, 69, 0.6)' : 'rgba(220, 53, 69, 0.6)'}; color: ${loc.isActive ? '#155724' : '#721c24'};">${loc.isActive ? 'Active' : 'Inactive'}</span></td>
-        <td><button class="btn-edit-label edit-btn">Edit Location</button></td>`;
+      row.innerHTML = 
+        <td><span class="label"></span></td>
+        <td><span class="label"></span></td>
+        <td><span class="label"></span></td>
+        <td><span class="label"></span></td>
+        <td><span class="label"></span></td>
+        <td><span class="label"></span></td>
+        <td><span class="label"></span></td>
+        <td><span class="label"></span></td>
+        <td><span class="label " style="background: ; border-color: ; color: ;"></span></td>
+        <td><button class="btn-edit-label edit-btn">Edit Location</button></td>;
       tbody.appendChild(row);
     });
   }
 
   async function loadLocations(){
     const q = document.getElementById('searchInput')?.value?.trim();
-    const url = q ? `${API_BASE}?q=${encodeURIComponent(q)}` : API_BASE;
+    const url = q ? ${API_BASE}?q= : API_BASE;
     const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
     if (!res.ok) { console.error('Failed to load locations'); return; }
     const data = await res.json();
@@ -211,11 +230,11 @@ document.addEventListener("DOMContentLoaded", () => {
       if (target.classList.contains('edit-btn')) {
         makeRowEditable(row);
         const actionsCell = row.querySelector('td:last-child');
-        actionsCell.innerHTML = `
+        actionsCell.innerHTML = 
           <div class="action-icons-container">
             <img src="/images/correct.png" class="action-icon save-btn" alt="Save">
             <img src="/images/trash.png" class="action-icon delete-btn" alt="Delete">
-          </div>`;
+          </div>;
       }
       if (target.classList.contains('save-btn')) { saveRowChanges(row); }
       if (target.classList.contains('delete-btn')) { deleteRow(row); }
@@ -307,7 +326,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const aisle = document.getElementById('addAisle').value;
       const rack = document.getElementById('addRack').value;
       const shelf = document.getElementById('addShelf').value;
-      const locationCode = `${zone}${aisle}-${rack}-${shelf}`;
+      const locationCode = ${zone}--;
       const payload = {
         zone,
         aisle,
@@ -318,35 +337,42 @@ document.addEventListener("DOMContentLoaded", () => {
         locationType: document.getElementById('addLocationType').dataset.currentValue,
         isActive: document.getElementById('addIsActive').dataset.currentValue === 'Active'
       };
-      const res = await fetch(API_BASE, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok) {
-        const err = await res.text();
-        alert(`Failed to add location: ${err || res.status}`);
-        return;
+      
+      try {
+        const res = await fetch(API_BASE, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        
+        if (!res.ok) {
+          const err = await res.text();
+          throw new Error(err || HTTP );
+        }
+        
+        const created = await res.json();
+        const newRow = document.createElement('tr');
+        newRow.dataset.id = created.locationId;
+        newRow.innerHTML = 
+          <td><span class="label"></span></td>
+          <td><span class="label"></span></td>
+          <td><span class="label"></span></td>
+          <td><span class="label"></span></td>
+          <td><span class="label"></span></td>
+          <td><span class="label"></span></td>
+          <td><span class="label"></span></td>
+          <td><span class="label"></span></td>
+          <td><span class="label " style="background: ; border-color: ; color: ;"></span></td>
+          <td><button class="btn-edit-label edit-btn">Edit Location</button></td>;
+        tbody.prepend(newRow);
+        addLocationModalOverlay.style.display = 'none'; document.body.style.overflow = ''; addLocationForm.reset();
+        window.toastManager.success('Location created successfully');
+      } catch (error) {
+        window.toastManager.error(Failed to create location: );
       }
-      const created = await res.json();
-      const newRow = document.createElement('tr');
-      newRow.dataset.id = created.locationId;
-      newRow.innerHTML = `
-        <td><span class="label">${created.locationCode ?? locationCode}</span></td>
-        <td><span class="label">${created.zone ?? zone}</span></td>
-        <td><span class="label">${created.aisle ?? aisle}</span></td>
-        <td><span class="label">${created.rack ?? rack}</span></td>
-        <td><span class="label">${created.shelf ?? shelf}</span></td>
-        <td><span class="label">${created.capacity ?? payload.capacity}</span></td>
-        <td><span class="label">${created.currentLoad ?? payload.currentLoad}</span></td>
-        <td><span class="label">${created.locationType ?? payload.locationType}</span></td>
-        <td><span class="label ${created.isActive ? 'status-active' : 'status-inactive'}" style="background: ${created.isActive ? 'rgba(40, 167, 69, 0.3)' : 'rgba(220, 53, 69, 0.3)'}; border-color: ${created.isActive ? 'rgba(40, 167, 69, 0.6)' : 'rgba(220, 53, 69, 0.6)'}; color: ${created.isActive ? '#155724' : '#721c24'};">${created.isActive ? 'Active' : 'Inactive'}</span></td>
-        <td><button class="btn-edit-label edit-btn">Edit Location</button></td>`;
-      tbody.prepend(newRow);
-      addLocationModalOverlay.style.display = 'none'; document.body.style.overflow = ''; addLocationForm.reset();
     });
   }
 
   // Initial load
   loadLocations();
-}); 
+});

@@ -1,10 +1,11 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Product Inventory · Cardboard Co.</title>
+<title>Product Inventory  Cardboard Co.</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" th:href="@{/css/style.css}">
 <link rel="stylesheet" th:href="@{/css/inventory.css}">
 </head>
 <body>
@@ -37,13 +38,13 @@
   <div class="box-card">
     <div class="flap"></div>
     <div class="header-row d-flex align-items-center justify-content-between mb-4">
-      <div class="d-flex align-items-end">
+      <div class="d-flex align-items-center">
         <h3 class="mb-0">Product Inventory</h3>
-        <img th:src="@{/images/add-item.png}" alt="Add Item" class="add-item-icon" id="addItemIcon" width="24" height="24">
+        <img th:src="@{/images/add-item.png}" alt="Add Item" class="add-item-icon" width="24" height="24" id="addItemIcon">
       </div>
       <div class="search-container">
-        <input type="text" class="search-input" placeholder="Search products..." id="searchInput">
-        <img th:src="@{/images/search.png}" alt="Search" class="search-icon" width="24" height="24" id="searchIcon">
+        <input type="text" class="search-input" placeholder="Search inventory..." id="searchInput">
+        <img th:src="@{/images/search.png}" alt="Search" class="search-icon" width="24" height="24">
       </div>
     </div>
     <div class="table-responsive table-body-scrollable">
@@ -63,129 +64,47 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td data-label="Item Code"><span class="label">SKU001</span></td>
-            <td data-label="Item Name"><span class="label">Packing Boxes (Small)</span></td>
-            <td data-label="Category"><span class="label">Packaging</span></td>
-            <td><span class="label">Warehouse A - Rack 1</span></td>
-            <td><span class="label">150</span></td>
-            <td><span class="label">50</span></td>
-            <td><span class="label">200</span></td>
-            <td><span class="label">$1.25</span></td>
-            <td data-label="Status"><span class="label" data-status="optimal">Optimal</span></td>
-            <td>
-              <button class="btn-edit-label edit-btn">Edit Item</button>
-              <div class="action-icons-container">
-                <img th:src="@{/images/correct.png}" class="action-icon save-btn" alt="Save">
-                <img th:src="@{/images/trash.png}" class="action-icon delete-btn" alt="Delete">
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td data-label="Item Code"><span class="label">SKU002</span></td>
-            <td data-label="Item Name"><span class="label">Tape Dispensers</span></td>
-            <td data-label="Category"><span class="label">Tools</span></td>
-            <td><span class="label">Warehouse B - Section 3</span></td>
-            <td><span class="label">25</span></td>
-            <td><span class="label">30</span></td>
-            <td><span class="label">100</span></td>
-            <td><span class="label">$15.99</span></td>
-            <td data-label="Status"><span class="label" data-status="low-stock">Low Stock</span></td>
-            <td>
-              <button class="btn-edit-label edit-btn">Edit Item</button>
-              <div class="action-icons-container">
-                <img th:src="@{/images/correct.png}" class="action-icon save-btn" alt="Save">
-                <img th:src="@{/images/trash.png}" class="action-icon delete-btn" alt="Delete">
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td data-label="Item Code"><span class="label">SKU003</span></td>
-            <td data-label="Item Name"><span class="label">Bubble Wrap Roll</span></td>
-            <td data-label="Category"><span class="label">Protective</span></td>
-            <td><span class="label">Warehouse A - Rack 5</span></td>
-            <td><span class="label">0</span></td>
-            <td><span class="label">20</span></td>
-            <td><span class="label">200</span></td>
-            <td><span class="label">$8.75</span></td>
-            <td data-label="Status"><span class="label" data-status="out-of-stock">Out of Stock</span></td>
-            <td>
-              <button class="btn-edit-label edit-btn">Edit Item</button>
-              <div class="action-icons-container">
-                <img th:src="@{/images/correct.png}" class="action-icon save-btn" alt="Save">
-                <img th:src="@{/images/trash.png}" class="action-icon delete-btn" alt="Delete">
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td data-label="Item Code"><span class="label">SKU004</span></td>
-            <td data-label="Item Name"><span class="label">Labels - Shipping</span></td>
-            <td data-label="Category"><span class="label">Labels</span></td>
-            <td><span class="label">Warehouse C - Drawer 2</span></td>
-            <td><span class="label">1200</span></td>
-            <td><span class="label">100</span></td>
-            <td><span class="label">1000</span></td>
-            <td><span class="label">$0.15</span></td>
-            <td data-label="Status"><span class="label" data-status="overstock">Overstock</span></td>
-            <td>
-              <button class="btn-edit-label edit-btn">Edit Item</button>
-              <div class="action-icons-container">
-                <img th:src="@{/images/correct.png}" class="action-icon save-btn" alt="Save">
-                <img th:src="@{/images/trash.png}" class="action-icon delete-btn" alt="Delete">
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td data-label="Item Code"><span class="label">SKU005</span></td>
-            <td data-label="Item Name"><span class="label">Stretch Film</span></td>
-            <td data-label="Category"><span class="label">Packaging</span></td>
-            <td><span class="label">Warehouse B - Section 2</span></td>
-            <td><span class="label">75</span></td>
-            <td><span class="label">40</span></td>
-            <td><span class="label">150</span></td>
-            <td><span class="label">$22.50</span></td>
-            <td data-label="Status"><span class="label" data-status="optimal">Optimal</span></td>
-            <td>
-              <button class="btn-edit-label edit-btn">Edit Item</button>
-              <div class="action-icons-container">
-                <img th:src="@{/images/correct.png}" class="action-icon save-btn" alt="Save">
-                <img th:src="@{/images/trash.png}" class="action-icon delete-btn" alt="Delete">
-              </div>
-            </td>
-          </tr>
         </tbody>
       </table>
     </div>
   </div>
 </section>
 
+<!-- Profile Modal -->
 <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content box-card">
-      <div class="modal-header d-flex justify-content-between align-items-start">
-        <div>
-          <h5 class="modal-title" id="profileModalLabel">User Profile</h5>
-          <div class="label mt-2">Personal Information</div>
-        </div>
+      <div class="modal-header">
+        <h5 class="modal-title" id="profileModalLabel">Profile Information</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p><strong>Name:</strong> <span th:text="${user.firstName + ' ' + user.lastName}">John Doe</span></p>
-        <p><strong>Username:</strong> <span th:text="${user.username}">johndoe</span></p>
-        <p><strong>Email:</strong> <span th:text="${user.email}">john@example.com</span></p>
-        <p><strong>Role:</strong> <span th:text="${user.role.roleName}">Viewer</span></p>
-        <p><strong>Status:</strong> <span th:text="${user.active} ? 'Active' : 'Inactive'">Active</span></p>
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>First Name:</strong> <span th:text="">John</span></p>
+            <p><strong>Last Name:</strong> <span th:text="">Doe</span></p>
+            <p><strong>Username:</strong> <span th:text="">johndoe</span></p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Email:</strong> <span th:text="">john.doe@example.com</span></p>
+            <p><strong>Role:</strong> <span th:text="">Manager</span></p>
+            <p><strong>Status:</strong> <span th:text="">Active</span></p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<div id="addItemModalOverlay" class="add-item-modal-overlay">
+<!-- Add Item Modal -->
+<div class="add-item-modal-overlay" id="addItemModalOverlay">
   <div class="add-item-modal">
-    <button class="add-item-modal-close" id="closeAddItemModal" aria-label="Close">&times;</button>
-    <div class="add-item-modal-title">Add New Item</div>
-    <form id="addItemForm" class="add-item-form" autocomplete="off">
-      <div class="row-inline">
+    <div class="add-item-modal-header">
+      <h3 class="add-item-modal-title">Add New Item</h3>
+      <button class="add-item-modal-close" id="closeAddItemModal"></button>
+    </div>
+    <form id="addItemForm" class="add-item-form">
+      <div class="form-row">
         <div>
           <label for="addItemCode">Item Code</label>
           <input type="text" id="addItemCode" required>
@@ -195,7 +114,7 @@
           <input type="text" id="addItemName" required>
         </div>
       </div>
-      <div class="row-inline">
+      <div class="form-row">
         <div>
           <label for="addCategory">Category</label>
           <input type="text" id="addCategory" required>
@@ -205,7 +124,7 @@
           <input type="text" id="addLocation" required>
         </div>
       </div>
-      <div class="row-inline">
+      <div class="form-row">
         <div>
           <label for="addQuantity">Quantity</label>
           <input type="number" id="addQuantity" required>
@@ -220,7 +139,8 @@
   </div>
 </div>
 
+<script th:src="@{/js/toast-utils.js}"></script>
 <script th:src="@{/js/inventory.js}"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html> 
+</html>

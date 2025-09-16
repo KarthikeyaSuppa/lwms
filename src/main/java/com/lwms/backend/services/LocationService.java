@@ -29,12 +29,10 @@ public class LocationService {
 			List<Locations> textMatches = locationsRepository
 					.findByZoneContainingIgnoreCaseOrAisleContainingIgnoreCaseOrRackContainingIgnoreCaseOrShelfContainingIgnoreCase(q, q, q, q);
 			List<Locations> agg = new ArrayList<>(textMatches);
-			// Try type match
 			try {
 				Locations.LocationType t = Locations.LocationType.valueOf(q.substring(0, 1).toUpperCase() + q.substring(1).toLowerCase());
 				agg.addAll(locationsRepository.findByLocationType(t));
 			} catch (IllegalArgumentException ignore) {}
-			// Try status match
 			if (q.equalsIgnoreCase("active")) agg.addAll(locationsRepository.findByIsActive(true));
 			if (q.equalsIgnoreCase("inactive")) agg.addAll(locationsRepository.findByIsActive(false));
 			// Distinct by id
