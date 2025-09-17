@@ -38,10 +38,14 @@ a.box-card:focus-visible{ outline:2px dashed rgba(62,47,25,.6); outline-offset:4
 .add-supplier-form{ display:flex; flex-direction:column; gap:.9rem; }
 .add-supplier-form label{ font-weight:600; margin-bottom:.25rem; display:block; text-align:left; font-size:.95rem; }
 .add-supplier-form input{ width:100%; box-sizing:border-box; display:block; margin:0; background:rgba(255,255,255,.25); border:1px dashed rgba(62,47,25,.5); border-radius:.35rem; padding:.45rem .6rem; color:#3e2f19; font-weight:600; transition:all .2s ease; }
+.add-supplier-form textarea{ width:100%; box-sizing:border-box; display:block; margin:0; background:rgba(255,255,255,.25); border:1px dashed rgba(62,47,25,.5); border-radius:.35rem; padding:.45rem .6rem; color:#3e2f19; font-weight:600; transition:all .2s ease; resize:vertical; min-height:90px; }
 .add-supplier-form > div{ display:flex; flex-direction:column; align-items:stretch; justify-content:center; }
 .add-supplier-form input:focus{ outline:none; border-color:rgba(62,47,25,.7); background:rgba(255,255,255,.35); box-shadow:0 0 0 2px rgba(62,47,25,.10); }
+.add-supplier-form textarea:focus{ outline:none; border-color:rgba(62,47,25,.7); background:rgba(255,255,255,.35); box-shadow:0 0 0 2px rgba(62,47,25,.10); }
 .add-supplier-form input:hover{ background:rgba(255,255,255,.30); border-color:rgba(62,47,25,.6); }
+.add-supplier-form textarea:hover{ background:rgba(255,255,255,.30); border-color:rgba(62,47,25,.6); }
 .add-supplier-form input::placeholder{ color:#3e2f19; opacity:.7; }
+.add-supplier-form textarea::placeholder{ color:#3e2f19; opacity:.7; }
 .add-supplier-form .add-supplier-btn{ background:linear-gradient(180deg,#d7b785,#caa475); border:1px dashed rgba(62,47,25,.5); border-radius:.35rem; color:#3e2f19; font-weight:700; padding:.675rem; margin-top:.5rem; cursor:pointer; font-size:.99rem; transition:filter .2s; }
 .add-supplier-form .add-supplier-btn:hover{ filter:brightness(1.1); }
 .fixed-header-table{ width:100%; table-layout:fixed; }
@@ -73,4 +77,9 @@ a.box-card:focus-visible{ outline:2px dashed rgba(62,47,25,.6); outline-offset:4
 .editable-input{ box-sizing: border-box; max-width: 100%; }
 /* Prevent inputs from overflowing into adjacent columns */
 .fixed-header-table td{ position: relative; }
-.fixed-header-table td .editable-input{ width: 100%; } 
+.fixed-header-table td .editable-input{ width: 100%; }
+#addAddress{ background:rgba(255,255,255,.25) !important; border:1px dashed rgba(62,47,25,.5) !important; border-radius:.35rem; padding:.45rem .6rem; color:#3e2f19; font-weight:600; transition:all .2s ease; resize:vertical; min-height:90px; -webkit-appearance:none; appearance:none; box-shadow:none; }
+#addAddress:focus{ outline:none; border-color:rgba(62,47,25,.7) !important; background:rgba(255,255,255,.35) !important; box-shadow:0 0 0 2px rgba(62,47,25,.10) !important; }
+#addAddress:hover{ background:rgba(255,255,255,.30) !important; border-color:rgba(62,47,25,.6) !important; }
+#addAddress::placeholder{ color:#3e2f19; opacity:.7; }
+#addSupplierForm label[for="addActive"],#addSupplierForm #addActive,#addSupplierForm .checkbox-container{ display:none !important; } 
