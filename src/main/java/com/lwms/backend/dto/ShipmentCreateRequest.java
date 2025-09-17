@@ -3,7 +3,8 @@ package com.lwms.backend.dto;
 public class ShipmentCreateRequest {
 	private String shipmentNumber;
 	private String shipmentType; // Inbound|Outbound
-	private String supplier; // ID or Name string from UI
+	private String supplier; // Name (fallback if ID not provided)
+	private Integer supplierId; // Preferred: selected supplier ID
 	private String origin;
 	private String destination;
 	private String status; // Planned|In Transit|Delivered|Cancelled
@@ -17,6 +18,8 @@ public class ShipmentCreateRequest {
 	public void setShipmentType(String shipmentType) { this.shipmentType = shipmentType; }
 	public String getSupplier() { return supplier; }
 	public void setSupplier(String supplier) { this.supplier = supplier; }
+	public Integer getSupplierId() { return supplierId; }
+	public void setSupplierId(Integer supplierId) { this.supplierId = supplierId; }
 	public String getOrigin() { return origin; }
 	public void setOrigin(String origin) { this.origin = origin; }
 	public String getDestination() { return destination; }

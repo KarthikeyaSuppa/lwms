@@ -99,6 +99,43 @@ document.addEventListener("DOMContentLoaded", () => {
   const addCategoryForm = document.getElementById('addCategoryForm');
   const searchInput = document.getElementById('searchInput');
   const searchIcon = document.getElementById('searchIcon');
+  // supplier searchable dropdown (datalist like inventory.js)
+  const supInput = document.getElementById('addSupplier');
+  const supList = document.getElementById('supplierOptions');
+  const supIdHidden = document.getElementById('addSupplierId');
+  async function searchSuppliers(q){
+    const url = q ? `/suppliers/api?q=${encodeURIComponent(q)}` : '/suppliers/api';
+    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) return [];
+    return res.json();
+  }
+  function bindSupplierDatalist(){
+    if(!supInput || !supList || !supIdHidden) return;
+    let lastResults = [];
+    supInput.addEventListener('input', async () => {
+      const q = supInput.value.trim();
+      const results = await searchSuppliers(q);
+      lastResults = Array.isArray(results) ? results : [];
+      supList.innerHTML = '';
+      lastResults.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.supplierName;
+        opt.dataset.id = s.supplierId;
+        supList.appendChild(opt);
+      });
+    });
+    supInput.addEventListener('change', () => {
+      const name = supInput.value.trim();
+      const match = Array.from(supList.options).find(o => o.value.toLowerCase() === name.toLowerCase());
+      if (match && match.dataset.id) {
+        supIdHidden.value = match.dataset.id;
+      } else {
+        // no exact match -> clear id so backend can resolve by name best-effort
+        supIdHidden.value = '';
+      }
+    });
+  }
+  bindSupplierDatalist();
 
   function normalize(text){ return (text || '').toString().toLowerCase().trim(); }
   function filterRows(){ loadShipments(); }
@@ -118,7 +155,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const payload = {
       shipmentNumber: document.getElementById('addShipmentNumber').value,
       shipmentType: document.getElementById('addShipmentType').value,
-      supplier: document.getElementById('addSupplier').value,
+      supplierId: document.getElementById('addSupplierId')?.value || null,
+      supplierName: document.getElementById('addSupplier')?.value || null,
       origin: document.getElementById('addOrigin').value,
       destination: document.getElementById('addDestination').value,
       status: document.getElementById('addStatus').value,
@@ -126,7 +164,19 @@ document.addEventListener("DOMContentLoaded", () => {
       actualDelivery: document.getElementById('addActual').value,
       totalValue: document.getElementById('addTotalValue').value,
     };
-    const res = await fetch(API_BASE, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify(payload) });
+    // Server accepts either supplierId or name; send both keys normalized
+    const res = await fetch(API_BASE, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({
+      shipmentNumber: payload.shipmentNumber,
+      shipmentType: payload.shipmentType,
+      supplierId: payload.supplierId ? Number(payload.supplierId) : undefined,
+      supplier: payload.supplierName || undefined,
+      origin: payload.origin,
+      destination: payload.destination,
+      status: payload.status,
+      expectedDelivery: payload.expectedDelivery,
+      actualDelivery: payload.actualDelivery,
+      totalValue: payload.totalValue
+    }) });
     if (!res.ok) { const err = await res.text(); alert(`Failed to add shipment: ${err || res.status}`); return; }
     const created = await res.json();
     const newRow = document.createElement('tr');
@@ -134,7 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
     newRow.innerHTML = `
       <td><span class="label">${created.shipmentNumber ?? payload.shipmentNumber}</span></td>
       <td><span class="label">${created.shipmentType ?? payload.shipmentType}</span></td>
-      <td><span class="label">${(created.supplier ?? payload.supplier) || '-'}</span></td>
+      <td><span class="label">${(created.supplier ?? payload.supplierName) || '-'}</span></td>
       <td><span class="label">${created.origin ?? payload.origin}</span></td>
       <td><span class="label">${created.destination ?? payload.destination}</span></td>
       <td><span class="label">${created.status ?? payload.status}</span></td>

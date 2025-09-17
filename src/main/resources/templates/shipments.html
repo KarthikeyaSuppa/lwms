@@ -152,8 +152,10 @@
             </div>
           </div>
           <div class="field-group">
-            <label for="addSupplier">Supplier (ID or Name)</label>
-            <input type="text" id="addSupplier" name="supplier" placeholder="e.g., 12 or Acme Supplies" />
+            <label for="addSupplier">Supplier (Name)</label>
+            <input type="text" id="addSupplier" name="supplierName" list="supplierOptions" placeholder="Search supplier" autocomplete="off" />
+            <datalist id="supplierOptions"></datalist>
+            <input type="hidden" id="addSupplierId" />
           </div>
         </div>
         <div class="field-col right">

@@ -72,7 +72,7 @@ public class ShipmentService {
 		if (StringUtils.hasText(req.getExpectedDelivery())) s.setExpectedDeliveryDate(LocalDateTime.parse(req.getExpectedDelivery()));
 		if (StringUtils.hasText(req.getActualDelivery())) s.setActualDeliveryDate(LocalDateTime.parse(req.getActualDelivery()));
 		if (StringUtils.hasText(req.getTotalValue())) s.setTotalValue(new BigDecimal(req.getTotalValue()));
-		resolveAndSetSupplier(s, req.getSupplier());
+		resolveAndSetSupplier(s, req.getSupplierId(), req.getSupplier());
 		s.setCreatedBy(resolveCurrentUser());
 		Shipments saved = shipmentsRepository.save(s);
 		return toDto(saved);
@@ -92,7 +92,7 @@ public class ShipmentService {
 		if (req.getExpectedDelivery() != null) s.setExpectedDeliveryDate(LocalDateTime.parse(req.getExpectedDelivery()));
 		if (req.getActualDelivery() != null) s.setActualDeliveryDate(LocalDateTime.parse(req.getActualDelivery()));
 		if (req.getTotalValue() != null) s.setTotalValue(new BigDecimal(req.getTotalValue()));
-		if (req.getSupplier() != null) resolveAndSetSupplier(s, req.getSupplier());
+		if (req.getSupplier() != null || req.getSupplierId() != null) resolveAndSetSupplier(s, req.getSupplierId(), req.getSupplier());
 		Shipments saved = shipmentsRepository.save(s);
 		boolean typeChanged = oldType != saved.getShipmentType();
 		boolean statusChanged = oldStatus != saved.getStatus();
@@ -139,20 +139,18 @@ public class ShipmentService {
 		dto.setExpectedDelivery(s.getExpectedDeliveryDate() != null ? s.getExpectedDeliveryDate().toString() : null);
 		dto.setActualDelivery(s.getActualDeliveryDate() != null ? s.getActualDeliveryDate().toString() : null);
 		dto.setTotalValue(s.getTotalValue() != null ? s.getTotalValue().toString() : null);
-		dto.setSupplier(s.getSupplier() != null ? s.getSupplier().getSupplierName() + " (ID: " + s.getSupplier().getSupplierId() + ")" : null);
+		dto.setSupplier(s.getSupplier() != null ? s.getSupplier().getSupplierName() : null);
 		return dto;
 	}
 
-	private void resolveAndSetSupplier(Shipments s, String supplierField) {
-		if (!StringUtils.hasText(supplierField)) { s.setSupplier(null); return; }
-		String v = supplierField.trim();
-		try {
-			Integer id = Integer.parseInt(v);
-			Suppliers sup = suppliersRepository.findById(id).orElse(null);
+	private void resolveAndSetSupplier(Shipments s, Integer supplierId, String supplierNameFallback) {
+		if (supplierId != null) {
+			Suppliers sup = suppliersRepository.findById(supplierId).orElse(null);
 			s.setSupplier(sup);
 			return;
-		} catch (NumberFormatException ignore) {}
-		// Try by name contains, prefer exact case-insensitive match
+		}
+		if (!StringUtils.hasText(supplierNameFallback)) { s.setSupplier(null); return; }
+		String v = supplierNameFallback.trim();
 		Suppliers sup = suppliersRepository.search(v, null).stream()
 				.filter(x -> x.getSupplierName() != null && x.getSupplierName().equalsIgnoreCase(v))
 				.findFirst()

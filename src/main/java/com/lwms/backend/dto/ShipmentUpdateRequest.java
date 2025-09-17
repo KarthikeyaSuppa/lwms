@@ -4,6 +4,7 @@ public class ShipmentUpdateRequest {
 	private String shipmentNumber;
 	private String shipmentType;
 	private String supplier;
+	private Integer supplierId;
 	private String origin;
 	private String destination;
 	private String status;
@@ -17,6 +18,8 @@ public class ShipmentUpdateRequest {
 	public void setShipmentType(String shipmentType) { this.shipmentType = shipmentType; }
 	public String getSupplier() { return supplier; }
 	public void setSupplier(String supplier) { this.supplier = supplier; }
+	public Integer getSupplierId() { return supplierId; }
+	public void setSupplierId(Integer supplierId) { this.supplierId = supplierId; }
 	public String getOrigin() { return origin; }
 	public void setOrigin(String origin) { this.origin = origin; }
 	public String getDestination() { return destination; }

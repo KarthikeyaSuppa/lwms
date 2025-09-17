@@ -88,4 +88,15 @@ body{ min-height:100vh; background: radial-gradient(1200px 600px at 50% -10%, rg
 .fixed-header-table td:nth-child(6) .label,.fixed-header-table td:nth-child(6) .editable-input{ justify-content:flex-start; text-align:left; white-space:normal; overflow-wrap:anywhere; }
 .fixed-header-table td:nth-child(6) .editable-input{ width:100%; max-width:100%; }
 .modal-content.box-card{ box-shadow:0 10px 30px rgba(62,47,25,.25); }
-.modal-header .btn-close{ filter:invert(1) grayscale(100%) brightness(1.5) sepia(0) saturate(0); } 
+.modal-header .btn-close{ filter:invert(1) grayscale(100%) brightness(1.5) sepia(0) saturate(0); }
+/* Inline rows for add shipment modal */
+.add-row-inline{ display:flex; gap:1.5rem; margin-bottom:1rem; }
+.add-row-inline .field-col{ flex:1; display:flex; flex-direction:column; }
+.add-row-inline .field-col .field-group{ margin-bottom:1rem; }
+.add-row-inline .field-col .field-group:last-child{ margin-bottom:0; }
+
+/* Add button style in modal */
+.add-category-form .add-category-btn{ background:linear-gradient(180deg,#d7b785,#caa475); border:1px dashed rgba(62,47,25,.5); border-radius:.35rem; color:#3e2f19; font-weight:700; padding:.675rem; margin-top:.5rem; cursor:pointer; font-size:.99rem; transition:filter .2s, box-shadow .2s ease, transform .05s ease; box-shadow:0 2px 0 rgba(62,47,25,.25); width:60%; max-width:200px; margin-left:auto; margin-right:auto; display:block; }
+.add-category-form .add-category-btn:hover{ filter:brightness(1.1); }
+.add-category-form .add-category-btn:focus-visible{ outline:2px dashed rgba(62,47,25,.7); outline-offset:2px; }
+.add-category-form .add-category-btn:active{ transform:translateY(1px); box-shadow:0 1px 0 rgba(62,47,25,.25); } 

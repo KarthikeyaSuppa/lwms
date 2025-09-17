@@ -43,7 +43,7 @@ public class Shipments {
     @Column(precision = 12, scale = 2)
     private BigDecimal totalValue = BigDecimal.ZERO;
 
-    @Column(insertable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -84,6 +84,13 @@ public class Shipments {
 		this.createdAt = createdAt;
 		this.supplier = supplier;
 		this.createdBy = createdBy;
+	}
+
+	@PrePersist
+	protected void onCreate() {
+		if (this.createdAt == null) {
+			this.createdAt = LocalDateTime.now();
+		}
 	}
 
 	public Integer getShipmentId() {
