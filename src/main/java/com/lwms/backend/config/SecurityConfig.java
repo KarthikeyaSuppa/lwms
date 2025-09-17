@@ -18,6 +18,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
+import com.lwms.backend.services.UserService;
+
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -28,13 +30,20 @@ import java.nio.charset.StandardCharsets;
 public class SecurityConfig {
 
     /**
-     * Configures the password encoder bean. We use BCrypt for secure password hashing.
+     * What: Provides a password encoder bean using BCrypt for hashing.
+     * Inputs: None (Spring injects where needed).
+     * Sends/How: Returned bean is used by the authentication provider to verify passwords.
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * What: Builds a DaoAuthenticationProvider wired with our UserDetailsService and PasswordEncoder.
+     * Inputs: userDetailsService (to load users), passwordEncoder (to check credentials).
+     * Does: Configures the provider and disables hiding of UsernameNotFound exceptions..
+     */
     @Bean
     public DaoAuthenticationProvider authenticationProvider(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -44,8 +53,13 @@ public class SecurityConfig {
         return provider;
     }
 
+    /**
+     * What: Logout success handler that updates last login on logout and redirects to /login?logout.
+     * Inputs: userService for updating last-login; request/response/authentication via Spring at runtime.
+     * Does: If the current principal is a UserDetails, update last-login; then redirect.
+     */
     @Bean
-    public LogoutSuccessHandler updatingLogoutSuccessHandler(com.lwms.backend.services.UserService userService) {
+    public LogoutSuccessHandler updatingLogoutSuccessHandler(UserService userService) {
         return (request, response, authentication) -> {
             if (authentication != null) {
                 Object principal = authentication.getPrincipal();
@@ -57,18 +71,22 @@ public class SecurityConfig {
         };
     }
 
+    /**
+     * What: AccessDeniedHandler that redirects unauthorized requests to /unauthorized.
+     * Inputs: request/response/exception injected by Spring.
+     * Does: Swallows the exception and performs a redirect.
+     * Sends/How: HTTP 302 redirect to /unauthorized.
+     */
     @Bean
     public AccessDeniedHandler redirectAccessDeniedHandler() {
         return (request, response, accessDeniedException) -> response.sendRedirect("/unauthorized");
     }
 
     /**
-     * Configures the security filter chain for the application.
-     * This is where we define which URLs are public and how login/logout works.
-     *
-     * @param http The HttpSecurity object to configure.
-     * @return The SecurityFilterChain bean.
-     * @throws Exception if an error occurs during configuration.
+     * What: Central HTTP security configuration (CSRF, URL authorization, exception routing, form-login, logout).
+     * Inputs: http (to configure the chain), authenticationProvider (for auth), updatingLogoutSuccessHandler (on logout).
+     * Does: Defines public endpoints, role-gated routes, denies redirect to /unauthorized, and configures login failure messages.
+     * Sends/How: Constructs and returns the SecurityFilterChain consumed by Spring Security at runtime.
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, DaoAuthenticationProvider authenticationProvider,
