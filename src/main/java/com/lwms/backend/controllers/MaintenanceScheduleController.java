@@ -30,8 +30,14 @@ public class MaintenanceScheduleController {
 	}
 
 	@PatchMapping(value = {"/lwms/maintenance-schedule/api/{id}", "/maintenance-schedule/api/{id}"}, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<MaintenanceSummaryDto> update(@PathVariable("id") Integer id, @RequestBody MaintenanceUpdateRequest req) {
-		return ResponseEntity.ok(maintenanceService.update(id, req));
+	public ResponseEntity<?> update(@PathVariable("id") Integer id, @RequestBody MaintenanceUpdateRequest req) {
+		try {
+			return ResponseEntity.ok(maintenanceService.update(id, req));
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		} catch (RuntimeException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
 	}
 
 	@DeleteMapping(value = {"/lwms/maintenance-schedule/api/{id}", "/maintenance-schedule/api/{id}"})

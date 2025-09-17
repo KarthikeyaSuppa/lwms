@@ -3,6 +3,7 @@ package com.lwms.backend.dto;
 public class MaintenanceSummaryDto {
 	private Integer scheduleId;
 	private String equipmentId;
+	private String equipmentCode;
 	private String taskDescription;
 	private String maintenanceType;
 	private String priority;
@@ -19,6 +20,8 @@ public class MaintenanceSummaryDto {
 	public void setScheduleId(Integer scheduleId) { this.scheduleId = scheduleId; }
 	public String getEquipmentId() { return equipmentId; }
 	public void setEquipmentId(String equipmentId) { this.equipmentId = equipmentId; }
+	public String getEquipmentCode() { return equipmentCode; }
+	public void setEquipmentCode(String equipmentCode) { this.equipmentCode = equipmentCode; }
 	public String getTaskDescription() { return taskDescription; }
 	public void setTaskDescription(String taskDescription) { this.taskDescription = taskDescription; }
 	public String getMaintenanceType() { return maintenanceType; }

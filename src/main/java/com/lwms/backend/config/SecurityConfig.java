@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.access.AccessDeniedHandler;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -56,6 +57,11 @@ public class SecurityConfig {
         };
     }
 
+    @Bean
+    public AccessDeniedHandler redirectAccessDeniedHandler() {
+        return (request, response, accessDeniedException) -> response.sendRedirect("/unauthorized");
+    }
+
     /**
      * Configures the security filter chain for the application.
      * This is where we define which URLs are public and how login/logout works.
@@ -71,10 +77,22 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/login", "/signup", "/lwms/register", "/api/users/register",
-                        "/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
-                .requestMatchers("/settings").hasAnyRole("ADMIN", "MANAGER")
+                        "/css/**", "/js/**", "/images/**", "/favicon.ico", "/unauthorized").permitAll()
+                // Role-based page access
+                .requestMatchers(
+                        "/settings"
+                ).hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(
+                        "/reports"
+                ).hasAnyRole("ADMIN", "MANAGER", "INVENTORY CONTROLLER")
+                .requestMatchers(
+                        "/inventory", "/shipments", "/equipment", "/locations", "/categories", "/suppliers",
+                        "/maintenance-schedule"
+                ).hasAnyRole("ADMIN", "MANAGER", "SUPERVISOR", "INVENTORY CONTROLLER", "OPERATOR")
+                // Default: authenticated only
                 .anyRequest().authenticated()
             )
+            .exceptionHandling(e -> e.accessDeniedHandler(redirectAccessDeniedHandler()))
             .authenticationProvider(authenticationProvider)
             .formLogin(form -> form
                 .loginPage("/login")

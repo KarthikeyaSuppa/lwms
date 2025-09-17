@@ -38,8 +38,5 @@ document.addEventListener('DOMContentLoaded', () => {
 			: (val === 'full');
 		if (!ok) el.closest('.col-md-4, .col-lg-3')?.remove();
 	}
-	// Maintenance: require inventory read for maintenance schedule (or replace with its own key later)
-	hideCardIfDenied('a[th\\:href="@{/maintenance-schedule}"]', 'inventory', 'read');
-	// Reports depends on reports
-	hideCardIfDenied('a[th\\:href="@{/reports}"]', 'reports', 'read');
+	// No client-side hiding; access enforced server-side via redirects to /unauthorized
 }); 

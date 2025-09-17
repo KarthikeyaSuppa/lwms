@@ -27,31 +27,28 @@
   async function loadAllData() {
     const timeRange = 30;
     try {
-      const [
-        metrics,
-        inventoryData,
-        shipmentData,
-        equipmentData,
-        movementData,
-        locationData
-      ] = await Promise.all([
-        fetch(`${API_BASE}/metrics?days=${timeRange}`).then(r => r.json()),
-        fetch(`${API_BASE}/inventory-status?days=${timeRange}`).then(r => r.json()),
-        fetch(`${API_BASE}/shipment-status?days=${timeRange}`).then(r => r.json()),
-        fetch(`${API_BASE}/equipment-heatmap?days=${timeRange}`).then(r => r.json()),
-        fetch(`${API_BASE}/movement-trends?days=${timeRange}`).then(r => r.json()),
-        fetch(`${API_BASE}/location-utilization?days=${timeRange}`).then(r => r.json())
-      ]);
+          const [
+      metrics,
+      inventoryData,
+      shipmentData,
+      equipmentData,
+      locationData
+    ] = await Promise.all([
+      fetch(`${API_BASE}/metrics?days=${timeRange}`).then(r => r.json()),
+      fetch(`${API_BASE}/inventory-status?days=${timeRange}`).then(r => r.json()),
+      fetch(`${API_BASE}/shipment-status?days=${timeRange}`).then(r => r.json()),
+      fetch(`${API_BASE}/equipment-heatmap?days=${timeRange}`).then(r => r.json()),
+      fetch(`${API_BASE}/location-utilization?days=${timeRange}`).then(r => r.json())
+    ]);
 
-      // Update metrics
-      updateMetrics(metrics);
-      
-      // Store chart data
-      chartData.inventoryStatus = inventoryData;
-      chartData.shipmentStatus = shipmentData;
-      chartData.equipmentHeatmap = equipmentData;
-      chartData.movementTrends = movementData;
-      chartData.locationUtilization = locationData;
+    // Update metrics
+    updateMetrics(metrics);
+    
+    // Store chart data
+    chartData.inventoryStatus = inventoryData;
+    chartData.shipmentStatus = shipmentData;
+    chartData.equipmentHeatmap = equipmentData;
+    chartData.locationUtilization = locationData;
       
     } catch (error) {
       console.error('Error loading data:', error);
@@ -125,7 +122,6 @@
     renderDonutChart();
     renderBarChart();
     renderHeatmapChart();
-    renderLineChart();
     renderLocationGrid();
   }
 
@@ -269,45 +265,6 @@
     });
   }
 
-  // Inventory Movement Trends (line only)
-  function renderLineChart() {
-    const chart = document.getElementById('movementTrendsChart');
-    if (!chart || !chartData.movementTrends.length) return;
-
-    chart.innerHTML = '';
-    
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('viewBox', '0 0 400 200');
-    
-    const values = chartData.movementTrends.map(d => d.value);
-    const maxVal = Math.max(...values, 1);
-
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    const points = chartData.movementTrends.map((item, index) => {
-      const x = (index / (chartData.movementTrends.length - 1)) * 350 + 25;
-      const y = 175 - (item.value / maxVal) * 150;
-      return `${x},${y}`;
-    }).join(' L');
-    
-    path.setAttribute('d', `M ${points}`);
-    path.setAttribute('class', 'line-path');
-    svg.appendChild(path);
-    
-    chartData.movementTrends.forEach((item, index) => {
-      const x = (index / (chartData.movementTrends.length - 1)) * 350 + 25;
-      const y = 175 - (item.value / maxVal) * 150;
-      
-      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      circle.setAttribute('cx', String(x));
-      circle.setAttribute('cy', String(y));
-      circle.setAttribute('r', '4');
-      circle.setAttribute('class', 'line-point');
-      circle.setAttribute('title', `${item.date}: ${item.value}`);
-      svg.appendChild(circle);
-    });
-    
-    chart.appendChild(svg);
-  }
 
   // Location Utilization Grid + Details panel
   function renderLocationGrid() {

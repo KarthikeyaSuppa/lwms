@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
     cells.forEach((cell, index) => {
       const label = cell.querySelector('.label');
       if (label) {
-        if (index === 6 || index === 7) {
+        if (index === 0 || index === 6 || index === 7) {
           const readonlyLabel = document.createElement('span');
           readonlyLabel.className = 'readonly-label';
           readonlyLabel.textContent = label.textContent; cell.innerHTML = ''; cell.appendChild(readonlyLabel);

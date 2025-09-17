@@ -132,6 +132,31 @@ public class WebController {
                          "manager".equalsIgnoreCase(u.getRole().getRoleName()))
                     );
                 });
+            // Fallbacks if user lookup failed but principal exists
+            if (!model.containsAttribute("allowSettings")) {
+                boolean isAdminOrManager = principal.getAuthorities() != null && principal.getAuthorities().stream()
+                    .anyMatch(a -> {
+                        String auth = a.getAuthority();
+                        return "ROLE_ADMIN".equalsIgnoreCase(auth) || "ROLE_MANAGER".equalsIgnoreCase(auth);
+                    });
+                model.addAttribute("allowSettings", isAdminOrManager);
+            }
+        }
+        // Ensure safe defaults to avoid template removing elements due to missing model attrs
+        if (!model.containsAttribute("user")) {
+            User fallback = new User();
+            fallback.setFirstName("");
+            fallback.setLastName("");
+            fallback.setUsername("");
+            fallback.setEmail("");
+            fallback.setActive(true);
+            model.addAttribute("user", fallback);
+        }
+        if (!model.containsAttribute("permissionsJson")) {
+            model.addAttribute("permissionsJson", null);
+        }
+        if (!model.containsAttribute("allowSettings")) {
+            model.addAttribute("allowSettings", false);
         }
         return "dashboard";
     }
@@ -164,6 +189,29 @@ public class WebController {
                          "manager".equalsIgnoreCase(u.getRole().getRoleName()))
                     );
                 });
+            if (!model.containsAttribute("allowSettings")) {
+                boolean isAdminOrManager = principal.getAuthorities() != null && principal.getAuthorities().stream()
+                    .anyMatch(a -> {
+                        String auth = a.getAuthority();
+                        return "ROLE_ADMIN".equalsIgnoreCase(auth) || "ROLE_MANAGER".equalsIgnoreCase(auth);
+                    });
+                model.addAttribute("allowSettings", isAdminOrManager);
+            }
+        }
+        if (!model.containsAttribute("user")) {
+            User fallback = new User();
+            fallback.setFirstName("");
+            fallback.setLastName("");
+            fallback.setUsername("");
+            fallback.setEmail("");
+            fallback.setActive(true);
+            model.addAttribute("user", fallback);
+        }
+        if (!model.containsAttribute("permissionsJson")) {
+            model.addAttribute("permissionsJson", null);
+        }
+        if (!model.containsAttribute("allowSettings")) {
+            model.addAttribute("allowSettings", false);
         }
         return "dashboard2";
     }
@@ -496,5 +544,26 @@ public class WebController {
                 });
         }
         return "reports";
+    }
+
+    @GetMapping("/unauthorized")
+    public String showUnauthorized(
+        @AuthenticationPrincipal UserDetails principal,
+        Model model
+    ) {
+        if (principal != null) {
+            userService.findWithRoleByUsernameOrEmail(principal.getUsername())
+                .ifPresent(u -> model.addAttribute("user", u));
+        }
+        if (!model.containsAttribute("user")) {
+            User fallback = new User();
+            fallback.setFirstName("");
+            fallback.setLastName("");
+            fallback.setUsername("");
+            fallback.setEmail("");
+            fallback.setActive(true);
+            model.addAttribute("user", fallback);
+        }
+        return "unauthorized";
     }
 }

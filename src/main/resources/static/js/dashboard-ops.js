@@ -43,12 +43,5 @@ document.addEventListener('DOMContentLoaded', () => {
 			: (val === 'full');
 		if (!ok) el.closest('.col-md-4, .col-lg-3')?.remove();
 	}
-	// Map cards to permission keys
-	hideCardIfDenied('a[th\\:href="@{/inventory}"]', 'inventory', 'read');
-	hideCardIfDenied('a[th\\:href="@{/shipments}"]', 'shipments', 'read');
-	// Master data and ops depend on inventory permission
-	hideCardIfDenied('a[th\\:href="@{/equipment}"]', 'inventory', 'read');
-	hideCardIfDenied('a[th\\:href="@{/locations}"]', 'inventory', 'read');
-	hideCardIfDenied('a[th\\:href="@{/categories}"]', 'inventory', 'read');
-	hideCardIfDenied('a[th\\:href="@{/suppliers}"]', 'inventory', 'read');
+	// No client-side card hiding; access will be enforced server-side via redirects to /unauthorized
 }); 

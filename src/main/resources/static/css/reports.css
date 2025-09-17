@@ -441,10 +441,20 @@ body {
 /* Location Grid & Details */
 .location-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   padding: .5rem;
+  flex: 1 1 auto;
 }
+
+/* New merged layout */
+.location-layout{
+  display:flex;
+  gap:1rem;
+  align-items:stretch;
+}
+
+.location-details{ flex:0 0 280px; }
 
 .location-box {
   background: rgba(255,255,255,.15);

@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const tr = document.createElement('tr');
       tr.dataset.id = ms.scheduleId;
       tr.innerHTML = `
-        <td><span class="label">${ms.equipmentId ?? ''}</span></td>
+        <td><span class="label">${ms.equipmentCode ?? ''}</span></td>
         <td><span class="label">${ms.taskDescription ?? ''}</span></td>
         <td><span class="label">${ms.maintenanceType ?? ''}</span></td>
         <td><span class="label">${ms.priority ?? ''}</span></td>
@@ -63,12 +63,46 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Equipment code searchable (shared)
+  async function searchEquipment(query){
+    const url = query ? `/equipment/api?q=${encodeURIComponent(query)}` : '/equipment/api';
+    try{
+      const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+      if(!res.ok) return [];
+      const data = await res.json();
+      return Array.isArray(data) ? data : [];
+    }catch{ return []; }
+  }
+
   function makeRowEditable(row){
     const cells = row.querySelectorAll('td:not(:last-child)');
     cells.forEach((cell, index) => {
       const label = cell.querySelector('.label'); if(!label) return; const val = label.textContent.trim();
       switch(index){
-        case 0: case 6: { cell.innerHTML=''; const input=document.createElement('input'); input.type='text'; input.className='editable-input'; input.value=val; cell.appendChild(input); break; }
+        case 0: { 
+          // Searchable equipment code with dropdown; stores selected id in dataset.id
+          const container=document.createElement('div'); container.className='ms-cell-container';
+          const input=document.createElement('input'); input.type='text'; input.className='editable-input equip-select'; input.value=val; input.placeholder='Search equipment...';
+          const dd=document.createElement('div'); dd.className='ms-dropdown';
+          async function populate(q){
+            const items = await searchEquipment(q);
+            dd.innerHTML='';
+            items.forEach(eq => {
+              const div=document.createElement('div'); div.className='ms-dropdown-item';
+              const code = eq.serialNumber || eq.equipmentName || `ID-${eq.equipmentId}`;
+              div.textContent = `${code} — ${eq.equipmentName ?? ''}`.trim();
+              div.dataset.id = eq.equipmentId; div.dataset.label = code;
+              dd.appendChild(div);
+            });
+            dd.style.display = items.length ? 'block' : 'none';
+          }
+          input.addEventListener('focus', async ()=>{ await populate(input.value.trim()); });
+          input.addEventListener('input', async ()=>{ await populate(input.value.trim()); });
+          input.addEventListener('click', (e)=>{ e.stopPropagation(); toggleMsDropdown(dd); });
+          dd.addEventListener('click', (e)=>{ const it=e.target.closest('.ms-dropdown-item'); if(!it) return; e.stopPropagation(); input.value = it.dataset.label; input.dataset.id = it.dataset.id; dd.style.display='none'; });
+          cell.innerHTML=''; container.appendChild(input); container.appendChild(dd); cell.appendChild(container);
+          break; 
+        }
         case 1: { cell.innerHTML=''; const input=document.createElement('input'); input.type='text'; input.className='editable-input'; input.style.maxWidth='320px'; input.value=val; cell.appendChild(input); break; }
         case 2: { cell.innerHTML=''; const container=document.createElement('div'); container.className='ms-cell-container'; const select=document.createElement('div'); select.className='ms-select'; select.textContent=val; select.dataset.currentValue=val; const dd=document.createElement('div'); dd.className='ms-dropdown'; ['Preventive','Corrective','Predictive'].forEach(v=>{ const it=document.createElement('div'); it.className=`ms-dropdown-item ${v===val?'selected':''}`; it.textContent=v; it.dataset.value=v; dd.appendChild(it); }); select.addEventListener('click',(e)=>{ e.stopPropagation(); toggleMsDropdown(dd); }); dd.addEventListener('click',(e)=>{ const it=e.target.closest('.ms-dropdown-item'); if(!it) return; e.stopPropagation(); select.textContent=it.dataset.value; select.dataset.currentValue=it.dataset.value; dd.querySelectorAll('.ms-dropdown-item').forEach(x=>x.classList.remove('selected')); it.classList.add('selected'); dd.style.display='none'; }); container.appendChild(select); container.appendChild(dd); cell.appendChild(container); break; }
         case 3: { cell.innerHTML=''; const container=document.createElement('div'); container.className='ms-cell-container'; const select=document.createElement('div'); select.className='ms-select'; select.textContent=val; select.dataset.currentValue=val; const dd=document.createElement('div'); dd.className='ms-dropdown'; ['Low','Medium','High','Critical'].forEach(v=>{ const it=document.createElement('div'); it.className=`ms-dropdown-item ${v===val?'selected':''}`; it.textContent=v; it.dataset.value=v; dd.appendChild(it); }); select.addEventListener('click',(e)=>{ e.stopPropagation(); toggleMsDropdown(dd); }); dd.addEventListener('click',(e)=>{ const it=e.target.closest('.ms-dropdown-item'); if(!it) return; e.stopPropagation(); select.textContent=it.dataset.value; select.dataset.currentValue=it.dataset.value; dd.querySelectorAll('.ms-dropdown-item').forEach(x=>x.classList.remove('selected')); it.classList.add('selected'); dd.style.display='none'; }); container.appendChild(select); container.appendChild(dd); cell.appendChild(container); break; }
@@ -84,7 +118,9 @@ document.addEventListener('DOMContentLoaded', () => {
   async function saveRowChanges(row){
     const id = row.dataset.id; if (!id) return;
     const cells = row.querySelectorAll('td');
-    const equipmentId = cells[0].querySelector('.editable-input')?.value?.trim() || cells[0].textContent.trim();
+    const equipInput = cells[0].querySelector('.equip-select');
+    const equipmentId = equipInput && equipInput.dataset && equipInput.dataset.id ? parseInt(equipInput.dataset.id, 10) : undefined;
+    const equipmentLabel = equipInput ? equipInput.value.trim() : cells[0].textContent.trim();
     const taskDescription = cells[1].querySelector('.editable-input')?.value?.trim() || cells[1].textContent.trim();
     const maintenanceType = cells[2].querySelector('.ms-select')?.dataset?.currentValue || cells[2].textContent.trim();
     const priority = cells[3].querySelector('.ms-select')?.dataset?.currentValue || cells[3].textContent.trim();
@@ -98,7 +134,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const notes = cells[11].querySelector('textarea.editable-input')?.value?.trim() || '';
 
     const payload = {
-      equipmentId: parseInt(equipmentId, 10),
       taskDescription,
       maintenanceType,
       priority,
@@ -110,9 +145,8 @@ document.addEventListener('DOMContentLoaded', () => {
       cost,
       notes,
     };
-    if (/^\d+$/.test(assignedToRaw)) {
-      payload.assignedTo = parseInt(assignedToRaw, 10);
-    }
+    if (typeof equipmentId === 'number' && !Number.isNaN(equipmentId)) payload.equipmentId = equipmentId;
+    if (/^\d+$/.test(assignedToRaw)) payload.assignedTo = parseInt(assignedToRaw, 10);
 
     const res = await fetch(`${API_BASE}/${encodeURIComponent(id)}`, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -121,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!res.ok) { const err = await res.text(); alert(`Failed to update maintenance: ${err || res.status}`); return; }
 
     const updated = await res.json();
-    cells[0].innerHTML = `<span class="label">${updated.equipmentId ?? equipmentId}</span>`;
+    cells[0].innerHTML = `<span class="label">${updated.equipmentCode ?? equipmentLabel}</span>`;
     cells[1].innerHTML = `<span class=\"label\">${updated.taskDescription ?? taskDescription}</span>`;
     cells[2].innerHTML = `<span class=\"label\">${updated.maintenanceType ?? maintenanceType}</span>`;
     cells[3].innerHTML = `<span class=\"label\">${updated.priority ?? priority}</span>`;
@@ -311,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const newRow = document.createElement('tr');
     newRow.dataset.id = created.scheduleId;
     newRow.innerHTML = `
-      <td><span class="label">${created.equipmentId ?? payload.equipmentId}</span></td>
+      <td><span class="label">${created.equipmentCode ?? (equipSearchInput?.value || '')}</span></td>
       <td><span class="label">${created.taskDescription ?? payload.taskDescription}</span></td>
       <td><span class="label">${created.maintenanceType ?? payload.maintenanceType}</span></td>
       <td><span class="label">${created.priority ?? payload.priority}</span></td>

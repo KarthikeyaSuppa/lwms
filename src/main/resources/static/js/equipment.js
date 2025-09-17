@@ -267,7 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const cellText = label.textContent.trim();
 
-      if (index >= 0 && index <= 3) {
+      if (index >= 0 && index <= 2) {
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'editable-input';
@@ -275,6 +275,45 @@ document.addEventListener("DOMContentLoaded", () => {
         cell.innerHTML = '';
         cell.appendChild(input);
         autoResizeInput(input);
+        return;
+      }
+
+      if (index === 3) {
+        // Location searchable input with datalist + hidden id
+        const wrapper = document.createElement('div');
+        wrapper.style.display = 'flex';
+        wrapper.style.alignItems = 'center';
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'editable-input';
+        input.value = cellText;
+        input.setAttribute('list', `row-loc-options-${row.dataset.id}`);
+        const list = document.createElement('datalist');
+        list.id = `row-loc-options-${row.dataset.id}`;
+        const hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.className = 'row-location-id';
+        // Bind search to fetch locations and populate list
+        const doSearch = debounce(async () => {
+          const items = await searchLocations(input.value.trim());
+          list.innerHTML = '';
+          (items || []).forEach(it => {
+            const opt = document.createElement('option');
+            opt.value = (it.locationCode || `${it.zone ?? ''}${it.aisle ?? ''}-${it.rack ?? ''}-${it.shelf ?? ''}`);
+            opt.dataset.id = String(it.locationId);
+            list.appendChild(opt);
+          });
+        }, 250);
+        input.addEventListener('input', () => { hidden.value=''; doSearch(); });
+        input.addEventListener('change', () => {
+          const match = Array.from(list.options).find(o => o.value === input.value);
+          if (match) hidden.value = match.dataset.id || '';
+        });
+        cell.innerHTML = '';
+        wrapper.appendChild(input);
+        wrapper.appendChild(list);
+        wrapper.appendChild(hidden);
+        cell.appendChild(wrapper);
         return;
       }
 
@@ -339,13 +378,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const equipmentName = cells[0]?.querySelector('.editable-input')?.value?.trim();
     const equipmentType = cells[1]?.querySelector('.editable-input')?.value?.trim();
     const serialNumber = cells[2]?.querySelector('.editable-input')?.value?.trim();
-    const location = cells[3]?.querySelector('.editable-input')?.value?.trim() || cells[3]?.textContent?.trim();
+    const locInputInline = cells[3]?.querySelector('.editable-input');
+    const locListInline = locInputInline ? document.getElementById(locInputInline.getAttribute('list')) : null;
+    const locIdHiddenInline = cells[3]?.querySelector('.row-location-id');
+    if (locInputInline && locListInline && locIdHiddenInline && !locIdHiddenInline.value) {
+      const match = Array.from(locListInline.options).find(o => o.value === locInputInline.value);
+      if (match) locIdHiddenInline.value = match.dataset.id || '';
+    }
+    const locationId = locIdHiddenInline?.value ? Number(locIdHiddenInline.value) : undefined;
+    const location = locInputInline?.value?.trim();
     const status = cells[4]?.querySelector('.status-select')?.dataset?.currentValue;
+
+    const body = { equipmentName, equipmentType, serialNumber, status };
+    if (locationId) body.locationId = locationId;
+    else if (location) body.location = location;
 
     const res = await fetch(`${API_BASE}/${encodeURIComponent(id)}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ equipmentName, equipmentType, serialNumber, location, status })
+      body: JSON.stringify(body)
     });
     if (!res.ok) {
       const err = await res.text();
@@ -357,7 +408,7 @@ document.addEventListener("DOMContentLoaded", () => {
     cells[0].innerHTML = `<span class="label">${updated.equipmentName ?? ''}</span>`;
     cells[1].innerHTML = `<span class=\"label\">${updated.equipmentType ?? ''}</span>`;
     cells[2].innerHTML = `<span class=\"label\">${updated.serialNumber ?? ''}</span>`;
-    cells[3].innerHTML = `<span class=\"label\">${updated.location ?? ''}</span>`;
+    cells[3].innerHTML = `<span class=\"label\">${updated.location ?? location ?? ''}</span>`;
     cells[4].innerHTML = `<span class=\"label status-label\">${updated.status ?? ''}</span>`;
     updateStatusLabelStyles(row);
     const actionsCell = row.querySelector('td:last-child');

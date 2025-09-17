@@ -15,6 +15,7 @@ import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -76,12 +77,12 @@ public class MaintenanceScheduleService {
 		if (req.getTaskDescription() != null) ms.setTaskDescription(req.getTaskDescription());
 		if (req.getMaintenanceType() != null) ms.setMaintenanceType(parseType(req.getMaintenanceType()));
 		if (req.getPriority() != null) ms.setPriority(parsePriority(req.getPriority()));
-		if (req.getScheduledDate() != null) ms.setScheduledDate(LocalDateTime.parse(req.getScheduledDate()));
+		LocalDateTime sched = safeParseDateTime(req.getScheduledDate()); if (sched != null) ms.setScheduledDate(sched);
 		if (req.getEstimatedDuration() != null) ms.setEstimatedDuration(req.getEstimatedDuration());
-		if (req.getStatus() != null) ms.setStatus(parseStatus(req.getStatus()));
-		if (req.getCompletedDate() != null) ms.setCompletedDate(LocalDateTime.parse(req.getCompletedDate()));
+		if (StringUtils.hasText(req.getStatus())) ms.setStatus(parseStatus(req.getStatus()));
+		LocalDateTime comp = safeParseDateTime(req.getCompletedDate()); if (comp != null) ms.setCompletedDate(comp);
 		if (req.getActualDuration() != null) ms.setActualDuration(req.getActualDuration());
-		if (req.getCost() != null) ms.setCost(new BigDecimal(req.getCost()));
+		BigDecimal cost = safeParseBigDecimal(req.getCost()); if (cost != null) ms.setCost(cost);
 		if (req.getNotes() != null) ms.setNotes(req.getNotes());
 		if (req.getEquipmentId() != null) {
 			Equipment equipment = equipmentRepository.findById(req.getEquipmentId()).orElseThrow(() -> new RuntimeException("Equipment not found: " + req.getEquipmentId()));
@@ -135,6 +136,7 @@ public class MaintenanceScheduleService {
 		MaintenanceSummaryDto dto = new MaintenanceSummaryDto();
 		dto.setScheduleId(ms.getScheduleId());
 		dto.setEquipmentId(ms.getEquipment() != null ? String.valueOf(ms.getEquipment().getEquipmentId()) : null);
+		dto.setEquipmentCode(ms.getEquipment() != null ? (ms.getEquipment().getSerialNumber() != null ? ms.getEquipment().getSerialNumber() : ms.getEquipment().getEquipmentName()) : null);
 		dto.setTaskDescription(ms.getTaskDescription());
 		dto.setMaintenanceType(ms.getMaintenanceType() != null ? ms.getMaintenanceType().name() : null);
 		dto.setPriority(ms.getPriority() != null ? ms.getPriority().name() : null);
@@ -147,5 +149,16 @@ public class MaintenanceScheduleService {
 		dto.setCost(ms.getCost() != null ? ms.getCost().toString() : null);
 		dto.setNotes(ms.getNotes());
 		return dto;
+	}
+
+	private LocalDateTime safeParseDateTime(String s) {
+		if (!StringUtils.hasText(s)) return null;
+		String v = s.trim().replace(' ', 'T');
+		try { return LocalDateTime.parse(v); } catch (DateTimeParseException ex) { return null; }
+	}
+
+	private BigDecimal safeParseBigDecimal(String s) {
+		if (!StringUtils.hasText(s)) return null;
+		try { return new BigDecimal(s.trim()); } catch (NumberFormatException ex) { return null; }
 	}
 } 
