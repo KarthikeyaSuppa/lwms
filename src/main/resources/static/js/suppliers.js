@@ -21,14 +21,14 @@
     tr.dataset.supplierId = s.supplierId;
     const statusText = s.active ? 'Active' : 'Inactive';
     const styles = statusStyles(statusText);
-    tr.innerHTML = 
-      <td><span class="label"></span></td>
-      <td><span class="label"></span></td>
-      <td><span class="label"></span></td>
-      <td><span class="label"></span></td>
-      <td><span class="label"></span></td>
-      <td><span class="label" style="background:;border-color:;color:;"></span></td>
-      <td><button class="btn-edit-label edit-btn">Edit Supplier</button></td>;
+    tr.innerHTML = `
+      <td><span class="label">${s.supplierName ?? ''}</span></td>
+      <td><span class="label">${s.contactPerson ?? ''}</span></td>
+      <td><span class="label">${s.email ?? ''}</span></td>
+      <td><span class="label">${s.phone ?? ''}</span></td>
+      <td><span class="label">${s.address ?? ''}</span></td>
+      <td><span class="label" style="background:${styles.background};border-color:${styles.borderColor};color:${styles.color};">${statusText}</span></td>
+      <td><button class="btn-edit-label edit-btn">Edit Supplier</button></td>`;
     tbody.appendChild(tr);
   }
 
@@ -50,12 +50,14 @@
       const params = new URLSearchParams();
       if (q && q.trim().length > 0) params.append('q', q.trim());
       if (status) params.append('status', status);
-      const res = await fetch(/lwms/suppliers/api);
+      const url = `/lwms/suppliers/api${params.toString() ? `?${params.toString()}` : ''}`;
+      const res = await fetch(url);
       if (!res.ok) throw new Error('Failed to load suppliers');
       const data = await res.json();
       renderSuppliers(data);
     } catch (e) {
-      window.toastManager.error(e.message || 'Failed to load suppliers');
+      if (window.toastManager) window.toastManager.error(e.message || 'Failed to load suppliers');
+      else console.error(e);
     }
   }
 
@@ -89,7 +91,7 @@
 
   async function saveRowChanges(row) {
     const supplierId = row.dataset.supplierId;
-    if (!supplierId) { window.toastManager.error('Missing supplier id'); return; }
+    if (!supplierId) { if (window.toastManager) window.toastManager.error('Missing supplier id'); return; }
     const cells = row.querySelectorAll('td');
     const payload = {};
     // 0 name, 1 contact, 2 email, 3 phone, 4 address, 5 status
@@ -101,7 +103,7 @@
     const statusSelect = cells[5].querySelector('select.editable-input'); if (statusSelect) payload.active = (statusSelect.value === 'Active');
 
     try {
-      const res = await fetch(/lwms/suppliers/api/, {
+      const res = await fetch(`/lwms/suppliers/api/${encodeURIComponent(supplierId)}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -111,17 +113,18 @@
       // Re-render row from server response
       const statusText = s.active ? 'Active' : 'Inactive';
       const styles = statusStyles(statusText);
-      cells[0].innerHTML = <span class="label"></span>;
-      cells[1].innerHTML = <span class="label"></span>;
-      cells[2].innerHTML = <span class="label"></span>;
-      cells[3].innerHTML = <span class="label"></span>;
-      cells[4].innerHTML = <span class="label"></span>;
-      cells[5].innerHTML = <span class="label" style="background:;border-color:;color:;"></span>;
+      cells[0].innerHTML = `<span class="label">${s.supplierName ?? ''}</span>`;
+      cells[1].innerHTML = `<span class="label">${s.contactPerson ?? ''}</span>`;
+      cells[2].innerHTML = `<span class="label">${s.email ?? ''}</span>`;
+      cells[3].innerHTML = `<span class="label">${s.phone ?? ''}</span>`;
+      cells[4].innerHTML = `<span class="label">${s.address ?? ''}</span>`;
+      cells[5].innerHTML = `<span class="label" style="background:${styles.background};border-color:${styles.borderColor};color:${styles.color};">${statusText}</span>`;
       const actionsCell = row.querySelector('td:last-child');
       actionsCell.innerHTML = '<button class="btn-edit-label edit-btn">Edit Supplier</button>';
-      window.toastManager.success('Supplier updated successfully');
+      if (window.toastManager) window.toastManager.success('Supplier updated successfully');
     } catch (e) {
-      window.toastManager.error(e.message || 'Failed to update supplier');
+      if (window.toastManager) window.toastManager.error(e.message || 'Failed to update supplier');
+      else console.error(e);
     }
   }
 
@@ -130,12 +133,13 @@
     if (!supplierId) { row.remove(); return; }
     if (!confirm('Are you sure you want to delete this supplier?')) return;
     try {
-      const res = await fetch(/lwms/suppliers/api/, { method: 'DELETE' });
+      const res = await fetch(`/lwms/suppliers/api/${encodeURIComponent(supplierId)}`, { method: 'DELETE' });
       if (res.status !== 204 && !res.ok) throw new Error('Failed to delete supplier');
       row.remove();
-      window.toastManager.success('Supplier deleted successfully');
+      if (window.toastManager) window.toastManager.success('Supplier deleted successfully');
     } catch (e) {
-      window.toastManager.error(e.message || 'Failed to delete supplier');
+      if (window.toastManager) window.toastManager.error(e.message || 'Failed to delete supplier');
+      else console.error(e);
     }
   }
 
@@ -145,11 +149,11 @@
     if (target.classList.contains('edit-btn')) {
       makeRowEditable(row);
       const actionsCell = row.querySelector('td:last-child');
-      actionsCell.innerHTML = 
+      actionsCell.innerHTML = `
         <div class="action-icons-container">
           <img src="/images/correct.png" class="action-icon save-btn" alt="Save">
           <img src="/images/trash.png" class="action-icon delete-btn" alt="Delete">
-        </div>;
+        </div>`;
     }
     if (target.classList.contains('save-btn')) { saveRowChanges(row); }
     if (target.classList.contains('delete-btn')) { deleteRow(row); }
@@ -191,9 +195,10 @@
         const s = await res.json();
         appendSupplierRow(s);
         addSupplierModalOverlay.style.display = 'none'; document.body.style.overflow = ''; addSupplierForm.reset();
-        window.toastManager.success('Supplier created successfully');
+        if (window.toastManager) window.toastManager.success('Supplier created successfully');
       } catch (e) {
-        window.toastManager.error(e.message || 'Failed to create supplier');
+        if (window.toastManager) window.toastManager.error(e.message || 'Failed to create supplier');
+        else console.error(e);
       }
     });
   }

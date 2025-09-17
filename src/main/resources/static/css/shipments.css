@@ -58,6 +58,10 @@ body{ min-height:100vh; background: radial-gradient(1200px 600px at 50% -10%, rg
 .action-icon:hover{ filter:brightness(1.1); }
 .add-category-icon{ cursor:pointer; margin-left:1rem; margin-top:.3rem; transition:all .2s ease; vertical-align:bottom; }
 .add-category-icon:hover{ transform:scale(1.1); filter:brightness(1.1); }
+/* Ensure the shipments card sits mid-screen like other modules */
+.categories-management{ margin:3% 5% 3% 5%; height:550px; max-height:550px; min-height:400px; display:flex; flex-direction:column; }
+.categories-management .box-card{ flex:1 1 auto; display:flex; flex-direction:column; min-height:0; }
+.categories-management .table-responsive{ flex:1 1 auto; min-height:0; overflow-y:auto; position:relative; z-index:30; }
 .add-category-modal-overlay{ position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(62,47,25,.25); z-index:2000; display:flex; align-items:center; justify-content:center; }
 .add-category-modal{ background:linear-gradient(180deg,#d7b785,#caa475); border:1px solid rgba(62,47,25,.3); border-radius:1rem; box-shadow:0 8px 32px rgba(62,47,25,.22), inset 0 1px 0 rgba(255,255,255,.25); padding:2.25rem 2rem 1.8rem 2rem; min-width:500px; max-width:95vw; width:740px; position:relative; color:#3e2f19; animation:fadeIn .2s; }
 @keyframes fadeIn{ from{opacity:0; transform:translateY(30px);} to{opacity:1; transform:none;} }
