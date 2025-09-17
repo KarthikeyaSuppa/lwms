@@ -8,7 +8,60 @@ document.addEventListener("DOMContentLoaded", () => {
   const addStatusSelect = document.getElementById('addStatus');
   const addStatusDropdown = document.getElementById('addStatusDropdown');
 
+  // Searchable location control elements
+  const locInput = document.getElementById('addLocation');
+  const locList = document.getElementById('locationOptions');
+  const locIdHidden = document.getElementById('addLocationId');
+
   const API_BASE = "/equipment/api"; // also available at /lwms/equipment/api
+
+  // Debounce helper (mirrors inventory.js)
+  function debounce(fn, ms){ let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); }; }
+
+  // Generic datalist binder and helpers (mirrors inventory.js)
+  async function searchLocations(q){
+    const url = q ? `/locations/api?q=${encodeURIComponent(q)}` : '/locations/api';
+    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) return [];
+    return res.json();
+  }
+
+  function bindDatalist(inputEl, listEl, idHiddenEl, getLabel, getId, searchFn){
+    if (!inputEl || !listEl) return;
+    const doSearch = debounce(async () => {
+      const q = inputEl.value.trim();
+      const items = await searchFn(q);
+      listEl.innerHTML = '';
+      (items || []).forEach(it => {
+        const opt = document.createElement('option');
+        opt.value = getLabel(it);
+        opt.dataset.id = String(getId(it));
+        listEl.appendChild(opt);
+      });
+    }, 250);
+    inputEl.addEventListener('input', () => { if (idHiddenEl) idHiddenEl.value = ''; doSearch(); });
+    inputEl.addEventListener('change', () => {
+      const val = inputEl.value;
+      const match = Array.from(listEl.options).find(o => o.value === val);
+      if (match && idHiddenEl) idHiddenEl.value = match.dataset.id || '';
+    });
+  }
+
+  function ensureIdFromLabel(inputEl, listEl, idHiddenEl){
+    if (!inputEl || !listEl || !idHiddenEl) return;
+    if (idHiddenEl.value) return;
+    const val = inputEl.value.trim();
+    const match = Array.from(listEl.options).find(o => o.value === val);
+    if (match) idHiddenEl.value = match.dataset.id || '';
+  }
+
+  // Wire location datalist
+  bindDatalist(
+    locInput, locList, locIdHidden,
+    (l) => l.locationCode || `${l.zone ?? ''}${l.aisle ?? ''}-${l.rack ?? ''}-${l.shelf ?? ''}`,
+    (l) => l.locationId,
+    searchLocations
+  );
 
   // Search functionality
   if (searchInput) {
@@ -110,10 +163,15 @@ document.addEventListener("DOMContentLoaded", () => {
   if (addEquipmentForm) {
     addEquipmentForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      // Ensure hidden id if user picked exact label
+      ensureIdFromLabel(locInput, locList, locIdHidden);
       const payload = {
         equipmentName: document.getElementById('addEquipmentName').value,
         equipmentType: document.getElementById('addEquipmentType').value,
         serialNumber: document.getElementById('addSerialNumber').value,
+        // Prefer ID if present
+        locationId: locIdHidden?.value ? Number(locIdHidden.value) : undefined,
+        // Fallback legacy label
         location: document.getElementById('addLocation').value,
         status: document.getElementById('addStatus').dataset.currentValue,
         purchaseDate: document.getElementById('addPurchaseDate').value,
@@ -147,6 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </td>`;
       tbody.prepend(newRow);
       addEquipmentForm.reset();
+      if (locIdHidden) locIdHidden.value = '';
       addEquipmentModalOverlay.style.display = 'none';
       document.body.style.overflow = '';
       updateStatusLabelStyles(newRow);

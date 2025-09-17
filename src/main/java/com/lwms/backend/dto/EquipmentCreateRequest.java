@@ -5,6 +5,7 @@ public class EquipmentCreateRequest {
 	private String equipmentType;
 	private String serialNumber;
 	private String location; // free text as per UI
+	private Integer locationId; // optional: prefer this if provided
 	private String status; // Active, Maintenance, Inactive
 	private String purchaseDate; // ISO yyyy-MM-dd
 	private String warrantyExpiry; // ISO yyyy-MM-dd
@@ -17,6 +18,8 @@ public class EquipmentCreateRequest {
 	public void setSerialNumber(String serialNumber) { this.serialNumber = serialNumber; }
 	public String getLocation() { return location; }
 	public void setLocation(String location) { this.location = location; }
+	public Integer getLocationId() { return locationId; }
+	public void setLocationId(Integer locationId) { this.locationId = locationId; }
 	public String getStatus() { return status; }
 	public void setStatus(String status) { this.status = status; }
 	public String getPurchaseDate() { return purchaseDate; }

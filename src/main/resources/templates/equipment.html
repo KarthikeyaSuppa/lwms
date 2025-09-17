@@ -176,8 +176,10 @@
         <input type="text" id="addSerialNumber" name="serialNumber" required />
       </div>
       <div>
-        <label for="addLocation">Location</label>
-        <input type="text" id="addLocation" name="location" required />
+        <label for="addLocation">Location (code)</label>
+        <input type="text" id="addLocation" name="location" list="locationOptions" placeholder="Search location" required />
+        <datalist id="locationOptions"></datalist>
+        <input type="hidden" id="addLocationId" />
       </div>
       <div>
         <label for="addStatus">Status</label>

@@ -1,6 +1,7 @@
 package com.lwms.backend.services;
 
 import com.lwms.backend.dao.EquipmentRepository;
+import com.lwms.backend.dao.LocationsRepository;
 import com.lwms.backend.dto.EquipmentCreateRequest;
 import com.lwms.backend.dto.EquipmentSummaryDto;
 import com.lwms.backend.dto.EquipmentUpdateRequest;
@@ -19,9 +20,11 @@ import java.util.stream.Collectors;
 @Service
 public class EquipmentService {
 	private final EquipmentRepository equipmentRepository;
+	private final LocationsRepository locationsRepository;
 
-	public EquipmentService(EquipmentRepository equipmentRepository) {
+	public EquipmentService(EquipmentRepository equipmentRepository, LocationsRepository locationsRepository) {
 		this.equipmentRepository = equipmentRepository;
+		this.locationsRepository = locationsRepository;
 	}
 
 	@Transactional(readOnly = true)
@@ -55,6 +58,13 @@ public class EquipmentService {
 		if (StringUtils.hasText(req.getStatus())) e.setStatus(Equipment.Status.valueOf(req.getStatus()));
 		if (StringUtils.hasText(req.getPurchaseDate())) e.setPurchaseDate(LocalDate.parse(req.getPurchaseDate()));
 		if (StringUtils.hasText(req.getWarrantyExpiry())) e.setWarrantyExpiry(LocalDate.parse(req.getWarrantyExpiry()));
+		// Link location by ID if provided
+		if (req.getLocationId() != null) {
+			Locations loc = locationsRepository.findById(req.getLocationId())
+					.orElseThrow(() -> new IllegalArgumentException("Invalid locationId: " + req.getLocationId()))
+			;
+			e.setLocation(loc);
+		}
 		Equipment saved = equipmentRepository.save(e);
 		return toDtoWithLocationLabel(saved, req.getLocation());
 	}
@@ -69,6 +79,11 @@ public class EquipmentService {
 		if (req.getStatus() != null) e.setStatus(Equipment.Status.valueOf(req.getStatus()));
 		if (req.getPurchaseDate() != null) e.setPurchaseDate(LocalDate.parse(req.getPurchaseDate()));
 		if (req.getWarrantyExpiry() != null) e.setWarrantyExpiry(LocalDate.parse(req.getWarrantyExpiry()));
+		if (req.getLocationId() != null) {
+			Locations loc = locationsRepository.findById(req.getLocationId())
+					.orElseThrow(() -> new IllegalArgumentException("Invalid locationId: " + req.getLocationId()));
+			e.setLocation(loc);
+		}
 		Equipment saved = equipmentRepository.save(e);
 		return toDtoWithLocationLabel(saved, req.getLocation());
 	}
@@ -98,8 +113,9 @@ public class EquipmentService {
 		// Populate location label if linked
 		Locations loc = e.getLocation();
 		if (loc != null) {
-			String label = (loc.getZone() != null ? ("Zone " + loc.getZone()) : "")
-					+ (loc.getRack() != null ? (" — " + loc.getRack()) : "")
+			String label = (loc.getZone() != null ? (loc.getZone()) : "")
+					+ (loc.getAisle() != null ? (loc.getAisle()) : "")
+					+ (loc.getRack() != null ? ("-" + loc.getRack()) : "")
 					+ (loc.getShelf() != null ? ("-" + loc.getShelf()) : "");
 			dto.setLocation(label.trim());
 		}

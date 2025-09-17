@@ -5,6 +5,7 @@ public class EquipmentUpdateRequest {
 	private String equipmentType;
 	private String serialNumber;
 	private String location;
+	private Integer locationId; // optional: prefer this if provided
 	private String status;
 	private String purchaseDate;
 	private String warrantyExpiry;
@@ -17,6 +18,8 @@ public class EquipmentUpdateRequest {
 	public void setSerialNumber(String serialNumber) { this.serialNumber = serialNumber; }
 	public String getLocation() { return location; }
 	public void setLocation(String location) { this.location = location; }
+	public Integer getLocationId() { return locationId; }
+	public void setLocationId(Integer locationId) { this.locationId = locationId; }
 	public String getStatus() { return status; }
 	public void setStatus(String status) { this.status = status; }
 	public String getPurchaseDate() { return purchaseDate; }
