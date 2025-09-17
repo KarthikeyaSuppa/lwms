@@ -466,36 +466,6 @@ public class WebController {
         return "maintenance-schedule";
     }
 
-    /**
-     * Serves the inventory movements page.
-     * Route: GET /inventory-movements
-     * @param principal Authenticated principal.
-     * @param model View model with user/permissions.
-     * @return The "inventory-movements" template.
-     */
-    @GetMapping("/inventory-movements")
-    public String showInventoryMovements(
-        @AuthenticationPrincipal UserDetails principal,
-        Model model
-    ) {
-        if (principal != null) {
-            userService.findWithRoleByUsernameOrEmail(principal.getUsername())
-                .ifPresent(u -> {
-                    model.addAttribute("user", u);
-                    model.addAttribute(
-                        "permissionsJson",
-                        u.getRole() != null ? u.getRole().getPermissions() : null
-                    );
-                    model.addAttribute(
-                        "allowSettings",
-                        u.getRole() != null &&
-                        ("admin".equalsIgnoreCase(u.getRole().getRoleName()) ||
-                         "manager".equalsIgnoreCase(u.getRole().getRoleName()))
-                    );
-                });
-        }
-        return "inventory-movements";
-    }
 
     /**
      * Serves the reports page.

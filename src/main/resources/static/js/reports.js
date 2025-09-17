@@ -25,10 +25,8 @@
   }
 
   async function loadAllData() {
-    const timeRange = document.getElementById('timeRangeFilter').value;
-    
+    const timeRange = 30;
     try {
-      // Load all data in parallel
       const [
         metrics,
         inventoryData,
@@ -249,15 +247,24 @@
   // Equipment Heatmap (only heatmap)
   function renderHeatmapChart() {
     const chart = document.getElementById('equipmentHeatmapChart');
+    const info = document.getElementById('equipmentHeatmapInfo');
     if (!chart || !chartData.equipmentHeatmap.length) return;
 
     chart.innerHTML = '';
+    if (info) info.innerHTML = '<div class="placeholder text-muted">Select a cell to view info</div>';
     
     chartData.equipmentHeatmap.forEach((item) => {
       const cell = document.createElement('div');
       cell.className = 'heatmap-cell';
       cell.dataset.intensity = item.intensity;
       cell.title = `${item.equipment}: ${item.status}`;
+      cell.addEventListener('click', () => {
+        if (info) {
+          info.innerHTML = `<div class="detail-item"><span class="label">Equipment:</span> ${item.equipment}</div>
+            <div class=\"detail-item\"><span class=\"label\">Status:</span> ${item.status}</div>
+            <div class=\"detail-item\"><span class=\"label\">Intensity:</span> ${item.intensity}</div>`;
+        }
+      });
       chart.appendChild(cell);
     });
   }

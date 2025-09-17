@@ -40,8 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 	// Maintenance: require inventory read for maintenance schedule (or replace with its own key later)
 	hideCardIfDenied('a[th\\:href="@{/maintenance-schedule}"]', 'inventory', 'read');
-	// Inventory Movements depends on inventory
-	hideCardIfDenied('a[th\\:href="@{/inventory-movements}"]', 'inventory', 'read');
 	// Reports depends on reports
 	hideCardIfDenied('a[th\\:href="@{/reports}"]', 'reports', 'read');
 }); 

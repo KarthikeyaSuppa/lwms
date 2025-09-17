@@ -22,9 +22,6 @@ public class ReportsService {
     private EquipmentRepository equipmentRepository;
     
     @Autowired
-    private InventoryMovementsRepository inventoryMovementsRepository;
-    
-    @Autowired
     private LocationsRepository locationsRepository;
     
     @Autowired

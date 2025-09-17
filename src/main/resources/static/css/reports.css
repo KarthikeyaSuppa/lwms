@@ -389,6 +389,25 @@ body {
   height: 250px;
 }
 
+/* New layout for heatmap with info panel */
+.heatmap-layout{
+  display:flex;
+  gap:1rem;
+  align-items:stretch;
+}
+
+.heatmap-info{
+  flex:0 0 220px;
+  background: rgba(255,255,255,.15);
+  border:1px dashed rgba(62,47,25,.35);
+  border-radius:.5rem;
+  padding:1rem;
+  color:#3e2f19;
+}
+
+.heatmap-info .detail-item{ margin-bottom:.5rem; }
+.heatmap-info .placeholder{ opacity:.8; }
+
 .heatmap-cell {
   background: linear-gradient(180deg, #d7b785, #caa475);
   border: 1px solid rgba(62,47,25,.2);

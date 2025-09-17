@@ -40,16 +40,7 @@
     <div class="header-row d-flex align-items-center justify-content-between mb-4">
       <div class="d-flex align-items-center">
         <h3 class="mb-0">Reports & Analytics</h3>
-      </div>
-      <div class="filter-container">
-        <label for="timeRangeFilter" class="visually-hidden">Time Range</label>
-        <select class="filter-select" id="timeRangeFilter" title="Select time range for reports">
-          <option value="7">Last 7 Days</option>
-          <option value="30" selected>Last 30 Days</option>
-          <option value="90">Last 90 Days</option>
-          <option value="365">Last Year</option>
-        </select>
-        <button id="refreshDataBtn" type="button" class="refresh-btn" title="Refresh data">⟳</button>
+        <button id="refreshDataBtn" type="button" class="refresh-btn ms-3" title="Refresh data">⟳</button>
       </div>
     </div>
 
@@ -139,8 +130,9 @@
               <button class="chart-btn active" data-chart="heatmap">Heatmap</button>
             </div>
           </div>
-          <div class="chart-container">
+          <div class="chart-container heatmap-layout">
             <div id="equipmentHeatmapChart" class="chart-wrapper heatmap-chart"></div>
+            <div id="equipmentHeatmapInfo" class="heatmap-info"></div>
           </div>
         </div>
       </div>

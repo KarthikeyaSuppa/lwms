@@ -49,11 +49,6 @@ public class Locations {
     @OneToMany(mappedBy = "location", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Equipment> equipmentList;
 
-    @OneToMany(mappedBy = "fromLocation", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<InventoryMovements> movementsFrom;
-
-    @OneToMany(mappedBy = "toLocation", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<InventoryMovements> movementsTo;
 
     public enum LocationType {
         Storage, Receiving, Shipping, Quality
