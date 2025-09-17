@@ -70,21 +70,5 @@ public class ReportsController {
         }
     }
 
-    @GetMapping("/supplier-performance")
-    public ResponseEntity<?> getSupplierPerformance(@RequestParam(defaultValue = "30") int days) {
-        try {
-            return ResponseEntity.ok(reportsService.getSupplierPerformanceMetrics(days));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
-    @GetMapping("/activity-summary")
-    public ResponseEntity<?> getActivitySummary(@RequestParam(defaultValue = "30") int days) {
-        try {
-            return ResponseEntity.ok(reportsService.getRecentActivitySummary(days));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
-    }
+    
 }

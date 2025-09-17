@@ -2,15 +2,13 @@
   // API endpoints
   const API_BASE = '/reports/api';
   
-  // Chart data storage
+  // Chart/data storage
   let chartData = {
     inventoryStatus: [],
     shipmentStatus: [],
     equipmentHeatmap: [],
     movementTrends: [],
-    locationUtilization: [],
-    supplierPerformance: [],
-    activitySummary: []
+    locationUtilization: []
   };
 
   // Initialize the page
@@ -20,10 +18,9 @@
     try {
       await loadAllData();
       renderAllCharts();
-      renderActivityTable();
       setupEventListeners();
     } catch (error) {
-      window.toastManager.error('Failed to load reports data: ' + error.message);
+      window.toastManager && window.toastManager.error('Failed to load reports data: ' + error.message);
     }
   }
 
@@ -38,18 +35,14 @@
         shipmentData,
         equipmentData,
         movementData,
-        locationData,
-        supplierData,
-        activityData
+        locationData
       ] = await Promise.all([
-        fetch(${API_BASE}/metrics?days=).then(r => r.json()),
-        fetch(${API_BASE}/inventory-status?days=).then(r => r.json()),
-        fetch(${API_BASE}/shipment-status?days=).then(r => r.json()),
-        fetch(${API_BASE}/equipment-heatmap?days=).then(r => r.json()),
-        fetch(${API_BASE}/movement-trends?days=).then(r => r.json()),
-        fetch(${API_BASE}/location-utilization?days=).then(r => r.json()),
-        fetch(${API_BASE}/supplier-performance?days=).then(r => r.json()),
-        fetch(${API_BASE}/activity-summary?days=).then(r => r.json())
+        fetch(`${API_BASE}/metrics?days=${timeRange}`).then(r => r.json()),
+        fetch(`${API_BASE}/inventory-status?days=${timeRange}`).then(r => r.json()),
+        fetch(`${API_BASE}/shipment-status?days=${timeRange}`).then(r => r.json()),
+        fetch(`${API_BASE}/equipment-heatmap?days=${timeRange}`).then(r => r.json()),
+        fetch(`${API_BASE}/movement-trends?days=${timeRange}`).then(r => r.json()),
+        fetch(`${API_BASE}/location-utilization?days=${timeRange}`).then(r => r.json())
       ]);
 
       // Update metrics
@@ -61,8 +54,6 @@
       chartData.equipmentHeatmap = equipmentData;
       chartData.movementTrends = movementData;
       chartData.locationUtilization = locationData;
-      chartData.supplierPerformance = supplierData;
-      chartData.activitySummary = activityData;
       
     } catch (error) {
       console.error('Error loading data:', error);
@@ -90,8 +81,6 @@
     chartData.equipmentHeatmap = generateMockHeatmapData();
     chartData.movementTrends = generateMockTrendData();
     chartData.locationUtilization = generateMockLocationData();
-    chartData.supplierPerformance = generateMockSupplierData();
-    chartData.activitySummary = generateMockActivityData();
 
     // Update metrics with mock data
     updateMetrics({
@@ -103,18 +92,20 @@
   }
 
   function updateMetrics(metrics) {
-    animateValue('totalInventory', metrics.totalInventory);
-    animateValue('totalShipments', metrics.totalShipments);
-    animateValue('activeEquipment', metrics.activeEquipment);
-    animateValue('totalValue', metrics.totalValue, true);
+    animateValue('totalInventory', metrics.totalInventory || 0);
+    animateValue('totalShipments', metrics.totalShipments || 0);
+    animateValue('activeEquipment', metrics.activeEquipment || 0);
+    animateValue('totalValue', Math.round(metrics.totalValue || 0), true);
   }
 
   function animateValue(elementId, value, isCurrency = false) {
     const element = document.getElementById(elementId);
+    if (!element) return;
     const start = 0;
     const end = value;
     const duration = 1000;
-    const increment = end / (duration / 16);
+    const steps = Math.max(1, Math.floor(duration / 16));
+    const increment = end / steps;
     let current = start;
 
     const timer = setInterval(() => {
@@ -137,10 +128,10 @@
     renderBarChart();
     renderHeatmapChart();
     renderLineChart();
-    renderLocationChart();
-    renderRadarChart();
+    renderLocationGrid();
   }
 
+  // Donut Chart (only)
   function renderDonutChart() {
     const chart = document.getElementById('inventoryStatusChart');
     const legend = document.getElementById('inventoryLegend');
@@ -149,35 +140,33 @@
     
     if (!chart || !chartData.inventoryStatus.length) return;
 
-    let totalValue = 0;
+    let totalValue = chartData.inventoryStatus.reduce((sum, item) => sum + (item.count || 0), 0);
     let cumulativePercentage = 0;
 
     const gradientParts = chartData.inventoryStatus.map(item => {
-      totalValue += item.count;
-      return item;
-    }).map(item => {
-      const percentage = (item.count / totalValue) * 100;
+      const percentage = totalValue > 0 ? (item.count / totalValue) * 100 : 0;
       const startAngle = cumulativePercentage;
       const endAngle = cumulativePercentage + percentage;
       item.startAngle = (startAngle / 100) * 360;
       item.endAngle = (endAngle / 100) * 360;
-      const gradientString = ${item.color} % %;
+      const start = startAngle.toFixed(2);
+      const end = endAngle.toFixed(2);
       cumulativePercentage = endAngle;
-      return gradientString;
+      return `${item.color} ${start}% ${end}%`;
     }).join(', ');
 
-    chart.style.background = conic-gradient();
+    chart.style.background = `conic-gradient(${gradientParts})`;
 
     // Create legend
     legend.innerHTML = '';
     chartData.inventoryStatus.forEach((item, index) => {
       const legendItem = document.createElement('div');
       legendItem.className = 'legend-item d-flex align-items-center p-2 rounded';
-      legendItem.dataset.index = index;
-      legendItem.innerHTML = 
-        <div class="legend-color me-2" style="background-color: ;"></div>
-        <span class="text-sm text-dark"></span>
-      ;
+      legendItem.dataset.index = String(index);
+      legendItem.innerHTML = `
+        <div class="legend-color me-2" style="background-color: ${item.color};"></div>
+        <span class="text-sm text-dark">${item.status} (${item.count})</span>
+      `;
       legend.appendChild(legendItem);
     });
 
@@ -186,18 +175,21 @@
   }
 
   function setupDonutChartInteractions(chart, legend, percentageDisplay, categoryDisplay, data, totalValue) {
-    const legendItems = document.querySelectorAll('.legend-item');
+    const legendItems = legend.querySelectorAll('.legend-item');
 
     function updateDisplay(index) {
       if (index < 0 || index >= data.length) return;
       const selectedData = data[index];
-      const percentage = (selectedData.count / totalValue) * 100;
-      percentageDisplay.textContent = ${percentage.toFixed(0)}%;
+      const percentage = totalValue > 0 ? (selectedData.count / totalValue) * 100 : 0;
+      percentageDisplay.textContent = `${percentage.toFixed(0)}%`;
       categoryDisplay.textContent = selectedData.status;
       legendItems.forEach((item, i) => {
         item.classList.toggle('active', i === index);
       });
     }
+
+    // Default to first category if exists
+    if (data.length > 0) updateDisplay(0);
 
     legend.addEventListener('click', (e) => {
       const legendItem = e.target.closest('.legend-item');
@@ -222,25 +214,26 @@
     });
   }
 
+  // Shipment Status Bar
   function renderBarChart() {
     const chart = document.getElementById('shipmentStatusChart');
     if (!chart || !chartData.shipmentStatus.length) return;
 
     chart.innerHTML = '';
-    const maxValue = Math.max(...chartData.shipmentStatus.map(item => item.count));
+    const maxValue = Math.max(...chartData.shipmentStatus.map(item => item.count || 0), 1);
 
     chartData.shipmentStatus.forEach(item => {
       const barContainer = document.createElement('div');
-      barContainer.className = 'd-flex flex-column align-items-center';
+      barContainer.className = 'd-flex flex-column align-items-center position-relative';
       
       const bar = document.createElement('div');
       bar.className = 'bar';
       const height = (item.count / maxValue) * 200;
-      bar.style.height = ${height}px;
+      bar.style.height = `${height}px`;
       
       const barValue = document.createElement('div');
       barValue.className = 'bar-value';
-      barValue.textContent = item.count;
+      barValue.textContent = String(item.count);
       
       const barLabel = document.createElement('div');
       barLabel.className = 'bar-label';
@@ -253,21 +246,23 @@
     });
   }
 
+  // Equipment Heatmap (only heatmap)
   function renderHeatmapChart() {
     const chart = document.getElementById('equipmentHeatmapChart');
     if (!chart || !chartData.equipmentHeatmap.length) return;
 
     chart.innerHTML = '';
     
-    chartData.equipmentHeatmap.forEach((item, index) => {
+    chartData.equipmentHeatmap.forEach((item) => {
       const cell = document.createElement('div');
       cell.className = 'heatmap-cell';
       cell.dataset.intensity = item.intensity;
-      cell.title = ${item.equipment}: ;
+      cell.title = `${item.equipment}: ${item.status}`;
       chart.appendChild(cell);
     });
   }
 
+  // Inventory Movement Trends (line only)
   function renderLineChart() {
     const chart = document.getElementById('movementTrendsChart');
     if (!chart || !chartData.movementTrends.length) return;
@@ -277,171 +272,113 @@
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('viewBox', '0 0 400 200');
     
+    const values = chartData.movementTrends.map(d => d.value);
+    const maxVal = Math.max(...values, 1);
+
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     const points = chartData.movementTrends.map((item, index) => {
       const x = (index / (chartData.movementTrends.length - 1)) * 350 + 25;
-      const y = 175 - (item.value / Math.max(...chartData.movementTrends.map(d => d.value))) * 150;
-      return ${x},;
+      const y = 175 - (item.value / maxVal) * 150;
+      return `${x},${y}`;
     }).join(' L');
     
-    path.setAttribute('d', M );
+    path.setAttribute('d', `M ${points}`);
     path.setAttribute('class', 'line-path');
     svg.appendChild(path);
     
     chartData.movementTrends.forEach((item, index) => {
       const x = (index / (chartData.movementTrends.length - 1)) * 350 + 25;
-      const y = 175 - (item.value / Math.max(...chartData.movementTrends.map(d => d.value))) * 150;
+      const y = 175 - (item.value / maxVal) * 150;
       
       const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      circle.setAttribute('cx', x);
-      circle.setAttribute('cy', y);
-      circle.setAttribute('r', 4);
+      circle.setAttribute('cx', String(x));
+      circle.setAttribute('cy', String(y));
+      circle.setAttribute('r', '4');
       circle.setAttribute('class', 'line-point');
-      circle.setAttribute('title', ${item.date}: );
+      circle.setAttribute('title', `${item.date}: ${item.value}`);
       svg.appendChild(circle);
     });
     
     chart.appendChild(svg);
   }
 
-  function renderLocationChart() {
-    const chart = document.getElementById('locationUtilizationChart');
-    if (!chart || !chartData.locationUtilization.length) return;
+  // Location Utilization Grid + Details panel
+  function renderLocationGrid() {
+    const grid = document.getElementById('locationGrid');
+    const details = document.getElementById('locationDetails');
+    if (!grid || !chartData.locationUtilization.length) return;
 
-    chart.innerHTML = '';
-    const maxValue = Math.max(...chartData.locationUtilization.map(item => item.utilization));
+    grid.innerHTML = '';
 
-    chartData.locationUtilization.forEach(item => {
-      const barContainer = document.createElement('div');
-      barContainer.className = 'd-flex flex-column align-items-center';
-      
-      const bar = document.createElement('div');
-      bar.className = 'bar';
-      const height = (item.utilization / maxValue) * 200;
-      bar.style.height = ${height}px;
-      
-      const barValue = document.createElement('div');
-      barValue.className = 'bar-value';
-      barValue.textContent = ${item.utilization}%;
-      
-      const barLabel = document.createElement('div');
-      barLabel.className = 'bar-label';
-      barLabel.textContent = item.location;
-      
-      barContainer.appendChild(barValue);
-      barContainer.appendChild(bar);
-      barContainer.appendChild(barLabel);
-      chart.appendChild(barContainer);
+    chartData.locationUtilization.forEach((loc, index) => {
+      const box = document.createElement('div');
+      box.className = 'location-box';
+      box.dataset.index = String(index);
+
+      const utilization = Math.max(0, Math.min(100, loc.utilization || 0));
+      let level = 'low';
+      if (utilization >= 75) level = 'high';
+      else if (utilization >= 50) level = 'medium';
+
+      box.dataset.utilizationLevel = level;
+      box.innerHTML = `
+        <div class="location-code">${loc.location}</div>
+        <div class="location-capacity">Cap: ${loc.capacity ?? '-'} | Load: ${loc.currentLoad ?? '-'}</div>
+        <div class="utilization-bar"><span style="width:${utilization}%"></span></div>
+      `;
+
+      box.addEventListener('click', () => {
+        renderLocationDetails(details, loc);
+        grid.querySelectorAll('.location-box').forEach(el => el.classList.remove('active'));
+        box.classList.add('active');
+      });
+
+      grid.appendChild(box);
     });
+
+    // Select first by default
+    if (chartData.locationUtilization.length) {
+      renderLocationDetails(details, chartData.locationUtilization[0]);
+      const firstBox = grid.querySelector('.location-box');
+      if (firstBox) firstBox.classList.add('active');
+    }
   }
 
-  function renderRadarChart() {
-    const chart = document.getElementById('supplierPerformanceChart');
-    if (!chart || !chartData.supplierPerformance.length) return;
-
-    chart.innerHTML = '';
-    
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('viewBox', '0 0 200 200');
-    
-    const centerX = 100;
-    const centerY = 100;
-    const radius = 80;
-    
-    // Draw grid circles
-    for (let i = 1; i <= 5; i++) {
-      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      circle.setAttribute('cx', centerX);
-      circle.setAttribute('cy', centerY);
-      circle.setAttribute('r', (radius / 5) * i);
-      circle.setAttribute('class', 'radar-grid');
-      circle.setAttribute('fill', 'none');
-      svg.appendChild(circle);
-    });
-    
-    // Draw axes
-    const axes = ['Quality', 'Delivery', 'Price', 'Service', 'Reliability'];
-    axes.forEach((axis, index) => {
-      const angle = (index * 360 / axes.length) * Math.PI / 180;
-      const x2 = centerX + Math.cos(angle) * radius;
-      const y2 = centerY + Math.sin(angle) * radius;
-      
-      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      line.setAttribute('x1', centerX);
-      line.setAttribute('y1', centerY);
-      line.setAttribute('x2', x2);
-      line.setAttribute('y2', y2);
-      line.setAttribute('class', 'radar-axis');
-      svg.appendChild(line);
-    });
-    
-    chart.appendChild(svg);
-  }
-
-  function renderActivityTable() {
-    const tbody = document.getElementById('activityTableBody');
-    if (!tbody || !chartData.activitySummary.length) return;
-
-    tbody.innerHTML = '';
-    
-    chartData.activitySummary.forEach(activity => {
-      const row = document.createElement('tr');
-      row.innerHTML = 
-        <td><span class="label"></span></td>
-        <td><span class="label"></span></td>
-        <td><span class="label"></span></td>
-        <td><span class="label"></span></td>
-        <td><span class="label"></span></td>
-      ;
-      tbody.appendChild(row);
-    });
+  function renderLocationDetails(container, loc) {
+    if (!container || !loc) return;
+    container.innerHTML = `
+      <div class="detail-item"><span class="label">Location:</span> ${loc.location}</div>
+      <div class="detail-item"><span class="label">Capacity:</span> ${loc.capacity ?? '-'}</div>
+      <div class="detail-item"><span class="label">Current Load:</span> ${loc.currentLoad ?? '-'}</div>
+      <div class="detail-item"><span class="label">Utilization:</span> ${Math.max(0, Math.min(100, loc.utilization || 0))}%</div>
+    `;
   }
 
   function setupEventListeners() {
     // Time range filter
-    document.getElementById('timeRangeFilter').addEventListener('change', () => {
-      initializePage();
-    });
+    const timeFilter = document.getElementById('timeRangeFilter');
+    if (timeFilter) {
+      timeFilter.addEventListener('change', () => {
+        initializePage();
+      });
+    }
 
     // Refresh button
-    document.getElementById('refreshDataBtn').addEventListener('click', () => {
-      initializePage();
-    });
+    const refreshBtn = document.getElementById('refreshDataBtn');
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', () => {
+        initializePage();
+      });
+    }
 
-    // Chart type toggles
+    // Chart type toggles (simplified to active-only buttons)
     document.querySelectorAll('.chart-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const container = e.target.closest('.chart-controls');
-        container.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+        container && container.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
         e.target.classList.add('active');
-        
-        // Re-render chart with new type
-        const chartType = e.target.dataset.chart;
-        const chartCard = e.target.closest('.chart-card');
-        const chartId = chartCard.querySelector('.chart-wrapper').id;
-        
-        // This would switch chart types - simplified for now
-        console.log(Switching  to  chart);
+        // No alternate chart rendering required per spec
       });
-    });
-
-    // Activity filter
-    document.getElementById('activityFilter').addEventListener('change', (e) => {
-      filterActivityTable(e.target.value);
-    });
-  }
-
-  function filterActivityTable(filter) {
-    const tbody = document.getElementById('activityTableBody');
-    const rows = tbody.querySelectorAll('tr');
-    
-    rows.forEach(row => {
-      const type = row.cells[0].textContent.toLowerCase();
-      if (filter === 'all' || type.includes(filter.toLowerCase())) {
-        row.style.display = '';
-      } else {
-        row.style.display = 'none';
-      }
     });
   }
 
@@ -467,35 +404,12 @@
   }
 
   function generateMockLocationData() {
-    const locations = ['Zone A', 'Zone B', 'Zone C', 'Zone D', 'Zone E'];
+    const locations = ['A-1-1-1', 'A-1-1-2', 'A-1-2-1', 'B-1-1-1', 'B-1-1-2'];
     return locations.map(location => ({
       location,
-      utilization: Math.floor(Math.random() * 100)
-    }));
-  }
-
-  function generateMockSupplierData() {
-    return [
-      { metric: 'Quality', value: 85 },
-      { metric: 'Delivery', value: 90 },
-      { metric: 'Price', value: 75 },
-      { metric: 'Service', value: 88 },
-      { metric: 'Reliability', value: 92 }
-    ];
-  }
-
-  function generateMockActivityData() {
-    const types = ['Inventory', 'Shipment', 'Equipment'];
-    const descriptions = ['Item added', 'Shipment created', 'Equipment maintenance', 'Location updated'];
-    const statuses = ['Completed', 'In Progress', 'Pending'];
-    const users = ['admin123', 'manager123', 'operator1'];
-    
-    return Array.from({ length: 10 }, (_, i) => ({
-      type: types[i % types.length],
-      description: descriptions[i % descriptions.length],
-      status: statuses[i % statuses.length],
-      date: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toLocaleDateString(),
-      user: users[i % users.length]
+      utilization: Math.floor(Math.random() * 100),
+      capacity: 100,
+      currentLoad: Math.floor(Math.random() * 100)
     }));
   }
 });

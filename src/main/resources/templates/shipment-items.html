@@ -59,38 +59,6 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td><span class="label">SHIP001</span></td>
-            <td><span class="label">ITEM001</span></td>
-            <td><span class="label">50</span></td>
-            <td><span class="label">$25.00</span></td>
-            <td><span class="label">$1,250.00</span></td>
-            <td><button class="btn-edit-label edit-btn">Edit Item</button></td>
-          </tr>
-          <tr>
-            <td><span class="label">SHIP001</span></td>
-            <td><span class="label">ITEM002</span></td>
-            <td><span class="label">25</span></td>
-            <td><span class="label">$45.00</span></td>
-            <td><span class="label">$1,125.00</span></td>
-            <td><button class="btn-edit-label edit-btn">Edit Item</button></td>
-          </tr>
-          <tr>
-            <td><span class="label">SHIP002</span></td>
-            <td><span class="label">ITEM003</span></td>
-            <td><span class="label">100</span></td>
-            <td><span class="label">$15.50</span></td>
-            <td><span class="label">$1,550.00</span></td>
-            <td><button class="btn-edit-label edit-btn">Edit Item</button></td>
-          </tr>
-          <tr>
-            <td><span class="label">SHIP002</span></td>
-            <td><span class="label">ITEM004</span></td>
-            <td><span class="label">75</span></td>
-            <td><span class="label">$32.00</span></td>
-            <td><span class="label">$2,400.00</span></td>
-            <td><button class="btn-edit-label edit-btn">Edit Item</button></td>
-          </tr>
         </tbody>
       </table>
     </div>
@@ -124,51 +92,26 @@
     <div class="add-shipment-item-modal-title">Add New Shipment Item</div>
     <form class="add-shipment-item-form" id="addShipmentItemForm" autocomplete="off">
       <div>
-        <label for="addShipmentId">Shipment ID</label>
+        <label for="addShipmentId">Shipment Number</label>
         <div class="item-cell-container">
-          <div class="item-select" id="addShipmentIdSelect" data-current-value="SHIP001">SHIP001</div>
-          <div class="item-dropdown" id="addShipmentIdDropdown">
-            <div class="item-dropdown-item selected" data-value="SHIP001">SHIP001</div>
-            <div class="item-dropdown-item" data-value="SHIP002">SHIP002</div>
-            <div class="item-dropdown-item" data-value="SHIP003">SHIP003</div>
-            <div class="item-dropdown-item" data-value="SHIP004">SHIP004</div>
-          </div>
-          <select id="addShipmentId" name="shipmentId" required style="display:none;">
-            <option value="SHIP001" selected>SHIP001</option>
-            <option value="SHIP002">SHIP002</option>
-            <option value="SHIP003">SHIP003</option>
-            <option value="SHIP004">SHIP004</option>
-          </select>
+          <input type="text" class="item-select" id="addShipmentIdSelect" data-current-value="" data-id="" placeholder="Search shipment..." autocomplete="off" />
+          <div class="item-dropdown" id="addShipmentIdDropdown"></div>
+          <input type="hidden" id="addShipmentId" name="shipmentId" required />
         </div>
       </div>
       <div>
-        <label for="addItemId">Item ID</label>
+        <label for="addItemId">Item Code</label>
         <div class="item-cell-container">
-          <div class="item-select" id="addItemIdSelect" data-current-value="ITEM001">ITEM001</div>
-          <div class="item-dropdown" id="addItemIdDropdown">
-            <div class="item-dropdown-item selected" data-value="ITEM001">ITEM001</div>
-            <div class="item-dropdown-item" data-value="ITEM002">ITEM002</div>
-            <div class="item-dropdown-item" data-value="ITEM003">ITEM003</div>
-            <div class="item-dropdown-item" data-value="ITEM004">ITEM004</div>
-            <div class="item-dropdown-item" data-value="ITEM005">ITEM005</div>
-          </div>
-          <select id="addItemId" name="itemId" required style="display:none;">
-            <option value="ITEM001" selected>ITEM001</option>
-            <option value="ITEM002">ITEM002</option>
-            <option value="ITEM003">ITEM003</option>
-            <option value="ITEM004">ITEM004</option>
-            <option value="ITEM005">ITEM005</option>
-          </select>
+          <input type="text" class="item-select" id="addItemIdSelect" data-current-value="" data-id="" placeholder="Search item..." autocomplete="off" />
+          <div class="item-dropdown" id="addItemIdDropdown"></div>
+          <input type="hidden" id="addItemId" name="itemId" required />
         </div>
       </div>
       <div>
         <label for="addQuantity">Quantity</label>
         <input type="number" id="addQuantity" name="quantity" min="1" required />
       </div>
-      <div>
-        <label for="addUnitPrice">Unit Price</label>
-        <input type="number" id="addUnitPrice" name="unitPrice" step="0.01" min="0" placeholder="0.00" required />
-      </div>
+
       <button type="submit" class="add-shipment-item-btn">Add Shipment Item</button>
     </form>
   </div>

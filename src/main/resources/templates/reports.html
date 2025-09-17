@@ -42,12 +42,14 @@
         <h3 class="mb-0">Reports & Analytics</h3>
       </div>
       <div class="filter-container">
-        <select class="filter-select" id="timeRangeFilter">
+        <label for="timeRangeFilter" class="visually-hidden">Time Range</label>
+        <select class="filter-select" id="timeRangeFilter" title="Select time range for reports">
           <option value="7">Last 7 Days</option>
           <option value="30" selected>Last 30 Days</option>
           <option value="90">Last 90 Days</option>
           <option value="365">Last Year</option>
         </select>
+        <button id="refreshDataBtn" type="button" class="refresh-btn" title="Refresh data">⟳</button>
       </div>
     </div>
 
@@ -99,7 +101,6 @@
             <h4>Inventory Status Distribution</h4>
             <div class="chart-controls">
               <button class="chart-btn active" data-chart="donut">Donut</button>
-              <button class="chart-btn" data-chart="pie">Pie</button>
             </div>
           </div>
           <div class="chart-container">
@@ -119,7 +120,6 @@
             <h4>Shipment Status Overview</h4>
             <div class="chart-controls">
               <button class="chart-btn active" data-chart="bar">Bar</button>
-              <button class="chart-btn" data-chart="line">Line</button>
             </div>
           </div>
           <div class="chart-container">
@@ -137,7 +137,6 @@
             <h4>Equipment Status Heatmap</h4>
             <div class="chart-controls">
               <button class="chart-btn active" data-chart="heatmap">Heatmap</button>
-              <button class="chart-btn" data-chart="grid">Grid</button>
             </div>
           </div>
           <div class="chart-container">
@@ -151,7 +150,6 @@
             <h4>Inventory Movement Trends</h4>
             <div class="chart-controls">
               <button class="chart-btn active" data-chart="line">Line</button>
-              <button class="chart-btn" data-chart="area">Area</button>
             </div>
           </div>
           <div class="chart-container">
@@ -161,68 +159,27 @@
       </div>
     </div>
 
-    <!-- Charts Row 3 -->
+    <!-- Location Utilization Grid and Details -->
     <div class="row mb-4">
-      <div class="col-lg-6">
+      <div class="col-lg-8">
         <div class="chart-card">
           <div class="chart-header">
             <h4>Location Utilization</h4>
-            <div class="chart-controls">
-              <button class="chart-btn active" data-chart="bar">Bar</button>
-              <button class="chart-btn" data-chart="horizontal">Horizontal</button>
-            </div>
           </div>
           <div class="chart-container">
-            <div id="locationUtilizationChart" class="chart-wrapper bar-chart"></div>
+            <div id="locationGrid" class="location-grid"></div>
           </div>
         </div>
       </div>
-      <div class="col-lg-6">
+      <div class="col-lg-4">
         <div class="chart-card">
           <div class="chart-header">
-            <h4>Supplier Performance</h4>
-            <div class="chart-controls">
-              <button class="chart-btn active" data-chart="radar">Radar</button>
-              <button class="chart-btn" data-chart="polar">Polar</button>
-            </div>
+            <h4>Location Details</h4>
           </div>
           <div class="chart-container">
-            <div id="supplierPerformanceChart" class="chart-wrapper radar-chart"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Data Tables -->
-    <div class="row">
-      <div class="col-12">
-        <div class="table-card">
-          <div class="table-header">
-            <h4>Recent Activity Summary</h4>
-            <div class="table-controls">
-              <select class="filter-select" id="activityFilter">
-                <option value="all">All Activities</option>
-                <option value="inventory">Inventory</option>
-                <option value="shipments">Shipments</option>
-                <option value="equipment">Equipment</option>
-              </select>
+            <div id="locationDetails" class="location-details">
+              <div class="placeholder text-muted">Select a location to view details</div>
             </div>
-          </div>
-          <div class="table-responsive">
-            <table class="table table-borderless mb-0">
-              <thead>
-                <tr>
-                  <th><span class="label text-bolder">Type</span></th>
-                  <th><span class="label text-bolder">Description</span></th>
-                  <th><span class="label text-bolder">Status</span></th>
-                  <th><span class="label text-bolder">Date</span></th>
-                  <th><span class="label text-bolder">User</span></th>
-                </tr>
-              </thead>
-              <tbody id="activityTableBody">
-                <!-- Dynamic content -->
-              </tbody>
-            </table>
           </div>
         </div>
       </div>

@@ -29,9 +29,23 @@ public class ShipmentItemsController {
 		return ResponseEntity.ok(shipmentItemsService.listByShipmentNumber(shipmentNumber));
 	}
 
+	@GetMapping(value = {"/lwms/shipment-items/api", "/shipment-items/api"}, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<ShipmentItemSummaryDto>> listAll(@RequestParam(value = "shipmentNumber", required = false) String shipmentNumber) {
+		if (shipmentNumber != null && !shipmentNumber.isBlank()) {
+			return ResponseEntity.ok(shipmentItemsService.listByShipmentNumber(shipmentNumber));
+		}
+		return ResponseEntity.ok(shipmentItemsService.listAll());
+	}
+
 	@PostMapping(value = {"/lwms/shipment-items/api", "/shipment-items/api"}, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<ShipmentItemSummaryDto> create(@RequestBody ShipmentItemCreateRequest req) {
-		return ResponseEntity.ok(shipmentItemsService.create(req));
+	public ResponseEntity<?> create(@RequestBody ShipmentItemCreateRequest req) {
+		try {
+			return ResponseEntity.ok(shipmentItemsService.create(req));
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		} catch (RuntimeException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
 	}
 
 	@PatchMapping(value = {"/lwms/shipment-items/api/{id}", "/shipment-items/api/{id}"}, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

@@ -43,16 +43,31 @@ public class ShipmentItemsService {
 		return shipmentItemsRepository.findByShipment_ShipmentNumber(shipmentNumber).stream().map(this::toDto).collect(Collectors.toList());
 	}
 
+	@Transactional(readOnly = true)
+	public List<ShipmentItemSummaryDto> listAll() {
+		return shipmentItemsRepository.findAll().stream().map(this::toDto).collect(Collectors.toList());
+	}
+
 	@Transactional
 	public ShipmentItemSummaryDto create(ShipmentItemCreateRequest req) {
 		Shipments shipment = shipmentsRepository.findById(req.getShipmentId()).orElseThrow(() -> new RuntimeException("Shipment not found: " + req.getShipmentId()));
 		Inventory item = inventoryRepository.findById(req.getItemId()).orElseThrow(() -> new RuntimeException("Inventory item not found: " + req.getItemId()));
+		// Prevent duplicate shipment-item pair
+		ShipmentItems existing = shipmentItemsRepository.findByShipment_ShipmentIdAndItem_ItemId(shipment.getShipmentId(), item.getItemId());
+		if (existing != null) {
+			throw new RuntimeException("Shipment item already exists for this shipment and item");
+		}
 		ShipmentItems si = new ShipmentItems();
 		si.setShipment(shipment);
 		si.setItem(item);
 		si.setQuantity(req.getQuantity());
-		si.setUnitPrice(req.getUnitPrice());
-		si.setTotalPrice(calculateTotal(req.getQuantity(), req.getUnitPrice()));
+		// Use provided unit price if present; otherwise default to inventory unit price
+		if (req.getUnitPrice() != null && req.getUnitPrice().signum() >= 0) {
+			si.setUnitPrice(req.getUnitPrice());
+		} else {
+			si.setUnitPrice(item.getUnitPrice());
+		}
+		si.setTotalPrice(calculateTotal(req.getQuantity(), si.getUnitPrice()));
 		ShipmentItems saved = shipmentItemsRepository.save(si);
 		// Sync movement via service
 		createOrUpdateMovement(saved);

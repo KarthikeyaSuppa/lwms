@@ -419,7 +419,70 @@ body {
   background: linear-gradient(180deg, #b9925e, #a67c52);
 }
 
-/* Radar Chart Styles */
+/* Location Grid & Details */
+.location-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  padding: .5rem;
+}
+
+.location-box {
+  background: rgba(255,255,255,.15);
+  border: 1px dashed rgba(62,47,25,.35);
+  border-radius: .5rem;
+  padding: .75rem;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+.location-box:hover {
+  filter: brightness(1.05);
+  transform: translateY(-2px);
+}
+
+.location-box.active {
+  outline: 2px solid rgba(62,47,25,.6);
+}
+
+.location-box[data-utilization-level="low"] { background: rgba(76,175,80,.12); }
+.location-box[data-utilization-level="medium"] { background: rgba(255,193,7,.15); }
+.location-box[data-utilization-level="high"] { background: rgba(220,53,69,.12); }
+
+.location-code {
+  font-weight: 700;
+  color: #3e2f19;
+}
+
+.location-capacity {
+  font-size: .85rem;
+  color: #3e2f19;
+  opacity: .8;
+}
+
+.utilization-bar {
+  height: 8px;
+  background: rgba(62,47,25,.15);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.utilization-bar > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #caa475, #b9925e);
+}
+
+.location-details .detail-item {
+  margin-bottom: .5rem;
+}
+
+.location-details .placeholder {
+  padding: .5rem;
+}
+
+/* Radar Chart Styles (removed feature kept for compat - unused) */
 .radar-chart {
   position: relative;
   height: 250px;
