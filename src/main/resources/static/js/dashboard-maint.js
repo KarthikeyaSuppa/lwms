@@ -42,8 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	hideCardIfDenied('a[th\\:href="@{/maintenance-schedule}"]', 'inventory', 'read');
 	// Inventory Movements depends on inventory
 	hideCardIfDenied('a[th\\:href="@{/inventory-movements}"]', 'inventory', 'read');
-	// Shipment Items depends on shipments
-	hideCardIfDenied('a[th\\:href="@{/shipment-items}"]', 'shipments', 'read');
 	// Reports depends on reports
 	hideCardIfDenied('a[th\\:href="@{/reports}"]', 'reports', 'read');
 }); 

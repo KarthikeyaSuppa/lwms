@@ -434,36 +434,6 @@ public class WebController {
         return "shipments";
     }
 
-    /**
-     * Serves the shipment items page.
-     * Route: GET /shipment-items
-     * @param principal Authenticated principal.
-     * @param model View model with user/permissions.
-     * @return The "shipment-items" template.
-     */
-    @GetMapping("/shipment-items")
-    public String showShipmentItems(
-        @AuthenticationPrincipal UserDetails principal,
-        Model model
-    ) {
-        if (principal != null) {
-            userService.findWithRoleByUsernameOrEmail(principal.getUsername())
-                .ifPresent(u -> {
-                    model.addAttribute("user", u);
-                    model.addAttribute(
-                        "permissionsJson",
-                        u.getRole() != null ? u.getRole().getPermissions() : null
-                    );
-                    model.addAttribute(
-                        "allowSettings",
-                        u.getRole() != null &&
-                        ("admin".equalsIgnoreCase(u.getRole().getRoleName()) ||
-                         "manager".equalsIgnoreCase(u.getRole().getRoleName()))
-                    );
-                });
-        }
-        return "shipment-items";
-    }
 
     /**
      * Serves the maintenance schedule page.
