@@ -25,7 +25,7 @@ a.box-card:focus-visible{ outline:2px dashed rgba(62,47,25,.6); outline-offset:4
 .action-icon:hover{ filter:brightness(1.1); }
 .add-category-icon{ cursor:pointer; margin-left:1rem; margin-top:.3rem; transition:all .2s ease; vertical-align:bottom; }
 .add-category-icon:hover{ transform:scale(1.1); filter:brightness(1.1); }
-.add-category-modal-overlay{ position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(62,47,25,.25); z-index:2000; display:flex; align-items:center; justify-content:center; }
+.add-category-modal-overlay{ position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(62,47,25,.25); z-index:2000; display:none; align-items:center; justify-content:center; }
 .add-category-modal{ background:linear-gradient(180deg,#d7b785,#caa475); border:1px solid rgba(62,47,25,.3); border-radius:1rem; box-shadow:0 8px 32px rgba(62,47,25,.22), inset 0 1px 0 rgba(255,255,255,.25); padding:2.25rem 2rem 1.8rem 2rem; min-width:500px; max-width:95vw; width:560px; position:relative; color:#3e2f19; animation:fadeIn .2s; }
 @keyframes fadeIn{ from{opacity:0; transform:translateY(30px);} to{opacity:1; transform:none;} }
 .add-category-modal-title{ font-size:1.35rem; font-weight:700; margin-bottom:1.35rem; text-align:center; }
@@ -39,3 +39,6 @@ a.box-card:focus-visible{ outline:2px dashed rgba(62,47,25,.6); outline-offset:4
 .fixed-header-table td:nth-child(3) .editable-input{ width:100%; max-width:100%; }
 .modal-content.box-card{ box-shadow:0 10px 30px rgba(62,47,25,.25); }
 .modal-header .btn-close{ filter:invert(1) grayscale(100%) brightness(1.5) sepia(0) saturate(0); } 
+/* Added cardboard-styled Add Category button */
+.add-category-btn{ background:linear-gradient(180deg,#d7b785,#caa475); border:1px dashed rgba(62,47,25,.5); border-radius:.35rem; color:#3e2f19; font-weight:700; padding:.675rem 2rem; margin:.5rem auto 0 auto; cursor:pointer; font-size:.99rem; transition:filter .2s; display:block; width:fit-content; min-width:120px; }
+.add-category-btn:hover{ filter:brightness(1.1); } 
