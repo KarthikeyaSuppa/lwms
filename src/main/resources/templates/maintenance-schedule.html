@@ -127,8 +127,12 @@
     <div class="add-maintenance-modal-title">Add Maintenance Task</div>
     <form class="add-maintenance-form" id="addMaintenanceForm" autocomplete="off">
       <div class="field-col">
-        <label for="addEquipmentId">Equipment ID</label>
-        <input type="text" id="addEquipmentId" name="equipmentId" placeholder="EQ-xxxx" required />
+        <label for="addEquipmentCodeSearch">Equipment Code</label>
+        <div class="ms-cell-container">
+          <input type="text" id="addEquipmentCodeSearch" placeholder="Search code, name, serial..." />
+          <div class="ms-dropdown" id="equipmentCodeDropdown"></div>
+        </div>
+        <input type="hidden" id="addEquipmentId" name="equipmentId" />
       </div>
       <div class="field-col">
         <label for="addTaskDescription">Task Description</label>
@@ -179,8 +183,12 @@
       </div>
 
       <div class="field-col">
-        <label for="addAssignedTo">Assigned To (User ID)</label>
-        <input type="text" id="addAssignedTo" name="assignedTo" placeholder="e.g., 42 or username" />
+        <label for="addAssignedToSearch">Assigned To</label>
+        <div class="ms-cell-container">
+          <input type="text" id="addAssignedToSearch" placeholder="Search username, name, email..." />
+          <div class="ms-dropdown" id="assignedToDropdown"></div>
+        </div>
+        <input type="hidden" id="addAssignedTo" name="assignedTo" />
       </div>
       <div class="field-col">
         <label for="addStatus">Status</label>
@@ -218,10 +226,8 @@
         <textarea id="addNotes" name="notes" rows="3" placeholder="Additional notes"></textarea>
       </div>
 
-      <div class="field-col">
-        <label for="addCreatedBy">Created By (User ID)</label>
-        <input type="text" id="addCreatedBy" name="createdBy" placeholder="e.g., 7" required />
-      </div>
+      <!-- Created By: hidden, auto-populated from authenticated user -->
+      <input type="hidden" id="addCreatedBy" name="createdBy" th:value="${user?.userId}">
       <button type="submit" class="submit-btn">Add Maintenance</button>
     </form>
   </div>

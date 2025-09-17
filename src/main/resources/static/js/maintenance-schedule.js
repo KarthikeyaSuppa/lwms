@@ -8,6 +8,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchIcon = document.getElementById('searchIcon');
   const API_BASE = '/maintenance-schedule/api'; // also /lwms/maintenance-schedule/api
 
+  const equipSearchInput = document.getElementById('addEquipmentCodeSearch');
+  const equipDropdown = document.getElementById('equipmentCodeDropdown');
+  const equipHiddenId = document.getElementById('addEquipmentId');
+
+  const assignedSearchInput = document.getElementById('addAssignedToSearch');
+  const assignedDropdown = document.getElementById('assignedToDropdown');
+  const assignedHiddenId = document.getElementById('addAssignedTo');
+
   function toDatetimeLocal(text){ if(!text || text === '-') return ''; return text.replace(' ', 'T'); }
 
   async function loadMaint(){
@@ -82,16 +90,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const priority = cells[3].querySelector('.ms-select')?.dataset?.currentValue || cells[3].textContent.trim();
     const scheduledDate = cells[4].querySelector('.editable-input')?.value?.trim() || '';
     const estimatedDuration = parseInt(cells[5].querySelector('.editable-input')?.value ?? '0', 10);
-    const assignedTo = cells[6].querySelector('.editable-input')?.value?.trim() || '';
+    const assignedToRaw = cells[6].querySelector('.editable-input')?.value?.trim() || '';
     const status = cells[7].querySelector('.ms-select')?.dataset?.currentValue || cells[7].textContent.trim();
     const completedDate = cells[8].querySelector('.editable-input')?.value?.trim() || '';
     const actualDuration = parseInt(cells[9].querySelector('.editable-input')?.value ?? '0', 10);
     const cost = cells[10].querySelector('.editable-input')?.value?.trim() || '0.00';
     const notes = cells[11].querySelector('textarea.editable-input')?.value?.trim() || '';
 
+    const payload = {
+      equipmentId: parseInt(equipmentId, 10),
+      taskDescription,
+      maintenanceType,
+      priority,
+      scheduledDate,
+      estimatedDuration,
+      status,
+      completedDate,
+      actualDuration,
+      cost,
+      notes,
+    };
+    if (/^\d+$/.test(assignedToRaw)) {
+      payload.assignedTo = parseInt(assignedToRaw, 10);
+    }
+
     const res = await fetch(`${API_BASE}/${encodeURIComponent(id)}`, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ equipmentId: parseInt(equipmentId, 10), taskDescription, maintenanceType, priority, scheduledDate, estimatedDuration, assignedTo: assignedTo ? parseInt(assignedTo, 10) : null, status, completedDate, actualDuration, cost, notes })
+      body: JSON.stringify(payload)
     });
     if (!res.ok) { const err = await res.text(); alert(`Failed to update maintenance: ${err || res.status}`); return; }
 
@@ -102,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cells[3].innerHTML = `<span class=\"label\">${updated.priority ?? priority}</span>`;
     cells[4].innerHTML = `<span class=\"label\">${updated.scheduledDate ?? (scheduledDate ? scheduledDate.replace('T',' ') : '-')}</span>`;
     cells[5].innerHTML = `<span class=\"label\">${updated.estimatedDuration ?? estimatedDuration}</span>`;
-    cells[6].innerHTML = `<span class=\"label\">${(updated.assignedTo ?? assignedTo) || '-'}</span>`;
+    cells[6].innerHTML = `<span class=\"label\">${(updated.assignedTo ?? assignedToRaw) || '-'}</span>`;
     cells[7].innerHTML = `<span class=\"label\">${updated.status ?? status}</span>`;
     cells[8].innerHTML = `<span class=\"label\">${updated.completedDate ?? (completedDate ? completedDate.replace('T',' ') : '-')}</span>`;
     cells[9].innerHTML = `<span class=\"label\">${(updated.actualDuration ?? actualDuration) || '-'}</span>`;
@@ -114,7 +139,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function applyBadgesRow(row){ applyBadges(row); }
 
-  function deleteRow(row){ if(confirm('Delete this maintenance task?')) row.remove(); }
+  // UPDATED: call backend to delete before removing from DOM
+  async function deleteRow(row){
+    if (!confirm('Delete this maintenance task?')) return;
+    const id = row.dataset.id;
+    if (!id) { row.remove(); return; }
+    try {
+      const res = await fetch(`${API_BASE}/${encodeURIComponent(id)}`, { method: 'DELETE', headers: { 'Accept': 'application/json' } });
+      if (!res.ok) {
+        const err = await res.text();
+        alert(`Failed to delete maintenance: ${err || res.status}`);
+        return;
+      }
+      row.remove();
+    } catch (e) {
+      console.error(e);
+      alert('Failed to delete maintenance. Please try again.');
+    }
+  }
 
   tbody.addEventListener('click', (e) => {
     const target = e.target; const row = target.closest('tr'); if(!row) return;
@@ -137,20 +179,125 @@ document.addEventListener('DOMContentLoaded', () => {
   wireModalDropdown('addPrioritySelect','addPriorityDropdown','addPriority');
   wireModalDropdown('addStatusSelect','addStatusDropdown','addStatus');
 
+  // Equipment code searchable dropdown
+  async function searchEquipment(query){
+    const url = query ? `/equipment/api?q=${encodeURIComponent(query)}` : '/equipment/api';
+    try{
+      const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+      if(!res.ok) return [];
+      const data = await res.json();
+      return Array.isArray(data) ? data : [];
+    }catch{ return []; }
+  }
+  function renderEquipDropdown(items){
+    if(!equipDropdown) return;
+    equipDropdown.innerHTML='';
+    if(!items.length){ equipDropdown.style.display='none'; return; }
+    items.forEach(eq => {
+      const div = document.createElement('div');
+      div.className='ms-dropdown-item';
+      const code = eq.serialNumber || eq.equipmentName || `ID-${eq.equipmentId}`;
+      div.textContent = `${code} — ${eq.equipmentName ?? ''}`.trim();
+      div.dataset.id = eq.equipmentId;
+      div.dataset.label = code;
+      equipDropdown.appendChild(div);
+    });
+    equipDropdown.style.display='block';
+  }
+  if(equipSearchInput && equipDropdown){
+    equipSearchInput.addEventListener('input', async (e)=>{
+      const q = e.target.value.trim();
+      equipHiddenId.value = '';
+      const items = await searchEquipment(q);
+      renderEquipDropdown(items);
+    });
+    equipSearchInput.addEventListener('focus', async ()=>{
+      const q = equipSearchInput.value.trim();
+      const items = await searchEquipment(q);
+      renderEquipDropdown(items);
+    });
+    equipDropdown.addEventListener('click', (e)=>{
+      const item = e.target.closest('.ms-dropdown-item'); if(!item) return;
+      equipSearchInput.value = item.dataset.label;
+      equipHiddenId.value = item.dataset.id;
+      equipDropdown.style.display='none';
+    });
+  }
+
+  // Assigned To searchable dropdown (Users)
+  let cachedUsers = null;
+  async function fetchAllUsers(){
+    if (cachedUsers) return cachedUsers;
+    try {
+      const res = await fetch('/lwms/users', { headers: { 'Accept': 'application/json' } });
+      if (!res.ok) return [];
+      const data = await res.json();
+      cachedUsers = Array.isArray(data) ? data : [];
+      return cachedUsers;
+    } catch { return []; }
+  }
+  function filterUsers(list, q){
+    if (!q) return list.slice(0, 20);
+    const qq = q.toLowerCase();
+    return list.filter(u =>
+      (u.username && u.username.toLowerCase().includes(qq)) ||
+      (u.email && u.email.toLowerCase().includes(qq)) ||
+      ((u.firstName||'').toLowerCase().includes(qq)) ||
+      ((u.lastName||'').toLowerCase().includes(qq))
+    ).slice(0, 20);
+  }
+  function renderAssignedDropdown(items){
+    if(!assignedDropdown) return;
+    assignedDropdown.innerHTML='';
+    if(!items.length){ assignedDropdown.style.display='none'; return; }
+    items.forEach(u => {
+      const div = document.createElement('div');
+      div.className='ms-dropdown-item';
+      const label = `${u.username||''} — ${u.firstName||''} ${u.lastName||''}`.trim();
+      div.textContent = label;
+      div.dataset.id = u.userId;
+      div.dataset.label = label;
+      assignedDropdown.appendChild(div);
+    });
+    assignedDropdown.style.display='block';
+  }
+  if (assignedSearchInput && assignedDropdown){
+    assignedSearchInput.addEventListener('input', async (e)=>{
+      const list = await fetchAllUsers();
+      const items = filterUsers(list, e.target.value.trim());
+      assignedHiddenId.value = '';
+      renderAssignedDropdown(items);
+    });
+    assignedSearchInput.addEventListener('focus', async ()=>{
+      const list = await fetchAllUsers();
+      const items = filterUsers(list, assignedSearchInput.value.trim());
+      renderAssignedDropdown(items);
+    });
+    assignedDropdown.addEventListener('click', (e)=>{
+      const item = e.target.closest('.ms-dropdown-item'); if(!item) return;
+      assignedSearchInput.value = item.dataset.label;
+      assignedHiddenId.value = item.dataset.id;
+      assignedDropdown.style.display='none';
+    });
+  }
+
   if (addMaintenanceIcon) addMaintenanceIcon.addEventListener('click', ()=>{ addMaintenanceModalOverlay.style.display='flex'; document.body.style.overflow='hidden'; });
   if (closeAddMaintenanceModal) closeAddMaintenanceModal.addEventListener('click', ()=>{ addMaintenanceModalOverlay.style.display='none'; document.body.style.overflow=''; });
   if (addMaintenanceModalOverlay) addMaintenanceModalOverlay.addEventListener('click', (e)=>{ if(e.target===addMaintenanceModalOverlay){ addMaintenanceModalOverlay.style.display='none'; document.body.style.overflow=''; } });
 
   if (addMaintenanceForm) addMaintenanceForm.addEventListener('submit', async (e)=>{
     e.preventDefault();
+    if (!equipHiddenId || !equipHiddenId.value) { alert('Please select an Equipment Code from the list.'); return; }
+    const assignedTo = assignedHiddenId && assignedHiddenId.value ? parseInt(assignedHiddenId.value, 10) : null;
+
     const payload = {
-      equipmentId: parseInt(document.getElementById('addEquipmentId').value, 10),
+      equipmentId: parseInt(equipHiddenId.value, 10),
       taskDescription: document.getElementById('addTaskDescription').value,
       maintenanceType: document.getElementById('addMaintenanceType').value,
       priority: document.getElementById('addPriority').value,
       scheduledDate: document.getElementById('addScheduledDate').value,
       estimatedDuration: parseInt(document.getElementById('addEstimatedDuration').value || '0', 10),
-      assignedTo: document.getElementById('addAssignedTo').value ? parseInt(document.getElementById('addAssignedTo').value, 10) : null,
+      assignedTo,
       status: document.getElementById('addStatus').value,
       completedDate: document.getElementById('addCompletedDate').value,
       actualDuration: document.getElementById('addActualDuration').value ? parseInt(document.getElementById('addActualDuration').value, 10) : null,
@@ -170,7 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <td><span class="label">${created.priority ?? payload.priority}</span></td>
       <td><span class="label">${created.scheduledDate ?? (payload.scheduledDate ? payload.scheduledDate.replace('T',' ') : '-')}</span></td>
       <td><span class="label">${created.estimatedDuration ?? payload.estimatedDuration}</span></td>
-      <td><span class="label">${created.assignedTo ?? (payload.assignedTo ?? '-')}</span></td>
+      <td><span class="label">${created.assignedTo ?? (assignedTo ?? '-')}</span></td>
       <td><span class="label">${created.status ?? payload.status}</span></td>
       <td><span class="label">${created.completedDate ?? (payload.completedDate ? payload.completedDate.replace('T',' ') : '-')}</span></td>
       <td><span class="label">${created.actualDuration ?? (payload.actualDuration ?? '-')}</span></td>

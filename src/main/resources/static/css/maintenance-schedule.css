@@ -7,7 +7,7 @@ body{ min-height:100vh; background: radial-gradient(1200px 600px at 50% -10%, rg
 .box-card .label{ display:inline-block; padding:.35rem .5rem; font-weight:600; border:1px dashed rgba(62,47,25,.5); background:linear-gradient(180deg,#d7b785,#caa475) !important; border-radius:.35rem; color:#3e2f19 !important; }
 .box-card table th,.box-card table td{ background:transparent !important; border:1px solid rgba(62,47,25,.3) !important; padding:.75rem !important; }
 .fixed-header-table thead th{ position:sticky; top:0; z-index:70; background:linear-gradient(180deg,#d7b785,#caa475) !important; }
-.table-body-scrollable{ max-height:380px; overflow-y:auto; }
+.table-body-scrollable{ max-height:380px; overflow-y:auto; overflow-x:auto; }
 .maintenance-schedule-management{ margin:3% 5% 3% 5%; height:550px; max-height:550px; min-height:400px; display:flex; flex-direction:column; }
 .maintenance-schedule-management .box-card{ flex:1 1 auto; display:flex; flex-direction:column; min-height:0; }
 .maintenance-schedule-management .table-responsive{ flex:1 1 auto; min-height:0; overflow-y:auto; position:relative; z-index:30; }
@@ -30,7 +30,21 @@ body{ min-height:100vh; background: radial-gradient(1200px 600px at 50% -10%, rg
 .action-icon:hover{ filter:brightness(1.1); }
 .add-maintenance-icon{ cursor:pointer; margin-left:1rem; margin-top:.3rem; transition:all .2s ease; vertical-align:bottom; }
 .add-maintenance-icon:hover{ transform:scale(1.1); filter:brightness(1.1); }
-.fixed-header-table{ table-layout:fixed; width:100%; }
+.fixed-header-table{ table-layout:fixed; width:100%; min-width:1400px; }
+/* Explicit column widths to prevent squeezing; adjust as needed */
+.fixed-header-table th:nth-child(1), .fixed-header-table td:nth-child(1){ width:9rem; }
+.fixed-header-table th:nth-child(2), .fixed-header-table td:nth-child(2){ width:15rem; }
+.fixed-header-table th:nth-child(3), .fixed-header-table td:nth-child(3){ width:9rem; }
+.fixed-header-table th:nth-child(4), .fixed-header-table td:nth-child(4){ width:8rem; }
+.fixed-header-table th:nth-child(5), .fixed-header-table td:nth-child(5){ width:12rem; }
+.fixed-header-table th:nth-child(6), .fixed-header-table td:nth-child(6){ width:9rem; }
+.fixed-header-table th:nth-child(7), .fixed-header-table td:nth-child(7){ width:10rem; }
+.fixed-header-table th:nth-child(8), .fixed-header-table td:nth-child(8){ width:9rem; }
+.fixed-header-table th:nth-child(9), .fixed-header-table td:nth-child(9){ width:12rem; }
+.fixed-header-table th:nth-child(10), .fixed-header-table td:nth-child(10){ width:9rem; }
+.fixed-header-table th:nth-child(11), .fixed-header-table td:nth-child(11){ width:9rem; }
+.fixed-header-table th:nth-child(12), .fixed-header-table td:nth-child(12){ width:12rem; }
+.fixed-header-table th:nth-child(13), .fixed-header-table td:nth-child(13){ width:7rem; }
 .fixed-header-table td .label{ display:block; width:100%; max-width:100%; box-sizing:border-box; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .fixed-header-table td .editable-input,.fixed-header-table td .ms-cell-container,.fixed-header-table td .ms-select{ display:block; width:100%; max-width:100%; box-sizing:border-box; }
 .fixed-header-table td:nth-child(1) .editable-input{ max-width:8rem; margin:0 auto; }
@@ -61,6 +75,9 @@ body{ min-height:100vh; background: radial-gradient(1200px 600px at 50% -10%, rg
 .badge-priority-medium{ background:linear-gradient(180deg,#fff4d1,#ffe49e) !important; }
 .badge-priority-high{ background:linear-gradient(180deg,#ffe7e7,#ffd0d0) !important; }
 .badge-priority-critical{ background:linear-gradient(180deg,#ffe2ff,#f5c6ff) !important; }
+/* added to align with JS applyBadges */
+.badge-status-scheduled{ }
+.badge-status-inprogress{ }
 .badge-status-completed{ background:linear-gradient(180deg,#e6ffe6,#caffca) !important; }
 .badge-status-cancelled{ background:linear-gradient(180deg,#f1f1f1,#e0e0e0) !important; color:#555 !important; }
 .add-maintenance-modal-overlay{ position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(62,47,25,.25); z-index:2000; display:flex; align-items:center; justify-content:center; }

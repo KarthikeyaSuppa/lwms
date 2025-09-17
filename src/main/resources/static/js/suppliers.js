@@ -110,7 +110,6 @@
       });
       if (!res.ok) throw new Error('Failed to update supplier');
       const s = await res.json();
-      // Re-render row from server response
       const statusText = s.active ? 'Active' : 'Inactive';
       const styles = statusStyles(statusText);
       cells[0].innerHTML = `<span class="label">${s.supplierName ?? ''}</span>`;
@@ -143,7 +142,6 @@
     }
   }
 
-  // Event delegation for row actions
   tbody.addEventListener('click', (e) => {
     const target = e.target; const row = target.closest('tr'); if (!row) return;
     if (target.classList.contains('edit-btn')) {
@@ -159,7 +157,6 @@
     if (target.classList.contains('delete-btn')) { deleteRow(row); }
   });
 
-  // Search functionality
   function onSearch() {
     const q = searchInput.value.trim();
     const status = deriveStatusFromQuery(q);
@@ -168,12 +165,10 @@
   if (searchInput) searchInput.addEventListener('input', onSearch);
   if (searchIcon) searchIcon.addEventListener('click', onSearch);
 
-  // Add modal open/close
   if (addSupplierIcon) addSupplierIcon.addEventListener('click', () => { addSupplierModalOverlay.style.display = 'flex'; document.body.style.overflow = 'hidden'; });
   if (closeAddSupplierModal) closeAddSupplierModal.addEventListener('click', () => { addSupplierModalOverlay.style.display = 'none'; document.body.style.overflow = ''; });
   if (addSupplierModalOverlay) addSupplierModalOverlay.addEventListener('click', (e) => { if (e.target === addSupplierModalOverlay) { addSupplierModalOverlay.style.display = 'none'; document.body.style.overflow = ''; } });
 
-  // Create supplier
   if (addSupplierForm) {
     addSupplierForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -183,7 +178,7 @@
         email: document.getElementById('addEmail').value,
         phone: document.getElementById('addPhone').value,
         address: document.getElementById('addAddress').value,
-        active: document.getElementById('addActive').checked
+        active: true
       };
       try {
         const res = await fetch('/lwms/suppliers/api', {
