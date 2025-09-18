@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		role = candidates.find(t => /(Admin|Manager|Supervisor|Inventory Controller|Operator|Viewer)/i.test(t)) || '';
 	}
 
-
 	// Parse permissions JSON from model if present
 	let permsRaw = null;
 	try { permsRaw = document.querySelector('meta[name="permissions-json"]')?.getAttribute('content'); } catch(_){}

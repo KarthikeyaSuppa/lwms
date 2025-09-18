@@ -89,23 +89,6 @@ a.box-card:focus-visible{
 .btn-edit-label:hover { filter: brightness(1.1); }
 .action-icon { display: inline-block; padding: .35rem .5rem; border: 1px dashed rgba(62, 47, 25, .5); background: linear-gradient(180deg, #d7b785, #caa475); border-radius: .35rem; cursor: pointer; width: 20px; height: 20px; box-sizing: content-box; }
 .action-icon:hover { filter: brightness(1.1); }
-.add-role-icon { cursor: pointer; margin-left: 1rem; margin-top: 0.3rem; transition: all 0.2s ease; vertical-align: bottom; }
-.add-role-icon:hover { transform: scale(1.1); filter: brightness(1.1); }
-.add-role-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(62,47,25,0.25); z-index: 2000; display: flex; align-items: center; justify-content: center; }
-.add-role-modal { background: linear-gradient(180deg, #d7b785, #caa475); border: 1px solid rgba(62,47,25,.3); border-radius: 1rem; box-shadow: 0 8px 32px rgba(62,47,25,.22), inset 0 1px 0 rgba(255,255,255,.25); padding: 2.25rem 2rem 1.8rem 2rem; min-width: 340px; max-width: 95vw; width: 400px; position: relative; color: #3e2f19; animation: fadeIn .2s; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: none; } }
-.add-role-modal-title { font-size: 1.35rem; font-weight: 700; margin-bottom: 1.35rem; text-align: center; }
-.add-role-modal-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; color: #3e2f19; cursor: pointer; opacity: 0.7; transition: opacity 0.2s; }
-.add-role-modal-close:hover { opacity: 1; }
-.add-role-form { display: flex; flex-direction: column; gap: 0.9rem; }
-.add-role-form label { font-weight: 600; margin-bottom: 0.25rem; display: block; text-align: left; font-size: 0.95rem; }
-.add-role-form input, .add-role-form textarea { width: 100%; box-sizing: border-box; display: block; margin: 0; background: rgba(255,255,255,.25); border: 1px dashed rgba(62,47,25,.5); border-radius: .35rem; padding: .45rem .6rem; color: #3e2f19; font-weight: 600; transition: all 0.2s ease; }
-.add-role-form > div { display: flex; flex-direction: column; align-items: stretch; justify-content: center; }
-.add-role-form input:focus, .add-role-form textarea:focus { outline: none; border-color: rgba(62,47,25,.7); background: rgba(255,255,255,.35); box-shadow: 0 0 0 2px rgba(62,47,25,.10); }
-.add-role-form input:hover, .add-role-form textarea:hover { background: rgba(255,255,255,.30); border-color: rgba(62,47,25,.6); }
-.add-role-form input::placeholder, .add-role-form textarea::placeholder { color: #3e2f19; opacity: .7; }
-.add-role-form .add-role-btn { background: linear-gradient(180deg, #d7b785, #caa475); border: 1px dashed rgba(62,47,25,.5); border-radius: .35rem; color: #3e2f19; font-weight: 700; padding: .675rem; margin-top: 0.5rem; cursor: pointer; font-size: 0.99rem; transition: filter 0.2s; }
-.add-role-form .add-role-btn:hover { filter: brightness(1.1); }
 .table th, .table td { vertical-align: middle !important; text-align: center; padding-top: 1rem !important; padding-bottom: 1rem !important; }
 .label, .editable-input { display: flex; align-items: center; justify-content: center; width: 100%; box-sizing: border-box; }
 .fixed-header-table { width: 100%; table-layout: fixed; }

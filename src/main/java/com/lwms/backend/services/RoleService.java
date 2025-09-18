@@ -1,7 +1,7 @@
 package com.lwms.backend.services;
 
 import com.lwms.backend.dao.RoleRepository;
-import com.lwms.backend.dto.RoleCreateRequest;
+
 import com.lwms.backend.dto.RoleSummaryDto;
 import com.lwms.backend.dto.RoleUpdateRequest;
 import com.lwms.backend.entities.Role;
@@ -32,14 +32,6 @@ public class RoleService {
 		return roles.stream().map(this::toDto).collect(Collectors.toList());
 	}
 
-	@Transactional
-	public RoleSummaryDto create(RoleCreateRequest req) {
-		Role r = new Role();
-		r.setRoleName(req.getRoleName());
-		r.setDescription(req.getDescription());
-		r.setPermissions(req.getPermissions());
-		return toDto(roleRepository.save(r));
-	}
 
 	@Transactional
 	public RoleSummaryDto update(Integer roleId, RoleUpdateRequest req) {

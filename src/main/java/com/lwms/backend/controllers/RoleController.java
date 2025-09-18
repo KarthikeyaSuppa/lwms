@@ -1,6 +1,5 @@
 package com.lwms.backend.controllers;
 
-import com.lwms.backend.dto.RoleCreateRequest;
 import com.lwms.backend.dto.RoleSummaryDto;
 import com.lwms.backend.dto.RoleUpdateRequest;
 import com.lwms.backend.services.RoleService;
@@ -23,11 +22,6 @@ public class RoleController {
 		return roleService.list(q);
 	}
 
-	@PostMapping
-	public ResponseEntity<RoleSummaryDto> create(@RequestBody RoleCreateRequest req) {
-		RoleSummaryDto created = roleService.create(req);
-		return ResponseEntity.created(URI.create("/roles/api/" + created.getRoleId())).body(created);
-	}
 
 	@PatchMapping("/{roleId}")
 	public RoleSummaryDto update(@PathVariable Integer roleId, @RequestBody RoleUpdateRequest req) {

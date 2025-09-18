@@ -98,10 +98,6 @@ document.addEventListener("DOMContentLoaded", () => {
 		}
 	});
 
-	const addRoleIcon = document.getElementById("addRoleIcon");
-	const addRoleModalOverlay = document.getElementById("addRoleModalOverlay");
-	const closeAddRoleModal = document.getElementById("closeAddRoleModal");
-	const addRoleForm = document.getElementById("addRoleForm");
 	const searchInput = document.getElementById("searchInput");
 	const searchIcon = document.getElementById("searchIcon");
 
@@ -123,44 +119,5 @@ document.addEventListener("DOMContentLoaded", () => {
 	searchInput?.addEventListener("input", filterRows);
 	searchIcon?.addEventListener("click", filterRows);
 
-	addRoleIcon?.addEventListener("click", () => {
-		addRoleModalOverlay.style.display = "flex";
-		document.body.style.overflow = "hidden";
-	});
-	closeAddRoleModal?.addEventListener("click", () => {
-		addRoleModalOverlay.style.display = "none";
-		document.body.style.overflow = "";
-	});
-	addRoleModalOverlay?.addEventListener("click", (e) => {
-		if (e.target === addRoleModalOverlay) {
-			addRoleModalOverlay.style.display = "none";
-			document.body.style.overflow = "";
-		}
-	});
-	addRoleForm?.addEventListener("submit", (e) => {
-		e.preventDefault();
-		const newRoleData = {
-			roleName: document.getElementById("addRoleName").value,
-			description: document.getElementById("addDescription").value,
-			permissions: document.getElementById("addPermissions").value,
-		};
-		addRoleToTable(newRoleData);
-		addRoleModalOverlay.style.display = "none";
-		document.body.style.overflow = "";
-		addRoleForm.reset();
-	});
 
-	function addRoleToTable(data) {
-		const newRow = document.createElement("tr");
-		newRow.innerHTML = `
-			<td><span class="label">${data.roleName}</span></td>
-			<td><span class="label">${data.description}</span></td>
-			<td><span class="label">${data.permissions}</span></td>
-			<td><button class="btn-edit-label edit-btn">Edit Role</button></td>
-		`;
-		tbody.appendChild(newRow);
-		if (typeof filterRows === "function" && searchInput && searchInput.value.trim() !== "") {
-			filterRows();
-		}
-	}
 }); 
