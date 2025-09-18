@@ -22,6 +22,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * ShipmentService
+ * Does: Manage shipments CRUD and mapping to DTOs.
+ * Input: DTOs from controllers; authenticated user from security context.
+ * Output: ShipmentSummaryDto responses; persisted Shipments entities.
+ */
 @Service
 public class ShipmentService {
 	private final ShipmentsRepository shipmentsRepository;
@@ -34,6 +40,11 @@ public class ShipmentService {
 		this.suppliersRepository = suppliersRepository;
 	}
 
+	/**
+	 * Does: List shipments, optionally filtered by query (number or type hint).
+	 * Input: q (optional text). If present, filters by shipment number contains and tries type name.
+	 * Output: List of ShipmentSummaryDto.
+	 */
 	@Transactional(readOnly = true)
 	public List<ShipmentSummaryDto> listShipments(String q) {
 		List<Shipments> results;
@@ -53,6 +64,11 @@ public class ShipmentService {
 		return results.stream().map(this::toDto).collect(Collectors.toList());
 	}
 
+	/**
+	 * Does: Create a new shipment.
+	 * Input: ShipmentCreateRequest with fields and optional supplier id/name fallback.
+	 * Output: ShipmentSummaryDto of saved entity.
+	 */
 	@Transactional
 	public ShipmentSummaryDto createShipment(ShipmentCreateRequest req) {
 		Shipments s = new Shipments();
@@ -70,6 +86,11 @@ public class ShipmentService {
 		return toDto(saved);
 	}
 
+	/**
+	 * Does: Update an existing shipment by id.
+	 * Input: shipmentId, ShipmentUpdateRequest with nullable fields; supplier resolved if provided.
+	 * Output: ShipmentSummaryDto of updated entity.
+	 */
 	@Transactional
 	public ShipmentSummaryDto updateShipment(Integer shipmentId, ShipmentUpdateRequest req) {
 		Shipments s = shipmentsRepository.findById(shipmentId)
@@ -87,6 +108,11 @@ public class ShipmentService {
 		return toDto(saved);
 	}
 
+	/**
+	 * Does: Delete a shipment by id.
+	 * Input: shipmentId.
+	 * Output: void (204 at controller).
+	 */
 	@Transactional
 	public void deleteShipment(Integer shipmentId) {
 		shipmentsRepository.deleteById(shipmentId);
@@ -102,6 +128,11 @@ public class ShipmentService {
 		};
 	}
 
+	/**
+	 * Does: Convert Shipments entity to summary DTO for API.
+	 * Input: Shipments entity.
+	 * Output: ShipmentSummaryDto.
+	 */
 	private ShipmentSummaryDto toDto(Shipments s) {
 		ShipmentSummaryDto dto = new ShipmentSummaryDto();
 		dto.setShipmentId(s.getShipmentId());
@@ -122,6 +153,11 @@ public class ShipmentService {
 		return dto;
 	}
 
+	/**
+	 * Does: Resolve supplier by id if provided else attempt by name fallback using repository search.
+	 * Input: Shipments entity (to set), supplierId (nullable), supplierNameFallback (nullable).
+	 * Output: Sets supplier field on entity.
+	 */
 	private void resolveAndSetSupplier(Shipments s, Integer supplierId, String supplierNameFallback) {
 		if (supplierId != null) {
 			Suppliers sup = suppliersRepository.findById(supplierId).orElse(null);
@@ -137,6 +173,11 @@ public class ShipmentService {
 		s.setSupplier(sup);
 	}
 
+	/**
+	 * Does: Resolve current authenticated user for createdBy field.
+	 * Input: none; reads SecurityContext.
+	 * Output: User entity (minimal id if numeric username, else loaded by username).
+	 */
 	private User resolveCurrentUser() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (auth == null || !(auth.getPrincipal() instanceof org.springframework.security.core.userdetails.User springUser)) {

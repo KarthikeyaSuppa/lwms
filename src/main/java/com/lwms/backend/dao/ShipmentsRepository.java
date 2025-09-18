@@ -9,6 +9,17 @@ import java.util.Optional;
 
 @Repository
 public interface ShipmentsRepository extends JpaRepository<Shipments, Integer> {
+/**
+ * Lookup shipment by exact shipment number.
+ * Input: shipmentNumber string.
+ * Output: Optional shipment; read-only.
+ */
 Optional<Shipments> findByShipmentNumber(String shipmentNumber);
+
+/**
+ * Case-insensitive partial match on shipment number.
+ * Input: q substring.
+ * Output: List of shipments; read-only.
+ */
 List<Shipments> findByShipmentNumberContainingIgnoreCase(String q);
 }

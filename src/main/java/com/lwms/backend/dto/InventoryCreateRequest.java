@@ -5,13 +5,12 @@ import java.math.BigDecimal;
 public class InventoryCreateRequest {
 	private String itemCode;
 	private String itemName;
-	private String category; // legacy label from UI
-	private String location; // legacy label from UI
+	private String category; 
+	private String location; 
 	private Integer quantity;
 	private Integer minStockLevel;
 	private Integer maxStockLevel;
 	private BigDecimal unitPrice;
-	// New: prefer IDs when provided
 	private Integer categoryId;
 	private Integer locationId;
 	private Integer supplierId;

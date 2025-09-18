@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * MVC Web controller responsible for serving Thymeleaf views (HTML pages).
- * Connects UI routes to underlying services.
- * Uses UserService to resolve the authenticated user and role-based permissions.
- * Relies on Spring Security for authentication context via AuthenticationPrincipal.
+ * Does: Map page routes to templates and load user/permission context.
+ * Input: Authenticated principal and request parameters.
+ * Output: View names with model attributes.
  */
 @CrossOrigin
 @Controller
@@ -36,9 +36,6 @@ public class WebController {
      * Route: GET /login
      * Inputs: optional query param "errorMessage" to show authentication errors.
      * Output: Renders "login" view with error message if present.
-     * @param errorMessage Optional error text (set by failure handler or redirect).
-     * @param model Spring MVC model for view attributes.
-     * @return The "login" template.
      */
     @GetMapping("/login")
     public String showLoginPage(
@@ -55,14 +52,7 @@ public class WebController {
      * Handles login form submission (programmatic authentication path).
      * Route: POST /login
      * Inputs: "usernameOrEmail", "password" from form.
-     * Behavior: Delegates to UserService.authenticateUser.
-     * On success: Adds user + permissions to model, returns "dashboard".
-     * On failure: Adds error message to model, returns "login".
-     * Note: Also compatible with Spring Security formLogin configuration.
-     * @param usernameOrEmail Username or email supplied by user.
-     * @param password Plain-text password supplied by user.
-     * @param model Spring MVC model for view attributes.
-     * @return "dashboard" when authenticated, else "login".
+     * Output: "dashboard" on success, "login" with error on failure.
      */
     @PostMapping("/login")
     public String handleLogin(
@@ -93,9 +83,7 @@ public class WebController {
     /**
      * Serves the signup page.
      * Route: GET /signup
-     * Behavior: Adds empty User to model for form binding.
-     * @param model Spring MVC model for view attributes.
-     * @return The "signup" template.
+     * Output: Renders "signup" view with empty User for form binding.
      */
     @GetMapping("/signup")
     public String showSignupPage(Model model) {
@@ -106,11 +94,7 @@ public class WebController {
     /**
      * Serves the main dashboard page.
      * Route: GET /dashboard
-     * Behavior: Resolves authenticated principal and loads full user with role,
-     * exposes role permissions and settings visibility to the view.
-     * @param principal Authenticated Spring Security principal (may be null).
-     * @param model Spring MVC model for view attributes.
-     * @return The "dashboard" template.
+     * Does: Resolves authenticated user/role, exposes permissions and settings visibility.
      */
     @GetMapping("/dashboard")
     public String showDashboard(
@@ -164,10 +148,7 @@ public class WebController {
     /**
      * Serves an alternate dashboard layout.
      * Route: GET /dashboard2
-     * Behavior: Same user/permissions resolution as /dashboard, different template.
-     * @param principal Authenticated principal.
-     * @param model View model.
-     * @return The "dashboard2" template.
+     * Does: Same user/permissions resolution as /dashboard, different template.
      */
     @GetMapping("/dashboard2")
     public String showDashboard2(
@@ -219,11 +200,7 @@ public class WebController {
     /**
      * Serves the settings page for authorized roles.
      * Route: GET /settings
-     * Behavior: Attempts to load authenticated user and permissions. Provides fallbacks
-     * to avoid template errors if principal is not available.
-     * @param principal Authenticated principal (may be null).
-     * @param model View model with user and permission context.
-     * @return The "settings" template.
+     * Does: Loads user and permissions; provides safe defaults when absent.
      */
     @GetMapping("/settings")
     public String showSettings(
@@ -268,9 +245,6 @@ public class WebController {
     /**
      * Serves the roles management page.
      * Route: GET /roles
-     * @param principal Authenticated principal.
-     * @param model View model with user/permissions.
-     * @return The "roles" template.
      */
     @GetMapping("/roles")
     public String showRoles(
@@ -299,9 +273,6 @@ public class WebController {
     /**
      * Serves the suppliers page.
      * Route: GET /suppliers
-     * @param principal Authenticated principal.
-     * @param model View model with user/permissions.
-     * @return The "suppliers" template.
      */
     @GetMapping("/suppliers")
     public String showSuppliers(
@@ -330,9 +301,6 @@ public class WebController {
     /**
      * Serves the categories page.
      * Route: GET /categories
-     * @param principal Authenticated principal.
-     * @param model View model with user/permissions.
-     * @return The "categories" template.
      */
     @GetMapping("/categories")
     public String showCategories(
@@ -361,9 +329,6 @@ public class WebController {
     /**
      * Serves the equipment page.
      * Route: GET /equipment
-     * @param principal Authenticated principal.
-     * @param model View model with user/permissions.
-     * @return The "equipment" template.
      */
     @GetMapping("/equipment")
     public String showEquipment(
@@ -392,9 +357,6 @@ public class WebController {
     /**
      * Serves the locations page.
      * Route: GET /locations
-     * @param principal Authenticated principal.
-     * @param model View model with user/permissions.
-     * @return The "locations" template.
      */
     @GetMapping("/locations")
     public String showLocations(
@@ -423,9 +385,6 @@ public class WebController {
     /**
      * Serves the inventory page.
      * Route: GET /inventory
-     * @param principal Authenticated principal.
-     * @param model View model with user/permissions.
-     * @return The "inventory" template.
      */
     @GetMapping("/inventory")
     public String showInventory(
@@ -454,9 +413,6 @@ public class WebController {
     /**
      * Serves the shipments page.
      * Route: GET /shipments
-     * @param principal Authenticated principal.
-     * @param model View model with user/permissions.
-     * @return The "shipments" template.
      */
     @GetMapping("/shipments")
     public String showShipments(
@@ -486,9 +442,6 @@ public class WebController {
     /**
      * Serves the maintenance schedule page.
      * Route: GET /maintenance-schedule
-     * @param principal Authenticated principal.
-     * @param model View model with user/permissions.
-     * @return The "maintenance-schedule" template.
      */
     @GetMapping("/maintenance-schedule")
     public String showMaintenanceSchedule(
@@ -518,9 +471,6 @@ public class WebController {
     /**
      * Serves the reports page.
      * Route: GET /reports
-     * @param principal Authenticated principal.
-     * @param model View model with user/permissions.
-     * @return The "reports" template.
      */
     @GetMapping("/reports")
     public String showReports(
@@ -546,6 +496,10 @@ public class WebController {
         return "reports";
     }
 
+    /**
+     * Serves the unauthorized page.
+     * Route: GET /unauthorized
+     */
     @GetMapping("/unauthorized")
     public String showUnauthorized(
         @AuthenticationPrincipal UserDetails principal,

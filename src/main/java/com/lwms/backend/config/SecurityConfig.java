@@ -30,7 +30,7 @@ import java.nio.charset.StandardCharsets;
 public class SecurityConfig {
 
     /**
-     * What: Provides a password encoder bean using BCrypt for hashing.
+     * It Provides a password encoder bean using BCrypt for hashing.
      * Inputs: None (Spring injects where needed).
      * Sends/How: Returned bean is used by the authentication provider to verify passwords.
      */
@@ -40,7 +40,7 @@ public class SecurityConfig {
     }
 
     /**
-     * What: Builds a DaoAuthenticationProvider wired with our UserDetailsService and PasswordEncoder.
+     * It Builds a DaoAuthenticationProvider wired with our UserDetailsService and PasswordEncoder.
      * Inputs: userDetailsService (to load users), passwordEncoder (to check credentials).
      * Does: Configures the provider and disables hiding of UsernameNotFound exceptions..
      */
@@ -54,7 +54,7 @@ public class SecurityConfig {
     }
 
     /**
-     * What: Logout success handler that updates last login on logout and redirects to /login?logout.
+     * The Logout success handler that updates last login on logout and redirects to /login?logout.
      * Inputs: userService for updating last-login; request/response/authentication via Spring at runtime.
      * Does: If the current principal is a UserDetails, update last-login; then redirect.
      */
@@ -72,9 +72,9 @@ public class SecurityConfig {
     }
 
     /**
-     * What: AccessDeniedHandler that redirects unauthorized requests to /unauthorized.
+     * The AccessDeniedHandler that redirects unauthorized requests to /unauthorized.
      * Inputs: request/response/exception injected by Spring.
-     * Does: Swallows the exception and performs a redirect.
+     * Does: takes the exception and performs a redirect.
      * Sends/How: HTTP 302 redirect to /unauthorized.
      */
     @Bean
