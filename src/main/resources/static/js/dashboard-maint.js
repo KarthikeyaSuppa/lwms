@@ -19,10 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		const candidates = [...document.querySelectorAll('#profileModal span')].map(s => s.textContent.trim());
 		role = candidates.find(t => /(Admin|Manager|Supervisor|Inventory Controller|Operator|Viewer)/i.test(t)) || '';
 	}
-	if (!/^(Admin|Manager)$/i.test(role)) {
-		const settingsLink = document.querySelector('a.nav-link[title="Settings"], a.nav-link[href$="/settings"]');
-		if (settingsLink) settingsLink.closest('li')?.remove();
-	}
 
 	let permsRaw = null;
 	try { permsRaw = document.querySelector('meta[name="permissions-json"]')?.getAttribute('content'); } catch(_){}
